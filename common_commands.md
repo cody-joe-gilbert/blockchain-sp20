@@ -13,16 +13,16 @@ cd /Users/codygilbert/Desktop/go/src/trade-finance-logistics/network
 To compile the chain code and run it in a container:
 ```shell script
 docker exec -it chaincode bash
-cd trade_workflow_cjg
+cd trade_workflow_v2
 go build
-CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_rick
+CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_v2
 ```
 
 
 To install the chaincode on the peer and instantiate the trade
 ```shell script
 docker exec -it cli bash
-peer chaincode install -p chaincodedev/chaincode/trade_workflow_rick -n tw -v 0
+peer chaincode install -p chaincodedev/chaincode/trade_workflow_v2 -n tw -v 0
 peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000","WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment"]}' -C tradechannel
 ```
 
@@ -61,3 +61,17 @@ export PATH=$PATH:$(go env GOPATH)/bin
 export PATH="/usr/local/opt/gnutar/libexec/gnubin:$PATH"
 export PATH="$PATH:$GOPATH/src/github.com/hyperledger/fabric/.build/bin"
 ```
+
+# Middleware
+
+To install the middleware dependencies, first move to the directory containing the node.js code
+and execute
+```shell script
+npm install package.json
+```
+
+Execute the trade instance:
+```shell script
+node createTradeApp.js
+```
+

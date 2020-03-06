@@ -73,3 +73,11 @@ func getPaymentKey(stub shim.ChaincodeStubInterface, tradeID string) (string, er
 		return paymentKey, nil
 	}
 }
+func getCLKey(stub shim.ChaincodeStubInterface, tradeID string) (string, error) {
+	paymentKey, err := stub.CreateCompositeKey("CreditLine", []string{tradeID})
+	if err != nil {
+		return "", err
+	} else {
+		return paymentKey, nil
+	}
+}

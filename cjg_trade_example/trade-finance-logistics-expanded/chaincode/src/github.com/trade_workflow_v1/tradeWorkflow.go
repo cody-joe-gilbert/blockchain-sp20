@@ -1124,7 +1124,7 @@ func (t *TradeWorkflowChaincode) getLCStatus(stub shim.ChaincodeStubInterface, c
 	var err error
 
 	// Access control: Only an Importer or Exporter or Exporting Entity Org member can invoke this transaction
-	if !t.testMode && !(authenticateImporterOrg(creatorOrg, creatorCertIssuer) || authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateExportingEntityOrg(creatorOrg, creatorCertIssuer)) {
+	if !t.testMode && !(authenticateImporterOrg(creatorOrg, creatorCertIssuer) || authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateExportingEntityOrg(creatorOrg, creatorCertIssuer) || authenticateLenderOrg(creatorOrg, creatorCertIssuer)) {
 		return shim.Error("Caller not a member of Importer or Exporter or Exporting Entity Org. Access denied.")
 	}
 
@@ -1312,6 +1312,318 @@ func (t *TradeWorkflowChaincode) getAccountBalance(stub shim.ChaincodeStubInterf
 		return shim.Error(jsonResp)
 	}
 	jsonResp = "{\"Balance\":\"" + string(balanceBytes) + "\"}"
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return shim.Success([]byte(jsonResp))
+}
+
+
+// Exporter Requests a line of Credit
+func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var clKey, lcKey, importer string
+	var letterOfCreditBytes, creditLineBytes []byte
+	var letterOfCredit *LetterOfCredit
+	var creditLine *CreditLine
+	var err error
+
+	// Access control: Only an Exporter can invoke this transaction
+	if !t.testMode && !( authenticateExporterOrg(creatorOrg, creatorCertIssuer) ) {
+		return shim.Error("Caller not a member of Exporter Org. Access denied.")
+	}
+	if len(args) < 2 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Importer Org} [List of Documents]. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+	// Pull out the target
+	importer = args[0]
+
+	// Lookup L/C from the ledger
+	lcKey, err = getLCKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	letterOfCreditBytes, err = stub.GetState(lcKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	// Unmarshal the JSON
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Validate the L/C has been accepted
+	if letterOfCredit.Status == ACCEPTED {
+		fmt.Printf("L/C for trade %s has been accepted", args[0])
+	} else {
+		err = errors.New(fmt.Sprintf("L/C must be accepted prior to CL request. Current State: %s", letterOfCredit.Status))
+		return shim.Error(err.Error())
+	}
+	clKey, err = getCLKey(stub, args[0])
+	creditLine = &CreditLine{clKey, lcKey, creatorOrg, importer, "", 0, []string{}, REQUESTED }
+	creditLineBytes, err = json.Marshal(creditLine)
+	if err != nil {
+		return shim.Error("Error marshaling credit line structure")
+	}
+
+	// Write the state to the ledger
+	err = stub.PutState(clKey, creditLineBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Credit line request for trade %s recorded\n", args[0])
+
+	return shim.Success(creditLineBytes)
+}
+
+// Offer a CL
+/*
+Once an exporter has requested a line of credit, a Lender can offer funding to the request by some discounted amount.
+ */
+func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var clKey string
+	var creditLineBytes []byte
+	var creditLine *CreditLine
+	var err error
+	var discountAmount int
+
+	// Access control: Only a Lender Org member can invoke this transaction
+	if !t.testMode && !authenticateLenderOrg(creatorOrg, creatorCertIssuer) {
+		return shim.Error("Caller not a member of Lender Org. Access denied.")
+	}
+
+	if len(args) < 2 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Discount Amount}. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	// Parse the offered discount amount
+	discountAmount, err = strconv.Atoi(args[1])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Lookup CL from the ledger
+	clKey, err = getCLKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	creditLineBytes, err = stub.GetState(clKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(creditLineBytes, &creditLine)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Validate the CL is in the REQUESTED status
+	if creditLine.Status == REQUESTED {
+		fmt.Printf("CL for trade %s requested", args[0])
+	} else {
+		err = errors.New(fmt.Sprintf("CL must be in the Requested state to provide an offer. Current State: %s", creditLine.Status))
+		return shim.Error(err.Error())
+	}
+
+	// Add the offer back unto the ledger
+	creditLine.Lender = creatorOrg
+	creditLine.DiscountAmount = discountAmount
+	creditLine.Status = OFFERED
+	creditLineBytes, err = json.Marshal(creditLine)
+	if err != nil {
+		return shim.Error("Error marshaling credit line structure")
+	}
+
+	// Write the state to the ledger
+	err = stub.PutState(clKey, creditLineBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Credit line request for trade %s recorded with an offer\n", args[0])
+	return shim.Success(nil)
+}
+// Accept a CL
+/*
+Once a credit line has been offered, the exporter will need to approve the offered amount, and the importer will need
+to approve the transfer of payments to the Lender vice the Exporter. On final approval the L/C beneficiary will be
+transferred to the Lender and the deal finalized.
+*/
+func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var clKey, lcKey string
+	var letterOfCreditBytes, creditLineBytes []byte
+	var letterOfCredit *LetterOfCredit
+	var creditLine *CreditLine
+	var err error
+	var isImporter, isExporter bool
+	// Store access org for later use
+	isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
+	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
+	// Access control: Only an Importer or Exporter Org member can invoke this transaction
+	if !t.testMode && !( isImporter || isExporter ) {
+		return shim.Error("Caller not a member of Importer or Exporter Org. Access denied.")
+	}
+
+	if len(args) != 1 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 1: {Trade ID}. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	// Lookup CL from the ledger
+	clKey, err = getCLKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	creditLineBytes, err = stub.GetState(clKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	// Unmarshal the JSON
+	err = json.Unmarshal(creditLineBytes, &creditLine)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Have the Exporter confirm the discounted amount
+	if isExporter {
+		// Validate that this is the correct exporter org
+		if creditLine.Exporter != creatorOrg {
+			err = errors.New(fmt.Sprintf("Credit Line not owned by this exporter"))
+			return shim.Error(err.Error())
+		}
+		if creditLine.Status == OFFERED {
+			fmt.Printf("CL for trade %s offered", args[0])
+		} else if creditLine.Status == PENDING_IMPORTER {
+			fmt.Printf("CL already accepted; pending Importer approval")
+			return shim.Success(nil)
+		} else {
+			err = errors.New(fmt.Sprintf("CL must be in the Offered state to be accepted. Current State: %s", creditLine.Status))
+			return shim.Error(err.Error())
+		}
+		// Exporter accepts the offer; write back to ledger
+		creditLine.Status = PENDING_IMPORTER
+		creditLineBytes, err = json.Marshal(creditLine)
+		if err != nil {
+			return shim.Error("Error marshaling credit line structure")
+		}
+		// Write the state to the ledger
+		err = stub.PutState(clKey, creditLineBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		fmt.Printf("Credit line request for trade %s accepted by the Exporter\n", args[0])
+	}
+	// Have the Importer org confirm the transfer and finally shift over the L/C
+	if isImporter {
+		// Validate that this is the correct importer org
+		if creditLine.Importer != creatorOrg {
+			err = errors.New(fmt.Sprintf("Credit Line not owned by this importer"))
+			return shim.Error(err.Error())
+		}
+		if creditLine.Status == PENDING_IMPORTER {
+			fmt.Printf("CL for trade %s is pending Importer approval", args[0])
+		} else if creditLine.Status == ACCEPTED {
+			fmt.Printf("CL already accepted")
+			return shim.Success(nil)
+		} else if creditLine.Status == OFFERED {
+			err = errors.New(fmt.Sprintf("Exported must accept offer prior to Importer approval"))
+			return shim.Error(err.Error())
+		} else {
+			err = errors.New(fmt.Sprintf("CL must be in the PENDING_IMPORTER state to be accepted. Current State: %s", creditLine.Status))
+			return shim.Error(err.Error())
+		}
+		// Importer transfers ownership of the L/C to the Lender
+		// Lookup L/C from the ledger
+		lcKey, err = getLCKey(stub, args[0])
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		letterOfCreditBytes, err = stub.GetState(lcKey)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Unmarshal the JSON
+		err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		// transfer the beneficiary
+		letterOfCredit.Beneficiary = creditLine.Lender
+		letterOfCreditBytes, err = json.Marshal(letterOfCredit)
+		if err != nil {
+			return shim.Error("Error marshaling L/C structure")
+		}
+
+		// Importer accepts the offer; write back to ledger
+		creditLine.Status = ACCEPTED
+		creditLineBytes, err = json.Marshal(creditLine)
+		if err != nil {
+			return shim.Error("Error marshaling credit line structure")
+		}
+		// Write the states to the ledger
+		err = stub.PutState(lcKey, letterOfCreditBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		err = stub.PutState(clKey, creditLineBytes)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		fmt.Printf("Credit line request for trade %s accepted by all parties and L/C ownership tranferred\n", args[0])
+	}
+
+
+
+	// Write the state to the ledger
+	err = stub.PutState(clKey, creditLineBytes)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	fmt.Printf("Credit line request for trade %s recorded with an offer\n", args[0])
+	return shim.Success(nil)
+}
+
+
+// Get current state of a Credit Line
+func (t *TradeWorkflowChaincode) getCLStatus(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var clKey, jsonResp string
+	var creditLineBytes []byte
+	var creditLine *CreditLine
+	var err error
+
+	// Access control: Only an Importer or Exporter or Exporting Entity Org member can invoke this transaction
+	if !t.testMode && !(authenticateImporterOrg(creatorOrg, creatorCertIssuer) || authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateLenderOrg(creatorOrg, creatorCertIssuer)) {
+		return shim.Error("Caller not a member of Importer or Exporter or Lender Org. Access denied.")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1: <trade ID>")
+	}
+
+	// Get the state from the ledger
+	clKey, err = getCLKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	creditLineBytes, err = stub.GetState(clKey)
+	if err != nil {
+		jsonResp = "{\"Error\":\"Failed to get state for " + clKey + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if len(creditLineBytes) == 0 {
+		jsonResp = "{\"Error\":\"No record found for " + clKey + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(creditLineBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	jsonResp = "{\"Status\":\"" + creditLine.Status + "\"}"
 	fmt.Printf("Query Response:%s\n", jsonResp)
 	return shim.Success([]byte(jsonResp))
 }

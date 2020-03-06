@@ -1434,7 +1434,7 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 		fmt.Printf("CL for trade %s requested", args[0])
 	} else {
 		err = errors.New(fmt.Sprintf("CL must be in the Requested state to provide an offer. Current State: %s", creditLine.Status))
-		return shim.Error(err.Error())
+
 	}
 
 	// Add the offer back unto the ledger
@@ -1471,8 +1471,9 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 	isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
 	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
 	// Access control: Only an Importer or Exporter Org member can invoke this transaction
-	if !t.testMode && !( isImporter || isExporter ) {
-		return shim.Error("Caller not a member of Importer or Exporter Org. Access denied.")
+	if !( isImporter || isExporter ) {
+		err = errors.New(fmt.Sprintf("Caller not a member of Importer or Exporter Org (member is in %s). Access denied.", creatorOrg))
+		return shim.Error(err.Error())
 	}
 
 	if len(args) != 1 {

@@ -144,7 +144,7 @@ var CARRIER_ORG = 'carrierorg';
 var REGULATOR_ORG = 'regulatororg';
 
 var CHANNEL_NAME = 'tradechannel';
-var CHAINCODE_PATH = 'github.com/trade_workflow';
+var CHAINCODE_PATH = 'github.com/trade_workflow_v1';
 var CHAINCODE_ID = 'tradecc';
 var CHAINCODE_VERSION = 'v0';
 var CHAINCODE_UPGRADE_PATH = 'github.com/trade_workflow_v1';

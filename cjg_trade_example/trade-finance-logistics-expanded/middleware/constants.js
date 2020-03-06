@@ -46,6 +46,13 @@ var FOUR_ORG_MEMBERS_AND_ADMIN = [{
 		name: 'admin',
 		mspId: 'TradeOrdererMSP'
 	}
+
+}, {
+	role: {
+		name: 'member',
+		mspId: 'LenderOrgMSP'
+	}
+
 }];
 
 var FIVE_ORG_MEMBERS_AND_ADMIN = [{
@@ -57,6 +64,11 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 	role: {
 		name: 'member',
 		mspId: 'ExportingEntityOrgMSP'
+	}
+}, {
+	role: {
+		name: 'member',
+		mspId: 'LenderOrgMSP'
 	}
 }, {
 	role: {

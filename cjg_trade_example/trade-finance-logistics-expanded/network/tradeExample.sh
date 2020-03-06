@@ -14,9 +14,7 @@ cd ../network
 # Validate Docker containers
 docker ps
 
-# Invoke being the admin on the CLI
-docker exec -ti cli bash
-
+docker exec -ti chaincode bash
 
 # Use middleware to setup the access priviledges
 cd ../middleware

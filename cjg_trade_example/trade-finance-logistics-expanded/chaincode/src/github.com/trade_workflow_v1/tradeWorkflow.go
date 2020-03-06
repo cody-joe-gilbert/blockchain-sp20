@@ -1618,7 +1618,7 @@ func (t *TradeWorkflowChaincode) getCLStatus(stub shim.ChaincodeStubInterface, c
 	}
 
 	// Unmarshal the JSON
-	err = json.Unmarshal(creditLineBytes, &letterOfCredit)
+	err = json.Unmarshal(creditLineBytes, &creditLine)
 	if err != nil {
 		return shim.Error(err.Error())
 	}

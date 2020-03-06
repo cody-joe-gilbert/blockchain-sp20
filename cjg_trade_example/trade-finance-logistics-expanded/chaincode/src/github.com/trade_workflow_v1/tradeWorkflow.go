@@ -164,9 +164,20 @@ func (t *TradeWorkflowChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Res
 	/*} else if function == "delete" {
 		// Deletes an entity from its state
 		return t.delete(stub, creatorOrg, creatorCertIssuer, args)*/
+	} else if function == "getCreditLine" {
+		// Get a new line of credit
+		return t.getCreditLine(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "offerCL" {
+		// Offer a line of credit with terms
+		return t.offerCL(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "acceptCL" {
+		// Accept the line of credit terms
+		return t.acceptCL(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "getCLStatus" {
+		// See the status of a given line of credit
+		return t.getCLStatus(stub, creatorOrg, creatorCertIssuer, args)
 	}
-
-	return shim.Error("Invalid invoke function name")
+		return shim.Error("Invalid invoke function name")
 }
 
 // Request a trade agreement

@@ -83,7 +83,7 @@ services:
       - CORE_PEER_LOCALMSPID=DevOrgMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp
     working_dir: /opt/gopath/src/chaincodedev
-    command: /bin/bash -c '/opt/trade/setupChannel.sh'
+    # command: /bin/bash -c '/opt/trade/setupChannel.sh'
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/devorg.trade.com/users/Admin@devorg.trade.com/msp:/etc/hyperledger/msp

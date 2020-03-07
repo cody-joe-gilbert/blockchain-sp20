@@ -37,8 +37,8 @@ docker exec -it cli bash
 chmod +x /opt/trade/createIdentity.sh
 /opt/trade/createIdentity.sh
 
-chmod +x /opt/trade/bootstrapOffers.sh
-/opt/trade/bootstrapOffers.sh
+chmod +x /opt/trade/setupChannel.sh
+/opt/trade/setupChannel.sh
 
 
 

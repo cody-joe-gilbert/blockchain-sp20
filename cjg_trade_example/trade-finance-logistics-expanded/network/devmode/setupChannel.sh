@@ -35,7 +35,43 @@ peer channel join -b ./tradechannel.block
 # Now the user can proceed to build and start chaincode in one terminal
 # And leverage the CLI container to issue install instantiate invoke query commands in another
 
-#we should have bailed if above commands failed.
-#we are here, so they worked
-sleep 600000
-exit 0
+
+fabric-ca-client enroll -u http://admin:adminpw@ca:7054 --mspdir admin
+
+ORG_NAME="importer"
+fabric-ca-client register --id.name ${ORG_NAME} --id.secret pwd1 --id.type user \
+    --id.attrs "tradelimit=1000:ecert,testorg=importer:ecert" -u http://ca:7054
+fabric-ca-client enroll -u http://${ORG_NAME}:pwd1@ca:7054 \
+    --enrollment.attrs "tradelimit,testorg,email:opt" --mspdir ${ORG_NAME}
+mkdir ~/.fabric-ca-client/${ORG_NAME}/admincerts
+cp -p ~/.fabric-ca-client/${ORG_NAME}/signcerts/*  ~/.fabric-ca-client/${ORG_NAME}/admincerts
+
+
+ORG_NAME="exporter"
+fabric-ca-client register --id.name ${ORG_NAME} --id.secret pwd1 --id.type user \
+    --id.attrs "tradelimit=1000:ecert,testorg=exporter:ecert" -u http://ca:7054
+fabric-ca-client enroll -u http://${ORG_NAME}:pwd1@ca:7054 \
+    --enrollment.attrs "tradelimit,testorg,email:opt" --mspdir ${ORG_NAME}
+cp -p ~/.fabric-ca-client/${ORG_NAME}/signcerts/*  ~/.fabric-ca-client/${ORG_NAME}/admincerts
+
+
+ORG_NAME="lender"
+fabric-ca-client register --id.name ${ORG_NAME} --id.secret pwd1 --id.type user \
+    --id.attrs "tradelimit=1000:ecert,testorg=lender:ecert" -u http://ca:7054
+fabric-ca-client enroll -u http://${ORG_NAME}:pwd1@ca:7054 \
+    --enrollment.attrs "tradelimit,testorg,email:opt" --mspdir ${ORG_NAME}
+cp -p ~/.fabric-ca-client/${ORG_NAME}/signcerts/*  ~/.fabric-ca-client/${ORG_NAME}/admincerts
+
+
+peer chaincode install -p chaincodedev/chaincode/trade_workflow_v1 -n tw -v 0
+
+# Setting up the accepted L/C prereq
+peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000", "WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["requestTrade", "foo", "70000", "Wood for Toys"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["acceptTrade", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getTradeStatus", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["requestLC", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getLCStatus", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["requestLC", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["issueLC", "foo", "lc8349", "12/31/2018", "E/L", "B/L"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["acceptLC", "foo"]}' -C tradechannel

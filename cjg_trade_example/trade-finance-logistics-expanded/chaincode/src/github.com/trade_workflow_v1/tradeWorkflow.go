@@ -1468,14 +1468,13 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 	var err error
 	var isImporter, isExporter bool
 	// Store access org for later use
-	if t.testMode {
+	isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
+	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
+	if t.testMode && !isImporter && !isExporter {
 		testOrg, _, err = getCustomAttribute(stub, "testorg")
 		if err != nil {return shim.Error(err.Error())}
 		isImporter = testOrg == "importer"
 		isExporter = testOrg == "exporter"
-	} else {
-		isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
-		isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
 	}
 	// Access control: Only an Importer or Exporter Org member can invoke this transaction
 	if !t.testMode && !( isImporter || isExporter ) {
@@ -1506,7 +1505,7 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 	// Have the Exporter confirm the discounted amount
 	if isExporter {
 		// Validate that this is the correct exporter org
-		if creditLine.Exporter != creatorOrg {
+		if !t.testMode && creditLine.Exporter != creatorOrg {
 			err = errors.New(fmt.Sprintf("Credit Line not owned by this exporter"))
 			return shim.Error(err.Error())
 		}
@@ -1535,7 +1534,7 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 		// Have the Importer org confirm the transfer and finally shift over the L/C
 	} else if isImporter {
 		// Validate that this is the correct importer org
-		if creditLine.Importer != creatorOrg {
+		if !t.testMode && creditLine.Importer != creatorOrg {
 			err = errors.New(fmt.Sprintf("Credit Line not owned by this importer"))
 			return shim.Error(err.Error())
 		}

@@ -46,13 +46,6 @@ var FOUR_ORG_MEMBERS_AND_ADMIN = [{
 		name: 'admin',
 		mspId: 'TradeOrdererMSP'
 	}
-
-}, {
-	role: {
-		name: 'member',
-		mspId: 'LenderOrgMSP'
-	}
-
 }];
 
 var FIVE_ORG_MEMBERS_AND_ADMIN = [{
@@ -68,11 +61,6 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 }, {
 	role: {
 		name: 'member',
-		mspId: 'LenderOrgMSP'
-	}
-}, {
-	role: {
-		name: 'member',
 		mspId: 'ImporterOrgMSP'
 	}
 }, {
@@ -84,6 +72,11 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 	role: {
 		name: 'member',
 		mspId: 'RegulatorOrgMSP'
+	}
+}, {
+	role: {
+		name: 'member',
+		mspId: 'LenderOrgMSP'
 	}
 }, {
 	role: {
@@ -139,12 +132,12 @@ var channelConfig = 'channel-artifacts/channel.tx';
 
 var IMPORTER_ORG = 'importerorg';
 var EXPORTER_ORG = 'exporterorg';
-var EXPORTING_ENTITY_ORG = 'exportingentityorg';
+var LENDER_ORG = 'lenderorg';
 var CARRIER_ORG = 'carrierorg';
 var REGULATOR_ORG = 'regulatororg';
 
 var CHANNEL_NAME = 'tradechannel';
-var CHAINCODE_PATH = 'github.com/trade_workflow_v1';
+var CHAINCODE_PATH = 'github.com/trade_workflow';
 var CHAINCODE_ID = 'tradecc';
 var CHAINCODE_VERSION = 'v0';
 var CHAINCODE_UPGRADE_PATH = 'github.com/trade_workflow_v1';
@@ -161,7 +154,7 @@ module.exports = {
 	channelConfig: channelConfig,
 	IMPORTER_ORG: IMPORTER_ORG,
 	EXPORTER_ORG: EXPORTER_ORG,
-	EXPORTING_ENTITY_ORG: EXPORTING_ENTITY_ORG,
+	LENDER_ORG: LENDER_ORG,
 	CARRIER_ORG: CARRIER_ORG,
 	REGULATOR_ORG: REGULATOR_ORG,
 	CHANNEL_NAME: CHANNEL_NAME,

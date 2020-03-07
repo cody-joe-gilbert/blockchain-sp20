@@ -46,18 +46,24 @@ chmod +x /opt/trade/setupChannel.sh
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
 
 # Request a CL
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
 peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
 
 # Offer a CL
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
 peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "500"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
 
 
 # Accept a CL
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
+
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
 peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
 
-
+peer chaincode invoke -n tw -c '{"Args":["getLCStatus", "foo"]}' -C tradechannel
 

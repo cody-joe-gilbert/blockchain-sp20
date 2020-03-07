@@ -52,6 +52,7 @@ fabric-ca-client register --id.name ${ORG_NAME} --id.secret pwd1 --id.type user 
     --id.attrs "tradelimit=1000:ecert,testorg=exporter:ecert" -u http://ca:7054
 fabric-ca-client enroll -u http://${ORG_NAME}:pwd1@ca:7054 \
     --enrollment.attrs "tradelimit,testorg,email:opt" --mspdir ${ORG_NAME}
+mkdir ~/.fabric-ca-client/${ORG_NAME}/admincerts
 cp -p ~/.fabric-ca-client/${ORG_NAME}/signcerts/*  ~/.fabric-ca-client/${ORG_NAME}/admincerts
 
 
@@ -60,6 +61,7 @@ fabric-ca-client register --id.name ${ORG_NAME} --id.secret pwd1 --id.type user 
     --id.attrs "tradelimit=1000:ecert,testorg=lender:ecert" -u http://ca:7054
 fabric-ca-client enroll -u http://${ORG_NAME}:pwd1@ca:7054 \
     --enrollment.attrs "tradelimit,testorg,email:opt" --mspdir ${ORG_NAME}
+mkdir ~/.fabric-ca-client/${ORG_NAME}/admincerts
 cp -p ~/.fabric-ca-client/${ORG_NAME}/signcerts/*  ~/.fabric-ca-client/${ORG_NAME}/admincerts
 
 
@@ -67,11 +69,16 @@ peer chaincode install -p chaincodedev/chaincode/trade_workflow_v1 -n tw -v 0
 
 # Setting up the accepted L/C prereq
 peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000", "WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment"]}' -C tradechannel
+wait 2000
 peer chaincode invoke -n tw -c '{"Args":["requestTrade", "foo", "70000", "Wood for Toys"]}' -C tradechannel
+wait 2000
 peer chaincode invoke -n tw -c '{"Args":["acceptTrade", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getTradeStatus", "foo"]}' -C tradechannel
+wait 2000
 peer chaincode invoke -n tw -c '{"Args":["requestLC", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getLCStatus", "foo"]}' -C tradechannel
+wait 2000
 peer chaincode invoke -n tw -c '{"Args":["requestLC", "foo"]}' -C tradechannel
+wait 2000
 peer chaincode invoke -n tw -c '{"Args":["issueLC", "foo", "lc8349", "12/31/2018", "E/L", "B/L"]}' -C tradechannel
+wait 2000
 peer chaincode invoke -n tw -c '{"Args":["acceptLC", "foo"]}' -C tradechannel
+wait 2000

@@ -1434,7 +1434,7 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 		fmt.Printf("CL for trade %s requested", args[0])
 	} else {
 		err = errors.New(fmt.Sprintf("CL must be in the Requested state to provide an offer. Current State: %s", creditLine.Status))
-
+		return shim.Error(err.Error())
 	}
 
 	// Add the offer back unto the ledger
@@ -1461,18 +1461,25 @@ to approve the transfer of payments to the Lender vice the Exporter. On final ap
 transferred to the Lender and the deal finalized.
 */
 func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var clKey, lcKey string
+	var clKey, lcKey, testOrg string
 	var letterOfCreditBytes, creditLineBytes []byte
 	var letterOfCredit *LetterOfCredit
 	var creditLine *CreditLine
 	var err error
 	var isImporter, isExporter bool
 	// Store access org for later use
-	isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
-	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
+	if t.testMode {
+		testOrg, _, err = getCustomAttribute(stub, "testorg")
+		if err != nil {return shim.Error(err.Error())}
+		isImporter = testOrg == "importer"
+		isExporter = testOrg == "exporter"
+	} else {
+		isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
+		isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
+	}
 	// Access control: Only an Importer or Exporter Org member can invoke this transaction
-	if !( isImporter || isExporter ) {
-		err = errors.New(fmt.Sprintf("Caller not a member of Importer or Exporter Org (member is in %s). Access denied.", creatorOrg))
+	if !t.testMode && !( isImporter || isExporter ) {
+		err = errors.New(fmt.Sprintf("Caller not a member of Importer or Exporter Org. Access denied. Caller is member of %s.", creatorOrg))
 		return shim.Error(err.Error())
 	}
 
@@ -1524,9 +1531,9 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 			return shim.Error(err.Error())
 		}
 		fmt.Printf("Credit line request for trade %s accepted by the Exporter\n", args[0])
-	}
-	// Have the Importer org confirm the transfer and finally shift over the L/C
-	if isImporter {
+
+		// Have the Importer org confirm the transfer and finally shift over the L/C
+	} else if isImporter {
 		// Validate that this is the correct importer org
 		if creditLine.Importer != creatorOrg {
 			err = errors.New(fmt.Sprintf("Credit Line not owned by this importer"))
@@ -1583,6 +1590,9 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 			return shim.Error(err.Error())
 		}
 		fmt.Printf("Credit line request for trade %s accepted by all parties and L/C ownership tranferred\n", args[0])
+	} else {
+		err = errors.New(fmt.Sprintf(" (2) Caller not a member of Importer or Exporter Org. Access denied. Caller is member of %s.", creatorOrg))
+		return shim.Error(err.Error())
 	}
 
 

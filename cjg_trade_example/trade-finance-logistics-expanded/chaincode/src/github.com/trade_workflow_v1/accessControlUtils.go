@@ -69,3 +69,17 @@ func authenticateRegulatorOrg(mspID string, certCN string) bool {
 func authenticateLenderOrg(mspID string, certCN string) bool {
 	return (mspID == "LenderOrgMSP") && (certCN == "ca.lenderorg.trade.com")
 }
+
+func getCustomAttribute(stub shim.ChaincodeStubInterface, attr string) (string, bool, error) {
+	var value string
+	var found bool
+	var err error
+
+	value, found, err = cid.GetAttributeValue(stub, attr)
+	if err != nil {
+		fmt.Printf("Error getting MSP identity: %s\n", err.Error())
+		return "", found, err
+	}
+
+	return value, found, nil
+}

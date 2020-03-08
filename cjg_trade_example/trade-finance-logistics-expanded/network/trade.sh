@@ -346,10 +346,6 @@ function replacePrivateKey () {
       PRIV_KEY=$(ls *_sk)
       cd "$CURRENT_DIR"
       sed -i '' "s/REGULATOR_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose-e2e.yaml
-      cd crypto-config/peerOrganizations/lenderorg.trade.com/ca/
-      PRIV_KEY=$(ls *_sk)
-      cd "$CURRENT_DIR"
-      sed -i '' "s/LENDER_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose-e2e.yaml
     else
       CURRENT_DIR=$PWD
       cd crypto-config/peerOrganizations/exporterorg.trade.com/ca/
@@ -368,10 +364,6 @@ function replacePrivateKey () {
       PRIV_KEY=$(ls *_sk)
       cd "$CURRENT_DIR"
       sed -i "s/REGULATOR_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose-e2e.yaml
-      cd crypto-config/peerOrganizations/lenderorg.trade.com/ca/
-      PRIV_KEY=$(ls *_sk)
-      cd "$CURRENT_DIR"
-      sed -i "s/LENDER_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose-e2e.yaml
     fi
   fi
 }

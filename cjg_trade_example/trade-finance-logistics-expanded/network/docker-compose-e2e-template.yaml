@@ -161,24 +161,3 @@ services:
     networks:
       - trade
 
-  cli.lenderorg.trade.com:
-    container_name: cli.lenderorg.trade.com
-    image: hyperledger/fabric-ca-tools
-    tty: true
-    environment:
-      - GOPATH=/opt/gopath
-      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_LOGGING_LEVEL=DEBUG
-      - CORE_PEER_ID=peer0.lenderorg.trade.com
-      - CORE_PEER_ADDRESS=peer:7051
-      - CORE_PEER_LOCALMSPID=LenderOrgMSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp
-    working_dir: /opt/gopath/src
-    volumes:
-      - /var/run/:/host/var/run/
-      - ./crypto-config/peerOrganizations/lenderorg.trade.com/users/Admin@lenderorg.trade.com/msp:/etc/hyperledger/msp
-      - ./../../chaincode/src/github.com:/opt/gopath/src/chaincode
-      - ./:/opt/trade
-    depends_on:
-      - orderer.trade.com
-      - peer0.lenderorg.trade.com

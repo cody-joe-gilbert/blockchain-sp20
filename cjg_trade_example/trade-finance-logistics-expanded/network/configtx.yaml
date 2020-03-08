@@ -165,35 +165,6 @@ Organizations:
             - Host: peer0.regulatororg.trade.com
               Port: 7051
 
-    - &LenderOrg
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
-        Name: LenderOrgMSP
-
-        # ID to load the MSP definition as
-        ID: LenderOrgMSP
-
-        MSPDir: crypto-config/peerOrganizations/lenderorg.trade.com/msp
-
-        # Policies for reading, writing, configuration
-        Policies:
-            Readers:
-                Type: Signature
-                Rule: "OR('LenderOrgMSP.admin', 'LenderOrgMSP.peer', 'LenderOrgMSP.client')"
-            Writers:
-                Type: Signature
-                Rule: "OR('LenderOrgMSP.admin', 'LenderOrgMSP.client')"
-            Admins:
-                Type: Signature
-                Rule: "OR('LenderOrgMSP.admin')"
-
-        AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.lenderorg.trade.com
-              Port: 7051
-
 ################################################################################
 #
 #   SECTION: Orderer
@@ -391,7 +362,6 @@ Profiles:
                     - *ImporterOrg
                     - *CarrierOrg
                     - *RegulatorOrg
-                    - *LenderOrg
     FourOrgsTradeChannel:
         Consortium: TradeConsortium
         Application:
@@ -401,6 +371,5 @@ Profiles:
                 - *ImporterOrg
                 - *CarrierOrg
                 - *RegulatorOrg
-                - *LenderOrg
             Capabilities:
                 <<: *ApplicationCapabilities

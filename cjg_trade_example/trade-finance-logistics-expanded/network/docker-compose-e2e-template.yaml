@@ -22,8 +22,6 @@ volumes:
   peer0.importerorg.trade.com:
   peer0.carrierorg.trade.com:
   peer0.regulatororg.trade.com:
-  peer0.lenderorg.trade.com:
-  cli.lenderorg.trade.com:
 
 networks:
   trade:
@@ -96,23 +94,6 @@ services:
     networks:
       - trade
 
-  lender-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
-    environment:
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - FABRIC_CA_SERVER_CA_NAME=ca-lenderorg
-      - FABRIC_CA_SERVER_TLS_ENABLED=true
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.lenderorg.trade.com-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/LENDER_CA_PRIVATE_KEY
-    ports:
-      - "11054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.lenderorg.trade.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/LENDER_CA_PRIVATE_KEY -b admin:adminpw -d'
-    volumes:
-      - ./crypto-config/peerOrganizations/lenderorg.trade.com/ca/:/etc/hyperledger/fabric-ca-server-config
-    container_name: ca_peerLenderOrg
-    networks:
-      - trade
-
   orderer.trade.com:
     extends:
       file:   base/docker-compose-base.yaml
@@ -150,14 +131,6 @@ services:
     extends:
       file:  base/docker-compose-base.yaml
       service: peer0.regulatororg.trade.com
-    networks:
-      - trade
-
-  peer0.lenderorg.trade.com:
-    container_name: peer0.lenderorg.trade.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer0.lenderorg.trade.com
     networks:
       - trade
 

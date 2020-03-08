@@ -113,13 +113,3 @@ PeerOrgs:
     Users:
       Count: 1
 
-  # ---------------------------------------------------------------------------
-  # LenderOrg
-  # ---------------------------------------------------------------------------
-  - Name: LenderOrg
-    Domain: lenderorg.trade.com
-    EnableNodeOUs: true
-    Template:
-      Count: 1
-    Users:
-      Count: 1

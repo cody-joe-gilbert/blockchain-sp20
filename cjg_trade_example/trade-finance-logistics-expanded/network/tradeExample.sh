@@ -5,10 +5,19 @@ cd ../middleware
 npm install
 cd ../network
 
+
+
+
 # Setup the docker containers and files
 ./trade.sh down
 ./trade.sh clean
 ./trade.sh generate -c tradechannel
+
+./trade.sh up
+
+# Create the new org cryto files
+cryptogen generate --config=./add_org/crypto-config.yaml
+docker-compose -f add_org/docker-compose-lenderOrg.yaml up
 
 
 # Validate Docker containers

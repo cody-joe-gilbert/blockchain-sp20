@@ -11,13 +11,16 @@ cd ../network
 # Setup the docker containers and files
 ./trade.sh down
 ./trade.sh clean
-./trade.sh generate -c tradechannel
 
 ./trade.sh up
+./trade.sh startneworg
+cd ../middleware
+node createTradeApp
+node run-upgrade-channel.js
+node new-org-join-channel.js
 
-# Create the new org cryto files
-cryptogen generate --config=./add_org/crypto-config.yaml
-docker-compose -f add_org/docker-compose-lenderOrg.yaml up
+
+
 
 
 # Validate Docker containers

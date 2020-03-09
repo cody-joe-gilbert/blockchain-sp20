@@ -18,7 +18,7 @@ cd ../middleware
 node createTradeApp
 node run-upgrade-channel.js
 node new-org-join-channel.js
-
+node upgrade-chaincode.js
 
 
 

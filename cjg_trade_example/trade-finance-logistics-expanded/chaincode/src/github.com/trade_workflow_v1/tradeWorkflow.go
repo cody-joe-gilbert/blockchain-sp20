@@ -1649,6 +1649,94 @@ func (t *TradeWorkflowChaincode) getCLStatus(stub shim.ChaincodeStubInterface, c
 	return shim.Success([]byte(jsonResp))
 }
 
+// Print the full Credit Line object
+func (t *TradeWorkflowChaincode) printCreditLine(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var clKey, jsonResp string
+	var creditLineBytes []byte
+	var creditLine *CreditLine
+	var err error
+
+	// Access control: Only an Importer or Exporter or Lender Org member can invoke this transaction
+	if !t.testMode && !(authenticateImporterOrg(creatorOrg, creatorCertIssuer) || authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateLenderOrg(creatorOrg, creatorCertIssuer)) {
+		return shim.Error("Caller not a member of Importer or Exporter or Lender Org. Access denied.")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1: <trade ID>")
+	}
+
+	// Get the state from the ledger
+	clKey, err = getCLKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	creditLineBytes, err = stub.GetState(clKey)
+	if err != nil {
+		jsonResp = "{\"Error\":\"Failed to get state for " + clKey + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if len(creditLineBytes) == 0 {
+		jsonResp = "{\"Error\":\"No record found for " + clKey + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(creditLineBytes, &creditLine)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Printf("Query Response:%s\n", string(creditLineBytes))
+	return shim.Success([]byte(jsonResp))
+
+}
+
+// Print the full letter of credit object
+func (t *TradeWorkflowChaincode) printLC(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
+	var lcKey, jsonResp string
+	var letterOfCreditBytes []byte
+	var letterOfCredit *LetterOfCredit
+	var err error
+
+	// Access control: Only an Importer or Exporter or Lender Org member can invoke this transaction
+	if !t.testMode && !(authenticateImporterOrg(creatorOrg, creatorCertIssuer) || authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateLenderOrg(creatorOrg, creatorCertIssuer)) {
+		return shim.Error("Caller not a member of Importer or Exporter or Lender Org. Access denied.")
+	}
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1: <trade ID>")
+	}
+
+	// Get the state from the ledger
+	lcKey, err = getLCKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	letterOfCreditBytes, err = stub.GetState(lcKey)
+	if err != nil {
+		jsonResp = "{\"Error\":\"Failed to get state for " + lcKey + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	if len(letterOfCreditBytes) == 0 {
+		jsonResp = "{\"Error\":\"No record found for " + lcKey + "\"}"
+		return shim.Error(jsonResp)
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Printf("Query Response:%s\n", string(letterOfCreditBytes))
+	return shim.Success([]byte(jsonResp))
+
+}
+
+
+
 func main() {
 	twc := new(TradeWorkflowChaincode)
 	twc.testMode = false

@@ -166,7 +166,7 @@ invokeCC.invokeChaincode(Constants.EXPORTER_ORG, Constants.CHAINCODE_UPGRADE_VER
         NEW CODE: Scenario of acquiring a credit line
          */
 
-        // INVOKE: acceptLC (Exporter's Bank)
+        // INVOKE: getCreditLine (Exporter's Bank)
         return invokeCC.invokeChaincode(Constants.EXPORTER_ORG, Constants.CHAINCODE_UPGRADE_VERSION, 'getCreditLine', [tradeID, "Lender"], 'Exporter');
     }, (err) => {
         console.log('\n');

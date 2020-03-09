@@ -28,12 +28,15 @@ The name of the Importer is important to add to the request, as the transfer of 
 Then executed by the Importer to confirm the transfer, shift the `CreditLine` object to the 'ACCEPTED' status and changes the original L/C object `Beneficiary` 
 attribute to the Lender organization.
 4. `getCLStatus`: Returns the status of the CL
+5. `printCreditLine`: Queries the entire state of the CL
+6. `printLC`: Queries the entire state of the letter of credit (validates ownership is transferred)
 
 Requirements:
 * The L/C must be in the 'ACCEPTED' status prior to CL request
 * The Exporter must accept the CL prior to the Importer, thus the Importer cannot accept the CL unless it is in the 'PENDING IMPORTER' status.
 * The original L/C beneficiary must be changed to the Lender to allow the Importer to pay the Lender directly, and the Importer must
 be notified of this change. This is why the Importer is required to approve the CL prior to 'ACCEPTED' status.
+* The Lender-provided discounted amount must be greater than 0 and less than or equal to the original trade amount.
 
 ### Dev Example with CLI
 This section covers how to execute the trade workflow extension using the development environment. The following
@@ -72,6 +75,11 @@ export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the expo
 peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
+# The following will be rejected
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "-500"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "50000000"]}' -C tradechannel
+
 # Offer a CL of 500 as the Lender
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
 peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "500"]}' -C tradechannel
@@ -89,5 +97,84 @@ peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradecha
 
 # See the final state of the LC
 peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
+```
 
+### Example with Middleware
+This section covers how to execute the trade workflow extension using the middleware environment:
+
+```shell script
+# Starting in the networking folder
+
+# Clean up the docker containers and files
+./trade.sh down
+./trade.sh stopneworg
+./trade.sh clean
+
+# Start the network with the new org
+./trade.sh generate -c tradechannel
+./trade.sh up
+./trade.sh startneworg
+
+
+# Switch to the middleware folder and launch the original channel
+cd ../middleware
+node createTradeApp.js
+
+# Upgrade to the new version with the lender
+node run-upgrade-channel.js
+node new-org-join-channel.js
+node upgrade-chaincode.js
+
+
+
+
+
+# Start the channel back up
+./trade.sh up -d true
+
+# Install the chaincode
+docker exec -it chaincode bash
+cd ./trade_workflow_v1
+go build
+CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_v1
+
+# In another terminal, start the cli for execution
+docker exec -it cli bash
+
+# Bootstrap the example: This script will create the channel, generate the org credentials,
+# and run through the workflow until the L/C is in an ACCEPTED status.
+chmod +x /opt/trade/setupChannel.sh
+/opt/trade/setupChannel.sh
+
+# See the current state of the LC
+peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
+
+
+# Request a CL as the exporter
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the exporter credentials
+peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
+
+# The following will be rejected
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "-500"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "50000000"]}' -C tradechannel
+
+# Offer a CL of 500 as the Lender
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "500"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
+
+# Accept a CL as the exporter
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
+
+# Accept a CL as the importer
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
+
+# See the final state of the LC
+peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
 ```

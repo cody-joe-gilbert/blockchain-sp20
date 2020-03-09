@@ -56,11 +56,6 @@ var FIVE_ORG_MEMBERS_AND_ADMIN = [{
 }, {
 	role: {
 		name: 'member',
-		mspId: 'ExportingEntityOrgMSP'
-	}
-}, {
-	role: {
-		name: 'member',
 		mspId: 'ImporterOrgMSP'
 	}
 }, {

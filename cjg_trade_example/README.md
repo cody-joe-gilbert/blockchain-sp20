@@ -113,68 +113,21 @@ This section covers how to execute the trade workflow extension using the middle
 # Start the network with the new org
 ./trade.sh generate -c tradechannel
 ./trade.sh up
-./trade.sh startneworg
-
 
 # Switch to the middleware folder and launch the original channel
 cd ../middleware
 node createTradeApp.js
 
-# Upgrade to the new version with the lender
+# Switch back and launch the Lender containers
+cd ../network
+./trade.sh startneworg
+
+# Switch to the middleware folder and upgrade the channel
+cd ../middleware
 node run-upgrade-channel.js
-node new-org-join-channel.js
+node new-org-join-channel.js 
 node upgrade-chaincode.js
 
-
-
-
-
-# Start the channel back up
-./trade.sh up -d true
-
-# Install the chaincode
-docker exec -it chaincode bash
-cd ./trade_workflow_v1
-go build
-CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_v1
-
-# In another terminal, start the cli for execution
-docker exec -it cli bash
-
-# Bootstrap the example: This script will create the channel, generate the org credentials,
-# and run through the workflow until the L/C is in an ACCEPTED status.
-chmod +x /opt/trade/setupChannel.sh
-/opt/trade/setupChannel.sh
-
-# See the current state of the LC
-peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
-
-
-# Request a CL as the exporter
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the exporter credentials
-peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
-
-# The following will be rejected
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "-500"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "50000000"]}' -C tradechannel
-
-# Offer a CL of 500 as the Lender
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "500"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
-
-# Accept a CL as the exporter
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
-peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
-
-# Accept a CL as the importer
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
-peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
-
-# See the final state of the LC
-peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
+# Run the example execution
+node runCreditScenario.js
 ```

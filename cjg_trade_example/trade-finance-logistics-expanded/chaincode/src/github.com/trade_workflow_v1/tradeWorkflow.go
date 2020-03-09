@@ -176,6 +176,12 @@ func (t *TradeWorkflowChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Res
 	} else if function == "getCLStatus" {
 		// See the status of a given line of credit
 		return t.getCLStatus(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "printCreditLine" {
+		// See the full credit line
+		return t.printCreditLine(stub, creatorOrg, creatorCertIssuer, args)
+	} else if function == "printLC" {
+		// See the full letter of credit
+		return t.printLC(stub, creatorOrg, creatorCertIssuer, args)
 	}
 		return shim.Error("Invalid invoke function name")
 }

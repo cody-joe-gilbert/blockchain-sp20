@@ -59,7 +59,7 @@ type CreditLine struct {
 	LCID           string   `json:"lcid"`
 	Exporter       string   `json:"exporter"`
 	Importer       string   `json:"importer"`
-	Lender         string   `json:"beneficiary"`
+	Lender         string   `json:"lender"`
 	DiscountAmount int      `json:"discountamount"`
 	Documents      []string `json:"documents"`
 	Status         string   `json:"status"`

@@ -1336,7 +1336,7 @@ func (t *TradeWorkflowChaincode) getAccountBalance(stub shim.ChaincodeStubInterf
 
 // Exporter Requests a line of Credit
 func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var clKey, lcKey, importer string
+	var clKey, lcKey, importer, exporter string
 	var letterOfCreditBytes, creditLineBytes []byte
 	var letterOfCredit *LetterOfCredit
 	var creditLine *CreditLine
@@ -1350,8 +1350,15 @@ func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface,
 		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Importer Org} [List of Documents]. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
-	// Pull out the target
-	importer = args[0]
+	// Get the import and exporter identities; divert to attributes if it's a test
+	if t.testMode {
+		exporter, _, err = getCustomAttribute(stub, "testorg")
+		if err != nil {return shim.Error(err.Error())}
+		importer = args[1]
+	} else {
+		importer = args[1]
+		exporter = creatorOrg
+	}
 
 	// Lookup L/C from the ledger
 	lcKey, err = getLCKey(stub, args[0])
@@ -1376,7 +1383,7 @@ func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface,
 		return shim.Error(err.Error())
 	}
 	clKey, err = getCLKey(stub, args[0])
-	creditLine = &CreditLine{clKey, lcKey, creatorOrg, importer, "", 0, []string{}, REQUESTED }
+	creditLine = &CreditLine{clKey, lcKey, exporter, importer, "", 0, []string{}, REQUESTED }
 	creditLineBytes, err = json.Marshal(creditLine)
 	if err != nil {
 		return shim.Error("Error marshaling credit line structure")
@@ -1397,9 +1404,10 @@ func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface,
 Once an exporter has requested a line of credit, a Lender can offer funding to the request by some discounted amount.
  */
 func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var clKey string
-	var creditLineBytes []byte
+	var clKey, lcKey, lender string
+	var creditLineBytes, letterOfCreditBytes []byte
 	var creditLine *CreditLine
+	var letterOfCredit *LetterOfCredit
 	var err error
 	var discountAmount int
 
@@ -1407,15 +1415,45 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 	if !t.testMode && !authenticateLenderOrg(creatorOrg, creatorCertIssuer) {
 		return shim.Error("Caller not a member of Lender Org. Access denied.")
 	}
+	// Get the lender identity; divert to attributes if it's a test
+	if t.testMode {
+		lender, _, err = getCustomAttribute(stub, "testorg")
+		if err != nil {return shim.Error(err.Error())}
+	} else {
+		lender = creatorOrg
+	}
 
 	if len(args) < 2 {
 		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Discount Amount}. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
+	// Lookup L/C from the ledger
+	lcKey, err = getLCKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	letterOfCreditBytes, err = stub.GetState(lcKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	// Unmarshal the JSON
+	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 
-	// Parse the offered discount amount
+	// Parse the offered discount amount and LC amount
 	discountAmount, err = strconv.Atoi(args[1])
 	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// Check that the discounted amount is within range
+	if discountAmount > letterOfCredit.Amount {
+		err = errors.New(fmt.Sprintf("Discount Amount must be less than original amount: %d < %d", discountAmount, letterOfCredit.Amount))
+		return shim.Error(err.Error())
+	} else if discountAmount < 0 {
+		err = errors.New(fmt.Sprintf("Discount Amount must be > 0: %d", discountAmount))
 		return shim.Error(err.Error())
 	}
 
@@ -1444,7 +1482,7 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 	}
 
 	// Add the offer back unto the ledger
-	creditLine.Lender = creatorOrg
+	creditLine.Lender = lender
 	creditLine.DiscountAmount = discountAmount
 	creditLine.Status = OFFERED
 	creditLineBytes, err = json.Marshal(creditLine)
@@ -1599,8 +1637,6 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 		err = errors.New(fmt.Sprintf(" (2) Caller not a member of Importer or Exporter Org. Access denied. Caller is member of %s.", creatorOrg))
 		return shim.Error(err.Error())
 	}
-
-
 
 	// Write the state to the ledger
 	err = stub.PutState(clKey, creditLineBytes)

@@ -64,6 +64,13 @@ docker exec -it cli bash
 chmod +x /opt/trade/setupChannel.sh
 /opt/trade/setupChannel.sh
 
+# See the current state of the LC
+peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
+
+
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel
+
+
 # Request a CL as the exporter
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the exporter credentials
 peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel

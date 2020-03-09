@@ -1643,7 +1643,6 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	fmt.Printf("Credit line request for trade %s recorded with an offer\n", args[0])
 	return shim.Success(nil)
 }
 

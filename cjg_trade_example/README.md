@@ -44,7 +44,6 @@ steps will execute the application with the extended orgs and transactions:
 
 # Clean up the docker containers and files
 ./trade.sh down -d true
-./trade.sh clean -d true
 rm -rf ./devmode/channel-artifacts ./devmode/crypto-config ./devmode/logs ./devmode/docker-compose-e2e.yaml 
 
 # Start the channel back up
@@ -68,27 +67,27 @@ chmod +x /opt/trade/setupChannel.sh
 peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
 
 
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel
-
-
 # Request a CL as the exporter
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the exporter credentials
 peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel  # Checks the status
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
 # Offer a CL of 500 as the Lender
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
 peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "500"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
 # Accept a CL as the exporter
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
 peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
 # Accept a CL as the importer
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
 peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getCLStatus", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
+
+# See the final state of the LC
+peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
 
 ```

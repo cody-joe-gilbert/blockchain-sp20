@@ -1,0 +1,55 @@
+# start up network
+./trade.sh up -d true
+
+# start chain code
+docker exec -it chaincode bash
+cd trade_workflow_v1
+go build
+CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_v1
+
+# start cli
+docker exec -it cli bash
+# create identities
+/opt/trade/createIdentity.sh
+# install chaincode
+peer chaincode install -p chaincodedev/chaincode/trade_workflow_v1 -n tw -v 0
+ # instantiate chaincode
+peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000", "WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment","LenderBros","1000000"]}' -C tradechannel
+
+# template to change identity
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/_
+
+# invoke request trade
+peer chaincode invoke -n tw -c '{"Args":["requestTrade", "foo", "999", "Wood for Toys"]}' -C tradechannel
+# accept request trade
+peer chaincode invoke -n tw -c '{"Args":["acceptTrade", "foo"]}' -C tradechannel
+# request LC (letter of credit)
+peer chaincode invoke -n tw -c '{"Args”:[“requestLC”, "foo"]}' -C tradechannel
+# issue LC
+peer chaincode invoke -n tw -c '{"Args":["issueLC","foo","fooLC","1/31/2030"]}' -C tradechannel
+# check status of LC
+peer chaincode invoke -n tw -c '{"Args":["getLCStatus","foo"]}' -C tradechannel
+# accept LC
+peer chaincode invoke -n tw -c '{"Args":["acceptLC","foo"]}' -C tradechannel
+# request EL (export letter)
+peer chaincode invoke -n tw -c '{"Args":["requestEL","foo"]}' -C tradechannel
+# issue EL
+peer chaincode invoke -n tw -c '{"Args":["issueEL","foo","fooLC","1/31/2030"]}' -C tradechannel
+# prepare shipment
+peer chaincode invoke -n tw -c '{"Args":["prepareShipment","foo"]}' -C tradechannel
+# acceptShipmentAndIssueBL (bill of lading)
+peer chaincode invoke -n tw -c '{"Args":["acceptShipmentAndIssueBL","foo","fooBL","1/31/2030","JFK","EWR"]}' -C tradechannel
+# requestPayment
+peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
+# makePayment
+peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
+# updateShipmentLocation
+peer chaincode invoke -n tw -c '{"Args":["updateShipmentLocation","foo","EWR"]}' -C tradechannel
+
+
+
+peer chaincode invoke -n tw -c '{"Args":["lenderMakePayment","foo","fooLC","7/31/2030"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["lenderRequestPayment","fooLC"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["importerMakePayment","fooLC"]}' -C tradechannel
+
+

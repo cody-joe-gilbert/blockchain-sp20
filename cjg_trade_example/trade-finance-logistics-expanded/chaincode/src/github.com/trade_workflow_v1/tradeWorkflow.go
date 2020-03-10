@@ -1515,7 +1515,7 @@ func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface,
 		return shim.Error(err.Error())
 	}
 	clKey, err = getCLKey(stub, args[0])
-	creditLine = &CreditLine{clKey, lcKey, exporter, importer, "", 0, []string{}, REQUESTED, ""}
+	creditLine = &CreditLine{clKey, lcKey, exporter, importer, "", 0, []string{}, REQUESTED}
 	creditLineBytes, err = json.Marshal(creditLine)
 	if err != nil {
 		return shim.Error("Error marshaling credit line structure")

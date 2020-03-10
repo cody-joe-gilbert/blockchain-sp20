@@ -22,8 +22,10 @@ the accepted line of credit. This takes place over the following steps:
 
 1. Exporter requests a line of credit associated with the L/C
 2. A Lender offers a discounted amount of the L/C in the line of credit
-3. The Exporter approves of the discounted amount and informs the Importer to transfer their payments (out of band)
-4. The Importer formally approves the the credit line and changes the L/C beneficiary to the Lender
+3. The Exporter approves of the discounted amount, transfers ownership of the L/C, and transfers the discounted amount 
+from the Lender account to the Exporter Account
+4. All other transactions take place normally; funds paid to the Exporter are instead paid to the Lender
+
 
 #### Implementation
 To achieve the requirements of this project, the `Lender` organization was created to offer lines of credit to requesting 
@@ -43,11 +45,12 @@ attribute to the Lender organization.
 5. `printCreditLine`: Queries the entire state of the CL
 6. `printLC`: Queries the entire state of the letter of credit (validates ownership is transferred)
 
+The following transactions were modified:
+1. `requestPayment`: Can now be invoked by either the Exporter or the Lender if they own the L/C
+2. `makePayment`: Now pays whomever holds the L/C beneficiary status
+
 Requirements:
 * The L/C must be in the 'ACCEPTED' status prior to CL request
-* The Exporter must accept the CL prior to the Importer, thus the Importer cannot accept the CL unless it is in the 'PENDING IMPORTER' status.
-* The original L/C beneficiary must be changed to the Lender to allow the Importer to pay the Lender directly, and the Importer must
-be notified of this change. This is why the Importer is required to approve the CL prior to 'ACCEPTED' status.
 * The Lender-provided discounted amount must be greater than 0 and less than or equal to the original trade amount.
 
 ### Dev Example with CLI
@@ -86,11 +89,6 @@ export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the expo
 peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
-# The following will be rejected
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "-500"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "50000000"]}' -C tradechannel
-
 # Offer a CL of 4500 as the Lender
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
 peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel
@@ -101,25 +99,34 @@ export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
 peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
+# See that money transfers
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel
+
+# See the L/C beneficiary changes
+peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
 
 # Importer makes the half-payment to the payee (exporter or lender)
 peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
 peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
 
-# Progress shipment
+# See that money transfers
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","importer"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel
+
+# Progress shipment to importer
 peer chaincode invoke -n tw -c '{"Args":["acceptShipmentAndIssueBL","foo","fooBL","1/31/2030","JFK","EWR"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["updateShipmentLocation","foo","DESTINATION"]}' -C tradechannel
 
 # Importer makes the rest of the payment
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
 peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
 peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
 
-# See the final state of the LC
-peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
-
-# Helpful
+# See the final balances
 peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","importer"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel

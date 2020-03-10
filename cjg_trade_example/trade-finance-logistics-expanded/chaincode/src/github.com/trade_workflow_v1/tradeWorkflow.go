@@ -966,7 +966,7 @@ func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, c
 	if t.testMode {
 		testOrg, _, err = getCustomAttribute(stub, "testorg")
 		if err != nil {return shim.Error(err.Error())}
-		isImporter = (testOrg == "exporter") || isImporter
+		isImporter = (testOrg == "importer") || isImporter
 	}
 
 	// Access control: Only an Importer Org member can invoke this transaction
@@ -1073,7 +1073,7 @@ func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, c
 		err = errors.New(fmt.Sprintf("Beneficiary %s account ID not found", letterOfCredit.Beneficiary))
 		return shim.Error(err.Error())
 	}
-	
+
 
 	// Lookup account balances
 	payeeBalBytes, err = stub.GetState(payeeKey)
@@ -1449,7 +1449,6 @@ func (t *TradeWorkflowChaincode) getAccountBalance(stub shim.ChaincodeStubInterf
 	return shim.Success([]byte(jsonResp))
 }
 
-
 // Exporter Requests a line of Credit
 func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var clKey, lcKey, importer, exporter, testOrg string
@@ -1548,11 +1547,11 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 	if t.testMode {
 		testOrg, _, err = getCustomAttribute(stub, "testorg")
 		if err != nil {return shim.Error(err.Error())}
-		isLender = (testOrg == "exporter") || isLender
+		isLender = (testOrg == "lender") || isLender
 	}
-	// Access control: Only an Exporter can invoke this transaction
+	// Access control: Only an Lender can invoke this transaction
 	if !isLender {
-		return shim.Error("Caller not a member of Importer Org. Access denied.")
+		return shim.Error("Caller not a member of Lender Org. Access denied.")
 	}
 
 	// fetch the ID of the exporter from the ledger
@@ -1829,7 +1828,6 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 	return shim.Success(nil)
 }
 
-
 // Get current state of a Credit Line
 func (t *TradeWorkflowChaincode) getCLStatus(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
 	var clKey, jsonResp string
@@ -1958,7 +1956,6 @@ func (t *TradeWorkflowChaincode) printLC(stub shim.ChaincodeStubInterface, creat
 	return shim.Success([]byte(jsonResp))
 
 }
-
 
 
 func main() {

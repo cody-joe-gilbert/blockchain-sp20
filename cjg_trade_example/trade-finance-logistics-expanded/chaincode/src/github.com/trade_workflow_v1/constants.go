@@ -36,7 +36,6 @@ const (
 	ISSUED		= "ISSUED"
 	ACCEPTED	= "ACCEPTED"
 	OFFERED	= "OFFERED"
-	PENDING_IMPORTER	= "PENDING_IMPORTER"
 )
 
 // Location values

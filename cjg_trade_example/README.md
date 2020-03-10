@@ -1,6 +1,18 @@
 # Expanded Trade Workflow example
 This directory holds the trade workflow example extension created by Cody Gilbert for Project 1 of the Blockchain and its Applications course.
 
+## Problem
+In the extended scenario, the Importer Bank does not have to pay the Exporter for 60 days after delivery of the shipment into the 
+Importer’s country. 
+
+Since the Exporter would prefer to have the money sooner, it will transfer ownership of the ”accepted L/C” to a 
+third bank, the ”Lender”. When the Lender receives the accepted L/C it will transfer a discounted amount to the Exporter Bank. 
+
+Later, 
+it will request the full amount from the Importer Bank. To achieve this logic, you need to implement additional Organization type called 
+Lender, create an additional asset type ”accepted L/C”, and create a few new transactions corresponding to creation/transfer of the accepted 
+L/C, payment from the Lender to the Exporter Bank, and payment from the Importer Bank to the Lender.
+
 ### Design
 
 #### Workflow

@@ -86,7 +86,3 @@ peer chaincode invoke -n tw -c '{"Args":["issueEL","foo","fooLC","1/31/2030"]}' 
 sleep 2
 peer chaincode invoke -n tw -c '{"Args":["prepareShipment","foo"]}' -C tradechannel
 sleep 2
-peer chaincode invoke -n tw -c '{"Args":["acceptShipmentAndIssueBL","foo","fooBL","1/31/2030","JFK","EWR"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
-sleep 2

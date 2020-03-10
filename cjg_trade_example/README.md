@@ -106,6 +106,19 @@ export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
 peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo", "fooLC"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
+# Importer makes the half-payment to the payee (exporter or lender)
+peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
+
+# Progress shipment
+peer chaincode invoke -n tw -c '{"Args":["acceptShipmentAndIssueBL","foo","fooBL","1/31/2030","JFK","EWR"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["updateShipmentLocation","foo","DESTINATION"]}' -C tradechannel
+
+# Importer makes the rest of the payment
+peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
+
+
 # See the final state of the LC
 peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
 

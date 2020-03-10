@@ -820,14 +820,57 @@ func (t *TradeWorkflowChaincode) acceptShipmentAndIssueBL(stub shim.ChaincodeStu
 
 // Request a payment
 func (t *TradeWorkflowChaincode) requestPayment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var shipmentLocationKey, paymentKey, tradeKey string
-	var shipmentLocationBytes, paymentBytes, tradeAgreementBytes []byte
+	var shipmentLocationKey, paymentKey, tradeKey, testOrg, lcKey, lender string
+	var shipmentLocationBytes, paymentBytes, tradeAgreementBytes, letterOfCreditBytes, lenderIDBytes []byte
+	var letterOfCredit *LetterOfCredit
 	var tradeAgreement *TradeAgreement
 	var err error
+	var isExporter, isLender bool
+
+	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
+	isLender = authenticateLenderOrg(creatorOrg, creatorCertIssuer)
+
+	// If in test mode, use ABAC attributes to register identity
+	if t.testMode {
+		testOrg, _, err = getCustomAttribute(stub, "testorg")
+		if err != nil {return shim.Error(err.Error())}
+		isExporter = (testOrg == "exporter") || isExporter
+		isLender = (testOrg == "lender") || isLender
+	}
 
 	// Access control: Only an Exporter Org or Lender member can invoke this transaction
-	if !t.testMode && !(authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateLenderOrg(creatorOrg, creatorCertIssuer) ) {
+	if !(isExporter || isLender) {
 		return shim.Error("Caller not a member of Exporter or Lender Org. Access denied.")
+	}
+
+	// Prevent the lender from requesting payment if they aren't given the L/C
+	if isLender {
+		// Lookup L/C from the ledger
+		lcKey, err = getLCKey(stub, args[0])
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		letterOfCreditBytes, err = stub.GetState(lcKey)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Unmarshal the JSON
+		err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		// fetch the ID of the exporter from the ledger
+		lenderIDBytes, err = stub.GetState(lenKey)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		lender = string(lenderIDBytes)
+
+		if letterOfCredit.Beneficiary != lender {
+			return shim.Error("Lender not authorized to request payment. Access denied.")
+		}
+
 	}
 
 	if len(args) != 1 {
@@ -835,6 +878,7 @@ func (t *TradeWorkflowChaincode) requestPayment(stub shim.ChaincodeStubInterface
 		return shim.Error(err.Error())
 	}
 
+	// if there
 	// Lookup trade agreement from the ledger
 	tradeKey, err = getTradeKey(stub, args[0])
 	if err != nil {
@@ -908,15 +952,25 @@ func (t *TradeWorkflowChaincode) requestPayment(stub shim.ChaincodeStubInterface
 
 // Make a payment
 func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var lcKey, shipmentLocationKey, paymentKey, tradeKey, payeeKey string
+	var lcKey, shipmentLocationKey, paymentKey, tradeKey, payeeKey, testOrg, lender, exporter string
 	var paymentAmount, payeeBal, impBal int
-	var shipmentLocationBytes, paymentBytes, tradeAgreementBytes, impBalBytes, payeeBalBytes, letterOfCreditBytes []byte
+	var shipmentLocationBytes, paymentBytes, tradeAgreementBytes, impBalBytes, payeeBalBytes, letterOfCreditBytes, lenderIDBytes, exporterIDBytes []byte
 	var tradeAgreement *TradeAgreement
 	var letterOfCredit *LetterOfCredit
 	var err error
+	var isImporter bool
+
+	isImporter = authenticateImporterOrg(creatorOrg, creatorCertIssuer)
+
+	// If in test mode, use ABAC attributes to register identity
+	if t.testMode {
+		testOrg, _, err = getCustomAttribute(stub, "testorg")
+		if err != nil {return shim.Error(err.Error())}
+		isImporter = (testOrg == "exporter") || isImporter
+	}
 
 	// Access control: Only an Importer Org member can invoke this transaction
-	if !t.testMode && !authenticateImporterOrg(creatorOrg, creatorCertIssuer) {
+	if !isImporter {
 		return shim.Error("Caller not a member of Importer Org. Access denied.")
 	}
 
@@ -994,19 +1048,32 @@ func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, c
 		return shim.Error(err.Error())
 	}
 
-	if (t.testMode && letterOfCredit.Beneficiary == "lender") || letterOfCredit.Beneficiary == "LenderOrg" {
-		/*
-		if in test mode, use the values associated with the testOrg ecert attributes to determine if the lender org
-		is to be paid
-
-		In production, use the org that stamped the CL as the indicator of who to pay
-		 */
-		payeeKey = lenBalKey
-	} else {
-		payeeKey = expBalKey
+	// fetch the ID of the lender from the ledger
+	lenderIDBytes, err = stub.GetState(lenKey)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
+	lender = string(lenderIDBytes)
 
+	// fetch the ID of the exporter from the ledger
+	exporterIDBytes, err = stub.GetState(expKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	exporter = string(exporterIDBytes)
 
+	// Set the ID of the org to pay to
+	if letterOfCredit.Beneficiary == lender {
+		fmt.Printf("Paying the lender org: %s \n", lender)
+		payeeKey = lenBalKey
+	} else if letterOfCredit.Beneficiary == exporter {
+		fmt.Printf("Paying the exporter org: %s \n", exporter)
+		payeeKey = expBalKey
+	} else {
+		err = errors.New(fmt.Sprintf("Beneficiary %s account ID not found", letterOfCredit.Beneficiary))
+		return shim.Error(err.Error())
+	}
+	
 
 	// Lookup account balances
 	payeeBalBytes, err = stub.GetState(payeeKey)
@@ -1385,29 +1452,44 @@ func (t *TradeWorkflowChaincode) getAccountBalance(stub shim.ChaincodeStubInterf
 
 // Exporter Requests a line of Credit
 func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var clKey, lcKey, importer, exporter string
-	var letterOfCreditBytes, creditLineBytes []byte
+	var clKey, lcKey, importer, exporter, testOrg string
+	var letterOfCreditBytes, creditLineBytes, importerIDBytes, exporterIDBytes[]byte
 	var letterOfCredit *LetterOfCredit
 	var creditLine *CreditLine
 	var err error
+	var isExporter bool
 
+	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
+	// If in test mode, use ABAC attributes to register identity
+	if t.testMode {
+		testOrg, _, err = getCustomAttribute(stub, "testorg")
+		if err != nil {return shim.Error(err.Error())}
+		isExporter = (testOrg == "exporter") || isExporter
+	}
 	// Access control: Only an Exporter can invoke this transaction
-	if !t.testMode && !( authenticateExporterOrg(creatorOrg, creatorCertIssuer) ) {
+	if !isExporter {
 		return shim.Error("Caller not a member of Exporter Org. Access denied.")
 	}
-	if len(args) < 2 {
-		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Importer Org} [List of Documents]. Found %d", len(args)))
+
+	if len(args) != 1 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 1: {Trade ID} [List of Documents]. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
-	// Get the import and exporter identities; divert to attributes if it's a test
-	if t.testMode {
-		exporter, _, err = getCustomAttribute(stub, "testorg")
-		if err != nil {return shim.Error(err.Error())}
-		importer = args[1]
-	} else {
-		importer = args[1]
-		exporter = creatorOrg
+
+	// fetch the ID of the importer from the ledger
+	importerIDBytes, err = stub.GetState(impKey)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
+	importer = string(importerIDBytes)
+
+	// fetch the ID of the exporter from the ledger
+	exporterIDBytes, err = stub.GetState(expKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	exporter = string(exporterIDBytes)
+
 
 	// Lookup L/C from the ledger
 	lcKey, err = getLCKey(stub, args[0])
@@ -1453,24 +1535,32 @@ func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface,
 Once an exporter has requested a line of credit, a Lender can offer funding to the request by some discounted amount.
  */
 func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var clKey, lcKey, lender string
-	var creditLineBytes, letterOfCreditBytes []byte
+	var clKey, lcKey, lender, testOrg string
+	var creditLineBytes, letterOfCreditBytes, lenderIDBytes []byte
 	var creditLine *CreditLine
 	var letterOfCredit *LetterOfCredit
 	var err error
 	var discountAmount int
+	var isLender bool
 
-	// Access control: Only a Lender Org member can invoke this transaction
-	if !t.testMode && !authenticateLenderOrg(creatorOrg, creatorCertIssuer) {
-		return shim.Error("Caller not a member of Lender Org. Access denied.")
-	}
-	// Get the lender identity; divert to attributes if it's a test
+	isLender = authenticateLenderOrg(creatorOrg, creatorCertIssuer)
+	// If in test mode, use ABAC attributes to register identity
 	if t.testMode {
-		lender, _, err = getCustomAttribute(stub, "testorg")
+		testOrg, _, err = getCustomAttribute(stub, "testorg")
 		if err != nil {return shim.Error(err.Error())}
-	} else {
-		lender = creatorOrg
+		isLender = (testOrg == "exporter") || isLender
 	}
+	// Access control: Only an Exporter can invoke this transaction
+	if !isLender {
+		return shim.Error("Caller not a member of Importer Org. Access denied.")
+	}
+
+	// fetch the ID of the exporter from the ledger
+	lenderIDBytes, err = stub.GetState(lenKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	lender = string(lenderIDBytes)
 
 	if len(args) < 2 {
 		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Discount Amount}. Found %d", len(args)))
@@ -1558,19 +1648,22 @@ func (t *TradeWorkflowChaincode) acceptCL(stub shim.ChaincodeStubInterface, crea
 
 	// Store access org for later use
 	isExporter = authenticateExporterOrg(creatorOrg, creatorCertIssuer)
-	if t.testMode && !isExporter {
+
+	// If in test mode, use ABAC attributes to register identity
+	if t.testMode {
 		testOrg, _, err = getCustomAttribute(stub, "testorg")
 		if err != nil {return shim.Error(err.Error())}
-		isExporter = testOrg == "exporter"
+		isExporter = (testOrg == "exporter") || isExporter
 	}
+
 	// Access control: Only an Exporter Org member can invoke this transaction
-	if !t.testMode && ! isExporter {
+	if !isExporter {
 		err = errors.New(fmt.Sprintf("Caller not a member of Exporter Org. Access denied. Caller is member of %s.", creatorOrg))
 		return shim.Error(err.Error())
 	}
 	// Argument validation
-	if len(args) < 2 {
-		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID, LC ID}. Found %d", len(args)))
+	if len(args) != 1 {
+		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 1: {Trade ID}. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
 

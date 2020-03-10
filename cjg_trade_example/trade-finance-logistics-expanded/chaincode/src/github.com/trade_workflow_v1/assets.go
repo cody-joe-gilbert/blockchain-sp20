@@ -64,5 +64,4 @@ type CreditLine struct {
 	DiscountAmount int      `json:"discountamount"`
 	Documents      []string `json:"documents"`
 	Status         string   `json:"status"`
-	ExpirationDate     string `json:"expirationDate"`
 }

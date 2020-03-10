@@ -67,22 +67,4 @@ cp -p ~/.fabric-ca-client/${ORG_NAME}/signcerts/*  ~/.fabric-ca-client/${ORG_NAM
 
 peer chaincode install -p chaincodedev/chaincode/trade_workflow_v1 -n tw -v 0
 
-# Setting up the accepted L/C prereq
-peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000", "WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment","LenderBros","300000"]}' -C tradechannel
-sleep 3
-peer chaincode invoke -n tw -c '{"Args":["requestTrade", "foo", "5000", "Wood for Toys"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["acceptTrade", "foo"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["requestLC", "foo"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["issueLC", "foo", "fooLC", "12/31/2030", "E/L", "B/L"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["acceptLC", "foo"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["requestEL","foo"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["issueEL","foo","fooLC","1/31/2030"]}' -C tradechannel
-sleep 2
-peer chaincode invoke -n tw -c '{"Args":["prepareShipment","foo"]}' -C tradechannel
-sleep 2
+

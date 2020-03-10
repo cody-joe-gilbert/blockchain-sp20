@@ -1410,7 +1410,9 @@ func (t *TradeWorkflowChaincode) getAccountBalance(stub shim.ChaincodeStubInterf
 	}
 
 	entity = strings.ToLower(args[1])
+	fmt.Printf("Printing %s account balance\n", entity)
 	if entity == "exporter" {
+
 		// Access control: Only an Exporter or Exporting Entity Org member can invoke this transaction
 		if !t.testMode && !(authenticateExporterOrg(creatorOrg, creatorCertIssuer) || authenticateExportingEntityOrg(creatorOrg, creatorCertIssuer)) {
 			return shim.Error("Caller not a member of Exporter or Exporting Entity Org. Access denied.")
@@ -1534,12 +1536,12 @@ func (t *TradeWorkflowChaincode) getCreditLine(stub shim.ChaincodeStubInterface,
 Once an exporter has requested a line of credit, a Lender can offer funding to the request by some discounted amount.
  */
 func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creatorOrg string, creatorCertIssuer string, args []string) pb.Response {
-	var clKey, lcKey, lender, testOrg string
-	var creditLineBytes, letterOfCreditBytes, lenderIDBytes []byte
+	var clKey, tradeKey, lender, testOrg string
+	var creditLineBytes, tradeAgreementBytes, lenderIDBytes []byte
 	var creditLine *CreditLine
-	var letterOfCredit *LetterOfCredit
+	var tradeAgreement *TradeAgreement
 	var err error
-	var discountAmount int
+	var discountAmount, remainingPaymentAmount int
 	var isLender bool
 
 	isLender = authenticateLenderOrg(creatorOrg, creatorCertIssuer)
@@ -1565,20 +1567,6 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 		err = errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting at least 2: {Trade ID} {Discount Amount}. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
-	// Lookup L/C from the ledger
-	lcKey, err = getLCKey(stub, args[0])
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	letterOfCreditBytes, err = stub.GetState(lcKey)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	// Unmarshal the JSON
-	err = json.Unmarshal(letterOfCreditBytes, &letterOfCredit)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
 
 	// Parse the offered discount amount and LC amount
 	discountAmount, err = strconv.Atoi(args[1])
@@ -1586,9 +1574,32 @@ func (t *TradeWorkflowChaincode) offerCL(stub shim.ChaincodeStubInterface, creat
 		return shim.Error(err.Error())
 	}
 
+	// Lookup trade agreement from the ledger
+	tradeKey, err = getTradeKey(stub, args[0])
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	tradeAgreementBytes, err = stub.GetState(tradeKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if len(tradeAgreementBytes) == 0 {
+		err = errors.New(fmt.Sprintf("No record found for trade ID %s", args[0]))
+		return shim.Error(err.Error())
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(tradeAgreementBytes, &tradeAgreement)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	remainingPaymentAmount = tradeAgreement.Amount - tradeAgreement.Payment
+
 	// Check that the discounted amount is within range
-	if discountAmount > letterOfCredit.Amount {
-		err = errors.New(fmt.Sprintf("Discount Amount must be less than original amount: %d < %d", discountAmount, letterOfCredit.Amount))
+	if discountAmount > remainingPaymentAmount {
+		err = errors.New(fmt.Sprintf("Discount Amount must be less than the remaining payment amount: %d < %d", discountAmount, remainingPaymentAmount))
 		return shim.Error(err.Error())
 	} else if discountAmount < 0 {
 		err = errors.New(fmt.Sprintf("Discount Amount must be > 0: %d", discountAmount))

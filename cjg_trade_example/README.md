@@ -4,12 +4,9 @@ This directory holds the trade workflow example extension created by Cody Gilber
 ## Problem
 In the extended scenario, the Importer Bank does not have to pay the Exporter for 60 days after delivery of the shipment into the 
 Importer’s country. 
-
 Since the Exporter would prefer to have the money sooner, it will transfer ownership of the ”accepted L/C” to a 
 third bank, the ”Lender”. When the Lender receives the accepted L/C it will transfer a discounted amount to the Exporter Bank. 
-
-Later, 
-it will request the full amount from the Importer Bank. To achieve this logic, you need to implement additional Organization type called 
+Later, it will request the full amount from the Importer Bank. To achieve this logic, you need to implement additional Organization type called 
 Lender, create an additional asset type ”accepted L/C”, and create a few new transactions corresponding to creation/transfer of the accepted 
 L/C, payment from the Lender to the Exporter Bank, and payment from the Importer Bank to the Lender.
 
@@ -50,8 +47,10 @@ The following transactions were modified:
 2. `makePayment`: Now pays whomever holds the L/C beneficiary status
 
 Requirements:
-* The L/C must be in the 'ACCEPTED' status prior to CL request
-* The Lender-provided discounted amount must be greater than 0 and less than or equal to the original trade amount.
+* ABAC-enforced functions
+* The L/C must be in the 'ACCEPTED' status and good must be shipped prior to CL request
+* The Lender-provided discounted amount must be greater than 0 and less than or equal to the remaining unpaid trade amount.
+* The Lender cannot request payment if they do not own the L/C
 
 ### Dev Example with CLI
 This section covers how to execute the trade workflow extension using the development environment. The following
@@ -76,63 +75,75 @@ CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_v1
 # In another terminal, start the cli for execution
 docker exec -it cli bash
 
-# Bootstrap the example: This script will create the channel, generate the org credentials,
-# and run through the workflow until the L/C is in an ACCEPTED status.
+# Examples: Each of the following may be executed. Reset state after each execution.
+# Example 1: Full end-to-end workflow
+chmod +x /opt/trade/fullWorkflow.sh
+/opt/trade/fullWorkflow.sh
+
+# Example 2: Full end-to-end workflow without Lender Involvement
+# Will raise an error when the lender attempts to request payment but doesn't hold the L/C
+chmod +x /opt/trade/fullNoLending.sh
+/opt/trade/fullNoLending.sh
+
+
+# Example 3: Error Checks
 chmod +x /opt/trade/setupChannel.sh
 /opt/trade/setupChannel.sh
+# Setup the execution until L/C is accepted
+peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000", "WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment","LenderBros","300000"]}' -C tradechannel
+sleep 3
+peer chaincode invoke -n tw -c '{"Args":["requestTrade", "foo", "5000", "Wood for Toys"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["acceptTrade", "foo"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["requestLC", "foo"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["issueLC", "foo", "fooLC", "12/31/2030", "E/L", "B/L"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["acceptLC", "foo"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["requestEL","foo"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["issueEL","foo","fooLC","1/31/2030"]}' -C tradechannel
+sleep 2
+peer chaincode invoke -n tw -c '{"Args":["prepareShipment","foo"]}' -C tradechannel
+sleep 2
 
-# See the current state of the LC
-peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
-
-# Request a CL as the exporter
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the exporter credentials
-peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
-
-# Offer a CL of 4500 as the Lender
+# Try to Request CL with the wrong credentials
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
+peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo"]}' -C tradechannel  # FAIL
+sleep 2
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
-
-# Accept a CL as the exporter
+peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo"]}' -C tradechannel  # FAIL
+sleep 2
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
-peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
+peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo"]}' -C tradechannel  # SUCCEED
+sleep 2
 
-# See that money transfers
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel
-
-# See the L/C beneficiary changes
-peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
-
-# Importer makes the half-payment to the payee (exporter or lender)
-peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
+# Offer with the wrong credentials
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
-peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
-
-# See that money transfers
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","importer"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel
-
-# Progress shipment to importer
-peer chaincode invoke -n tw -c '{"Args":["acceptShipmentAndIssueBL","foo","fooBL","1/31/2030","JFK","EWR"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["updateShipmentLocation","foo","DESTINATION"]}' -C tradechannel
-
-# Importer makes the rest of the payment
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel  # FAIL
+sleep 2
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
-peer chaincode invoke -n tw -c '{"Args":["requestPayment","foo"]}' -C tradechannel
-export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
-peer chaincode invoke -n tw -c '{"Args":["makePayment","foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel  # FAIL
+sleep 2
 
-# See the final balances
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","importer"]}' -C tradechannel
-peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel
+# Accept a CL with the wrong credentials
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel  # FAIL
+sleep 2
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel  # FAIL
+sleep 2
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel  # SUCCEED
+
 ```
 
 ### Example with Middleware
+
+**NOTE: Due to errors in JS execution, this example is not functional at this time** 
+
 This section covers how to execute the trade workflow extension using the middleware environment:
 
 ```shell script

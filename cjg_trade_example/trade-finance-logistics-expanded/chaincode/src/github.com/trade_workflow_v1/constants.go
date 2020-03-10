@@ -26,6 +26,8 @@ const (
 	impBalKey	= "ImportersAccountBalance"
 	carKey		= "Carrier"
 	raKey		= "RegulatoryAuthority"
+	lenKey		= "Lender"
+	lenBalKey	= "LendersAccountBalance"
 )
 
 // State values

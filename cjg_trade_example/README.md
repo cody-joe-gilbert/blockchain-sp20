@@ -69,7 +69,6 @@ chmod +x /opt/trade/setupChannel.sh
 # See the current state of the LC
 peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
 
-
 # Request a CL as the exporter
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter  # Uses the exporter credentials
 peer chaincode invoke -n tw -c '{"Args":["getCreditLine", "foo", "importer"]}' -C tradechannel
@@ -82,21 +81,26 @@ peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "50000000"]}' -C trad
 
 # Offer a CL of 500 as the Lender
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
-peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "500"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
 # Accept a CL as the exporter
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
-peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo", "fooLC", "7/31/2030"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
 # Accept a CL as the importer
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/importer
-peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo", "fooLC"]}' -C tradechannel
 peer chaincode invoke -n tw -c '{"Args":["printCreditLine", "foo"]}' -C tradechannel # Print the state
 
 # See the final state of the LC
 peer chaincode invoke -n tw -c '{"Args":["printLC", "foo"]}' -C tradechannel
+
+# Helpful
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","exporter"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","importer"]}' -C tradechannel
+peer chaincode invoke -n tw -c '{"Args":["getAccountBalance","foo","lender"]}' -C tradechannel
 ```
 
 ### Example with Middleware

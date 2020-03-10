@@ -27,6 +27,7 @@ type LetterOfCredit struct {
 	Id             string   `json:"id"`
 	ExpirationDate string   `json:"expirationDate"`
 	Beneficiary    string   `json:"beneficiary"`
+	Payment	int	`json:"payment"`
 	Amount         int      `json:"amount"`
 	Documents      []string `json:"documents"`
 	Status         string   `json:"status"`
@@ -63,4 +64,5 @@ type CreditLine struct {
 	DiscountAmount int      `json:"discountamount"`
 	Documents      []string `json:"documents"`
 	Status         string   `json:"status"`
+	ExpirationDate     string `json:"expirationDate"`
 }

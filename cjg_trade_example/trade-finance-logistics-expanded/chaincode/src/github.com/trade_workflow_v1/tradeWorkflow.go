@@ -1103,6 +1103,7 @@ func (t *TradeWorkflowChaincode) makePayment(stub shim.ChaincodeStubInterface, c
 	payeeBal += paymentAmount
 	if impBal < paymentAmount {
 		fmt.Printf("Importer's bank balance %d is insufficient to cover payment amount %d\n", impBal, paymentAmount)
+		return shim.Error("Payment exceeds balance of Importer's account.")
 	}
 	impBal -= paymentAmount
 

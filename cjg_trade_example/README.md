@@ -50,7 +50,8 @@ Requirements:
 * ABAC-enforced functions
 * The L/C must be in the 'ACCEPTED' status and good must be shipped prior to CL request
 * The Lender-provided discounted amount must be greater than 0 and less than or equal to the remaining unpaid trade amount.
-* The Lender cannot request payment if they do not own the L/C
+* The Lender cannot request payment if they do not ls
+own the L/C
 
 ### Dev Example with CLI
 This section covers how to execute the trade workflow extension using the development environment. The following
@@ -68,8 +69,7 @@ rm -rf ./devmode/channel-artifacts ./devmode/crypto-config ./devmode/logs ./devm
 
 # Install the chaincode
 docker exec -it chaincode bash
-cd ./trade_workflow_v1
-go build
+cd ./trade_workflow_v1; go build
 CORE_PEER_ADDRESS=peer:7052 CORE_CHAINCODE_ID_NAME=tw:0 ./trade_workflow_v1
 
 # In another terminal, start the cli for execution
@@ -77,18 +77,14 @@ docker exec -it cli bash
 
 # Examples: Each of the following may be executed. Reset state after each execution.
 # Example 1: Full end-to-end workflow
-chmod +x /opt/trade/fullWorkflow.sh
-/opt/trade/fullWorkflow.sh
+chmod +x /opt/trade/fullWorkflow.sh; /opt/trade/fullWorkflow.sh
 
 # Example 2: Full end-to-end workflow without Lender Involvement
 # Will raise an error when the lender attempts to request payment but doesn't hold the L/C
-chmod +x /opt/trade/fullNoLending.sh
-/opt/trade/fullNoLending.sh
-
+chmod +x /opt/trade/fullNoLending.sh; /opt/trade/fullNoLending.sh
 
 # Example 3: Error Checks
-chmod +x /opt/trade/setupChannel.sh
-/opt/trade/setupChannel.sh
+chmod +x /opt/trade/setupChannel.sh; /opt/trade/setupChannel.sh
 # Setup the execution until L/C is accepted
 peer chaincode instantiate -n tw -v 0 -c '{"Args":["init","LumberInc","LumberBank","100000", "WoodenToys","ToyBank","200000","UniversalFreight","ForestryDepartment","LenderBros","300000"]}' -C tradechannel
 sleep 3
@@ -127,6 +123,9 @@ sleep 2
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
 peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel  # FAIL
 sleep 2
+export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
+peer chaincode invoke -n tw -c '{"Args":["offerCL", "foo", "4500"]}' -C tradechannel  # SUCCEED
+sleep 2
 
 # Accept a CL with the wrong credentials
 export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/lender
@@ -139,7 +138,6 @@ export CORE_PEER_MSPCONFIGPATH=/root/.fabric-ca-client/exporter
 peer chaincode invoke -n tw -c '{"Args":["acceptCL", "foo"]}' -C tradechannel  # SUCCEED
 
 ```
-
 ### Example with Middleware
 
 **NOTE: Due to errors in JS execution, this example is not functional at this time** 

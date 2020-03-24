@@ -13,9 +13,11 @@ import (
 	/*
 		Import transaction packages here
 	*/
-	"transactions/admin"
-	"transactions/banking"
-	"transactions/streaming"
+	"blockchain-sp20/beatchain/chaincode/transactions"
+	"blockchain-sp20/beatchain/chaincode/transactions/admin"
+	"blockchain-sp20/beatchain/chaincode/transactions/banking"
+	"blockchain-sp20/beatchain/chaincode/transactions/streaming"
+
 )
 
 // BeatchainChaincode implementation
@@ -31,7 +33,6 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 	/*
 		Typechecking and initialization here
 	*/
-
 	return shim.Success(nil)
 }
 
@@ -54,6 +55,11 @@ func (t *TradeWorkflowChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Res
 		}
 		fmt.Printf("TradeWorkflow Invoke by '%s', '%s'\n", creatorOrg, creatorCertIssuer)
 	}
+
+	fmt.Println("This is a call to the %v module and file.", transactions.TransactionsVariable)
+	fmt.Println("This is a call to the %v module and file.", admin.AdminVariable)
+	fmt.Println("This is a call to the %v module and file.", banking.BankingVariable)
+	fmt.Println("This is a call to the %v module and file.", streaming.StreamingVariable)
 
 	/*
 		Here we'll dispatch invocation to separate function modules

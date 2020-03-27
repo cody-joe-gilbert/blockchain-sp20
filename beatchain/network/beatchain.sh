@@ -356,7 +356,7 @@ function generateChannelArtifacts() {
   echo "#######  Generating anchor peer update for AppDevMSP  ##########"
   echo "#####################################################################"
   set -x
-  configtxgen -profile $CHANNEL_PROFILE -outputAnchorPeersUpdate ./channel-artifacts/AppDevMSPanchors.tx -channelID $CHANNEL_NAME -asOrg AppDevMSP
+  configtxgen -profile $CHANNEL_PROFILE -outputAnchorPeersUpdate ./channel-artifacts/AppDevMSPanchors.tx -channelID $CHANNEL_NAME -asOrg AppDevOrg
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -370,7 +370,7 @@ function generateChannelArtifacts() {
   echo "#####################################################################"
   set -x
   configtxgen -profile $CHANNEL_PROFILE -outputAnchorPeersUpdate \
-  ./channel-artifacts/CreatorMSPanchors.tx -channelID $CHANNEL_NAME -asOrg CreatorMSP -channelID $CHANNEL_NAME
+  ./channel-artifacts/CreatorMSPanchors.tx -channelID $CHANNEL_NAME -asOrg CreatorOrg -channelID $CHANNEL_NAME
   res=$?
   set +x
   if [ $res -ne 0 ]; then
@@ -384,7 +384,7 @@ function generateChannelArtifacts() {
   echo "####################################################################"
   set -x
   configtxgen -profile $CHANNEL_PROFILE -outputAnchorPeersUpdate \
-  ./channel-artifacts/CustomerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg CustomerMSP -channelID $CHANNEL_NAME
+  ./channel-artifacts/CustomerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg CustomerOrg -channelID $CHANNEL_NAME
   res=$?
   set +x
   if [ $res -ne 0 ]; then

@@ -1,0 +1,97 @@
+# Blockchain & Applications Project 2: Beatchain
+# Cody Gilbert
+
+version: '2'
+
+volumes:
+  orderer.beatchain.com:
+  peer0.appdevorg.beatchain.com:
+  peer0.creatororg.beatchain.com:
+  peer0.customerorg.beatchain.com:
+
+networks:
+  beatchain:
+services:
+  appdevorg-ca:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-appdevorg
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.appdevorg.beatchain.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/APPDEVORG_CA_PRIVATE_KEY
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.appdevorg.beatchain.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/APPDEVORG_CA_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerAppDevOrg
+    networks:
+      - beatchain
+
+  creatororg-ca:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-creatororg
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.creatororg.beatchain.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CREATORORG_CA_PRIVATE_KEY
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.creatororg.beatchain.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CREATORORG_CA_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/creatororg.beatchain.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerCreatorOrg
+    networks:
+      - beatchain
+
+  customerorg-ca:
+    image: hyperledger/fabric-ca:$IMAGE_TAG
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-customerorg
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.customerorg.beatchain.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CUSTOMERORG_CA_PRIVATE_KEY
+    ports:
+      - "9054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.customerorg.beatchain.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CUSTOMERORG_CA_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/customerorg.beatchain.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerCustomerOrg
+    networks:
+      - beatchain
+
+  orderer.beatchain.com:
+    extends:
+      file:   docker-compose-base.yaml
+      service: orderer.beatchain.com
+    container_name: orderer.beatchain.com
+    networks:
+      - beatchain
+
+  peer0.appdevorg.beatchain.com:
+    container_name: peer0.appdevorg.beatchain.com
+    extends:
+      file:  docker-compose-base.yaml
+      service: peer0.appdevorg.beatchain.com
+    networks:
+      - beatchain
+
+  peer0.creatororg.beatchain.com:
+    container_name: peer0.creatororg.beatchain.com
+    extends:
+      file:  docker-compose-base.yaml
+      service: peer0.creatororg.beatchain.com
+    networks:
+      - beatchain
+
+  peer0.customerorg.beatchain.com:
+    container_name: peer0.customerorg.beatchain.com
+    extends:
+      file:  docker-compose-base.yaml
+      service: peer0.customerorg.beatchain.com
+    networks:
+      - beatchain
+

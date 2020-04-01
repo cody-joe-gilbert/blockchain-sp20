@@ -18,6 +18,8 @@ import (
 	"blockchain-sp20/beatchain/chaincode/transactions/banking"
 	"blockchain-sp20/beatchain/chaincode/transactions/streaming"
 
+	"blockchain-sp20/beatchain/chaincode/utils"
+
 )
 
 // BeatchainChaincode implementation
@@ -37,23 +39,14 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 }
 
 // Invocation template
-func (t *TradeWorkflowChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+	var txn *utils.Transaction
+	var err error
 	fmt.Println("BeatchainChaincode Invoke")
-
-	creator, err := stub.GetCreator()
+	// Get the transaction details
+	txn, err = utils.GetTxInfo(stub)
 	if err != nil {
-		fmt.Errorf("Error getting transaction creator: %s\n", err.Error())
 		return shim.Error(err.Error())
-	}
-	creatorOrg := ""
-	creatorCertIssuer := ""
-	if !t.testMode {
-		creatorOrg, creatorCertIssuer, err = getTxCreatorInfo(creator)
-		if err != nil {
-			fmt.Errorf("Error extracting creator identity info: %s\n", err.Error())
-			return shim.Error(err.Error())
-		}
-		fmt.Printf("TradeWorkflow Invoke by '%s', '%s'\n", creatorOrg, creatorCertIssuer)
 	}
 
 	fmt.Println("This is a call to the %v module and file.", transactions.TransactionsVariable)
@@ -64,10 +57,10 @@ func (t *TradeWorkflowChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Res
 	/*
 		Here we'll dispatch invocation to separate function modules
 	*/
-	function, args := stub.GetFunctionAndParameters()
-	if function == "" {
+
+	if txn.CalledFunction == "" {
 		// Importer requests a trade
-		return t.FUNCTION(stub, creatorOrg, creatorCertIssuer, args)
+		return t.FUNCTION(stub, txn)
 	}
 	return shim.Error("Invalid invoke function name")
 }

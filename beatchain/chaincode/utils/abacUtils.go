@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/protos/msp"
+	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 )
 
 func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {
@@ -25,6 +26,8 @@ func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {
 	var certASN1 *pem.Block
 	var cert *x509.Certificate
 	var err error
+	var attribute string
+	var found bool
 	/*
 		Construct a more friendly Transaction struct for passing variables
 	*/
@@ -57,6 +60,14 @@ func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {
 
 	// Fetch the function call info
 	txn.CalledFunction, txn.Args = stub.GetFunctionAndParameters()
+
+	// Access Attributes here
+	attribute, found, err = cid.GetAttributeValue(stub, "id")
+	if found {
+		txn.CreatorId = attribute
+	} else {
+		txn.CreatorId = ""
+	}
 
 	return txn, nil
 }

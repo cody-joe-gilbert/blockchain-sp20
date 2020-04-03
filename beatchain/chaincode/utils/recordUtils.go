@@ -224,3 +224,41 @@ func GetAppDevRecord(stub shim.ChaincodeStubInterface, appDevId string) (*AppDev
 	return appDevRecord, nil
 
 }
+
+func SetAppDevRecord(stub shim.ChaincodeStubInterface, appDevRecord *AppDevRecord) error {
+	/*
+		Sets an AppDevRecord object within the ledger
+
+		Args:
+			stub: HF shim interface
+			appDevRecord: AppDevRecord object to be set in the ledger
+
+		Returns:
+			err: Error object. nil if no error occurred.
+
+	*/
+	var appDevRecordBytes []byte
+	var appDevKey string
+	var err error
+
+	// Create the record key
+	appDevKey, err = GetAppDevRecordKey(stub, appDevRecord.Id)
+	if err != nil {
+		return err
+	}
+
+	// marshal the struct to JSON
+	appDevRecordBytes, err = json.Marshal(appDevRecord)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error marshaling AppDev record with AppDevRecord.ID %s",
+			appDevRecord.Id))
+	}
+
+	// Push the record back to the ledger
+	err = stub.PutState(appDevKey, appDevRecordBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

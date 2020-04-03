@@ -29,12 +29,30 @@ type BeatchainChaincode struct {
 
 // Initialization template
 func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-	fmt.Println("Initializing Beatchain")
-	_, args := stub.GetFunctionAndParameters()
+	var txn *utils.Transaction
 	var err error
-	/*
-		Typechecking and initialization here
-	*/
+
+	fmt.Println("Initializing Beatchain chaincode")
+
+	// Get the transaction details
+	txn, err = utils.GetTxInfo(stub)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if len(txn.Args) == 0 {
+		// Using existing ledger
+		fmt.Println("Initializing with existing ledger")
+		return shim.Success(nil)
+	}
+
+	// New variables given; initialize ledger
+	err = ledgerInit(stub, txn)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+
 	return shim.Success(nil)
 }
 
@@ -42,7 +60,9 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	var txn *utils.Transaction
 	var err error
+
 	fmt.Println("BeatchainChaincode Invoke")
+
 	// Get the transaction details
 	txn, err = utils.GetTxInfo(stub)
 	if err != nil {
@@ -63,4 +83,16 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		return t.FUNCTION(stub, txn)
 	}
 	return shim.Error("Invalid invoke function name")
+}
+
+func main() {
+	/*
+	Bootstraps the Beatchain chaincode
+	 */
+	bcc := new(BeatchainChaincode)
+	bcc.testMode = false
+	err := shim.Start(bcc)
+	if err != nil {
+		fmt.Printf("Error starting Trade Workflow chaincode: %s", err)
+	}
 }

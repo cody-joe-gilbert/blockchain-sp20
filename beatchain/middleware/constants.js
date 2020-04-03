@@ -63,7 +63,7 @@ var APPDEV_ORG = 'appdevorg';
 var CREATOR_ORG = 'creatororg';
 var CUSTOMER_ORG = 'customerorg';
 
-var CHANNEL_NAME = 'beatchain';
+var CHANNEL_NAME = 'FullChannel';
 var CHAINCODE_PATH = '';
 var CHAINCODE_ID = 'beatchain_alpha';
 var CHAINCODE_VERSION = 'v0';

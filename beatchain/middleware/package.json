@@ -1,7 +1,7 @@
 {
   "name": "middleware",
   "version": "1.0.0",
-  "description": "Trade Use Case",
+  "description": "Beatchain Use Case",
   "main": "app.js",
   "dependencies": {
     "fabric-ca-client": "~1.4.0",

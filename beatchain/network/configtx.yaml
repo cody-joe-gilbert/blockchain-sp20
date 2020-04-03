@@ -258,7 +258,7 @@ Profiles:
                 Organizations:
                     - *AppDevOrg
                     - *CreatorOrg
-    FullChannel:
+    fullchannel:
         # Includes all participants for dev and prototyping purposes
         Consortium: BeatchainConsortium
         Application:
@@ -270,7 +270,7 @@ Profiles:
             Capabilities:
                 <<: *ApplicationCapabilities
 
-    ContractChannel:
+    contractchannel:
         # Includes Creators and Devs to generate and agree to streaming contracts
         # Hidden from Customer view
         Consortium: ContractConsortium
@@ -282,7 +282,7 @@ Profiles:
             Capabilities:
                 <<: *ApplicationCapabilities
 
-    BankingChannel:
+    bankingchannel:
         # Includes all orgs but solely for banking and financial transactions
         Consortium: BeatchainConsortium
         Application:
@@ -294,7 +294,7 @@ Profiles:
             Capabilities:
                 <<: *ApplicationCapabilities
 
-    StreamingChannel:
+    streamingchannel:
         # Org used to deliver content streaming from AppDevs to Customers.
         # Creators included to enable content usage monitoring
         Consortium: BeatchainConsortium

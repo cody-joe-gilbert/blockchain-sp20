@@ -395,7 +395,7 @@ function generateChannelArtifacts() {
 }
 
 # channel name (overrides default 'testchainid')
-CHANNEL_NAME="FullChannel"
+CHANNEL_NAME="fullchannel"
 # use this as the default docker-compose yaml definition
 COMPOSE_FILE=docker-compose.yaml
 # default image tag

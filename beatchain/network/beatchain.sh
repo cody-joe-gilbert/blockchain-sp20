@@ -55,10 +55,10 @@ function printHelp () {
   echo "Typically, one would first generate the required certificates and "
   echo "genesis block, then bring up the network. e.g.:"
   echo
-  echo "	beatchain.sh generate -c FullChannel"
-  echo "	beatchain.sh up -c FullChannel -o logs/network.log"
-  echo "        beatchain.sh up -c FullChannel -i 1.1.0-alpha"
-  echo "	beatchain.sh down -c FullChannel"
+  echo "	beatchain.sh generate -c fullchannel"
+  echo "	beatchain.sh up -c fullchannel -o logs/network.log"
+  echo "        beatchain.sh up -c fullchannel -i 1.1.0-alpha"
+  echo "	beatchain.sh down -c fullchannel"
   echo
   echo "Taking all defaults:"
   echo "	beatchain.sh generate"
@@ -326,7 +326,7 @@ function generateChannelArtifacts() {
   echo "###########################################################"
 
   PROFILE=BeatchainGenesis
-  CHANNEL_PROFILE=FullChannel
+  CHANNEL_PROFILE=fullchannel
   # Note: For some unknown reason (at least for now) the block file can't be
   # named orderer.genesis.block or the orderer will fail to launch!
   set -x

@@ -76,3 +76,10 @@ func AuthenticateCustomer(txn *Transaction) bool {
 	return (txn.CreatorOrg == "CustomerMSP") && (txn.CreatorCertIssuer == "ca.customerorg.beatchain.com")
 }
 
+func AuthenticateAppDev(txn *Transaction) bool {
+	return (txn.CreatorOrg == "AppDevMSP") && (txn.CreatorCertIssuer == "ca.appdevorg.beatchain.com")
+}
+
+func AuthenticateCreator(txn *Transaction) bool {
+	return (txn.CreatorOrg == "CreatorMSP") && (txn.CreatorCertIssuer == "ca.creatororg.beatchain.com")
+}

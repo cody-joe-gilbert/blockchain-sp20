@@ -1,6 +1,8 @@
 package utils
 
-import "time"
+import (
+	"time"
+)
 
 const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "0000001"
 
@@ -25,7 +27,7 @@ type CustomerRecord struct {
 	BankAccountId				string		`json:"bankaccountid"`
 	SubscriptionFee				float32		`json:"subscriptionfee"`
 	SubscriptionDueDate			time.Time	`json:"subscriptionduedate"`
-	QueuedSong					string		`json:"qeuedsong"`
+	QueuedSong					string		`json:"queuedsong"`
 	PreviousSong				string		`json:"previoussong"`
 }
 
@@ -44,4 +46,15 @@ type AppDevRecord struct {
 	Id							string		`json:"id"`
 	BankAccountId				string		`json:"bankaccountid"`
 	AdminFeeFrac				float32		`json:"adminfeefrac"`
+}
+
+type Contract struct {
+	/*
+		Defines a Contract record on the ledger
+	*/
+	CreatorId					string		`json:"id"`
+	AppDevId					string		`json:"id"`
+	ProductId					string		`json:"id"`
+	CreatorPayPerStream			float32		`json:"creatorpayperstream"`
+	Status						string		`json:"contractstatus"`
 }

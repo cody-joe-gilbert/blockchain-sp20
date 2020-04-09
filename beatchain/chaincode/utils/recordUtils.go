@@ -2,24 +2,25 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"errors"
+	"fmt"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 func GetCustomerRecord(stub shim.ChaincodeStubInterface, customerId string) (*CustomerRecord, error) {
 	/*
-	Fetches a CustomerRecord object from off the ledger
+		Fetches a CustomerRecord object from off the ledger
 
-	Args:
-		stub: HF shim interface
-		customerId: Primary Key of the Customer
+		Args:
+			stub: HF shim interface
+			customerId: Primary Key of the Customer
 
-	Returns:
-		customerRecord: CustomerRecord struct obj for the requested record
-		err: Error object. nil if no error occurred.
+		Returns:
+			customerRecord: CustomerRecord struct obj for the requested record
+			err: Error object. nil if no error occurred.
 
-	 */
+	*/
 	var customerRecordBytes []byte
 	var customerRecord *CustomerRecord
 	var customerKey string
@@ -88,7 +89,6 @@ func SetCustomerRecord(stub shim.ChaincodeStubInterface, customerRecord *Custome
 
 	return nil
 }
-
 
 func GetBankAccount(stub shim.ChaincodeStubInterface, bankAccountId string) (*BankAccount, error) {
 	/*
@@ -160,7 +160,7 @@ func SetBankAccount(stub shim.ChaincodeStubInterface, bankAccount *BankAccount) 
 	// Validate balance
 	if bankAccount.Balance < 0.0 {
 		return errors.New(fmt.Sprintf("cannot update Bank Account balance of $%.2f; Balance must be >= $0.0",
-			bankAccount.Balance ))
+			bankAccount.Balance))
 	}
 
 	// marshal the struct to JSON
@@ -178,7 +178,6 @@ func SetBankAccount(stub shim.ChaincodeStubInterface, bankAccount *BankAccount) 
 
 	return nil
 }
-
 
 func GetAppDevRecord(stub shim.ChaincodeStubInterface, appDevId string) (*AppDevRecord, error) {
 	/*

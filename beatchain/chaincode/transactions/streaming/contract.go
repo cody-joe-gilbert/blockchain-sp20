@@ -5,15 +5,16 @@ import (
 	"blockchain-sp20/beatchain/chaincode/utils"
 	"errors"
 	"fmt"
+	"strconv"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
-	"strconv"
 )
 
 var ContractVariable = "contractVariable"
 
 // THESE FUNCTIONS DO NOT CHECK TO SEE IF THE CALLER IS THE ACTUAL ORG MAKING/ACCEPTING/DENYING CONTRACT
-
+// Arun : Can we create a password asset or something like that?
 func offerContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 
@@ -59,7 +60,7 @@ func offerContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 		return shim.Error(err.Error())
 	}
 
-	raw_contract := &utils.Contract{CreatorId:creatorId, AppDevId:appDevId, ProductId:productId, CreatorPayPerStream:float32(creatorPayPerStream), Status:transactions.REQUESTED}
+	raw_contract := &utils.Contract{CreatorId: creatorId, AppDevId: appDevId, ProductId: productId, CreatorPayPerStream: float32(creatorPayPerStream), Status: transactions.REQUESTED}
 	err = utils.SetContract(stub, raw_contract)
 	if err != nil {
 		return shim.Error(err.Error())

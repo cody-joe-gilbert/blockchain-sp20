@@ -28,3 +28,12 @@ func GetAppDevRecordKey(stub shim.ChaincodeStubInterface, id string) (string, er
 		return key, nil
 	}
 }
+
+func GetProductKey(stub shim.ChaincodeStubInterface, id string) (string, error) {
+	key, err := stub.CreateCompositeKey("Product", []string{id})
+	if err != nil {
+		return "", err
+	} else {
+		return key, nil
+	}
+}

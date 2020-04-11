@@ -104,3 +104,54 @@ func deleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 
 	return shim.Success(nil)
 }
+
+func addCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	var err error
+
+	// Access control: Only an admin or app dev can invoke this transaction
+	if utils.AuthenticateCreator(txn) || utils.AuthenticateCustomer(txn) {
+		return shim.Error("Caller not a member of app dev org or admin org.")
+	}
+
+	args := txn.Args
+	if len(args) != 2 {
+		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 2: {AppDevID, BankAccountId }. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	appDevId := txn.Args[0]
+	bankAccountId := txn.Args[1]
+
+	// check for valid AppDev
+	_, err = utils.GetAppDevRecord(stub, appDevId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// check for valid bankAccount
+
+	_, err = utils.GetBankAccount(stub, bankAccountId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	t := time.Now.UnixNano()
+	id := strconv.FormatInt(t, 10) //easiest way for unique identifier
+
+	subscriptionFee := float32(-1) //negative means customer is just created, no subscription as of now
+
+	subscriptionDueDate := time.Time{}  //returns default 'zero' time, the lowest possible one. 
+
+	queuedSong := ""
+	previousSong := ""
+
+	raw_customer := &utils.CustomerRecord{Id: id, AppDevId: appDevId, BankAccountId: bankAccountId, SubscriptionFee: subscriptionFee,SubscriptionDueDate: subscriptionDueDate, QueuedSong: queuedSong, PreviousSong: previousSong}
+	err = utils.SetCustomerRecord(stub, raw_customer)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Customer successfully created with id: %d",id)
+	
+	return shim.Success(nil)
+}

@@ -261,3 +261,87 @@ func SetAppDevRecord(stub shim.ChaincodeStubInterface, appDevRecord *AppDevRecor
 
 	return nil
 }
+
+func GetProduct(stub shim.ChaincodeStubInterface, productId string) (*Product, error) {
+	/*
+		Fetches a product object from off the ledger
+
+		Args:
+			stub: HF shim interface
+			productId: Primary Key of the product record
+
+		Returns:
+			product: product struct obj for the requested record
+			err: Error object. nil if no error occurred.
+
+	*/
+	var productBytes []byte
+	var product *Product
+	var productKey string
+	var err error
+
+	// Create the record key
+	productKey, err = GetProductKey(stub, productId)
+	if err != nil {
+		return product, err
+	}
+
+	// Pull the record bytes from the ledger
+	productBytes, err = stub.GetState(productKey)
+	if err != nil {
+		return product, err
+	}
+
+	if len(productBytes) == 0 {
+		err = errors.New(fmt.Sprintf("No record found for product.ID %s", productId))
+		return product, err
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(productBytes, &product)
+	if err != nil {
+		return product, err
+	}
+
+	return product, nil
+
+}
+
+func Setproduct(stub shim.ChaincodeStubInterface, product *Product) error {
+	/*
+		Sets a product object within the ledger
+
+		Args:
+			stub: HF shim interface
+			product: product object to be set in the ledger
+
+		Returns:
+			err: Error object. nil if no error occurred.
+
+	*/
+	var productBytes []byte
+	var productKey string
+	var err error
+
+	// Create the record key
+	productKey, err = GetProductKey(stub, product.Id)
+	if err != nil {
+		return err
+	}
+
+	// marshal the struct to JSON
+	productBytes, err = json.Marshal(product)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error marshaling product record with product.ID %s",
+			product.Id))
+	}
+
+	// Push the record back to the ledger
+	err = stub.PutState(productKey, productBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+

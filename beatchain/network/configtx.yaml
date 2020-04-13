@@ -100,8 +100,6 @@ Orderer: &OrdererDefaults
         # the serialized messages in a batch. A message larger than the preferred
         # max bytes will result in a batch larger than preferred max bytes.
         PreferredMaxBytes: 512 KB
-    CA:
-        OrganizationalUnit: admin
     Kafka:
         # Brokers: A list of Kafka brokers to which the orderer connects
         # NOTE: Use IP:port notation
@@ -207,7 +205,8 @@ Capabilities:
         # determined to be desired for all orderers and peers running v1.0.x,
         # but the modification of which would cause incompatibilities.  Users
         # should leave this flag set to true.
-        V1_1: true
+        V1_4_3: true
+        V1_1: false
 
     # Orderer capabilities apply only to the orderers, and may be safely
     # manipulated without concern for upgrading peers.  Set the value of the
@@ -217,7 +216,8 @@ Capabilities:
         # determined to be desired for all orderers running v1.0.x, but the
         # modification of which  would cause incompatibilities.  Users should
         # leave this flag set to true.
-        V1_1: true
+        V1_4_2: true
+        V1_1: false
 
     # Application capabilities apply only to the peer network, and may be safely
     # manipulated without concern for upgrading orderers.  Set the value of the
@@ -227,7 +227,8 @@ Capabilities:
         # determined to be desired for all peers running v1.0.x, but the
         # modification of which would cause incompatibilities.  Users should
         # leave this flag set to true.
-        V1_2: true
+        V1_4_2: true
+        V1_2: false
 
 ################################################################################
 #
@@ -271,40 +272,40 @@ Profiles:
                 - *CustomerOrg
             Capabilities:
                 <<: *ApplicationCapabilities
-
-    contractchannel:
-        # Includes Creators and Devs to generate and agree to streaming contracts
-        # Hidden from Customer view
-        Consortium: ContractConsortium
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - *AppDevOrg
-                - *CreatorOrg
-            Capabilities:
-                <<: *ApplicationCapabilities
-
-    bankingchannel:
-        # Includes all orgs but solely for banking and financial transactions
-        Consortium: BeatchainConsortium
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - *AppDevOrg
-                - *CreatorOrg
-                - *CustomerOrg
-            Capabilities:
-                <<: *ApplicationCapabilities
-
-    streamingchannel:
-        # Org used to deliver content streaming from AppDevs to Customers.
-        # Creators included to enable content usage monitoring
-        Consortium: BeatchainConsortium
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - *AppDevOrg
-                - *CreatorOrg
-                - *CustomerOrg
-            Capabilities:
-                <<: *ApplicationCapabilities
+#
+#    contractchannel:
+#        # Includes Creators and Devs to generate and agree to streaming contracts
+#        # Hidden from Customer view
+#        Consortium: ContractConsortium
+#        Application:
+#            <<: *ApplicationDefaults
+#            Organizations:
+#                - *AppDevOrg
+#                - *CreatorOrg
+#            Capabilities:
+#                <<: *ApplicationCapabilities
+#
+#    bankingchannel:
+#        # Includes all orgs but solely for banking and financial transactions
+#        Consortium: BeatchainConsortium
+#        Application:
+#            <<: *ApplicationDefaults
+#            Organizations:
+#                - *AppDevOrg
+#                - *CreatorOrg
+#                - *CustomerOrg
+#            Capabilities:
+#                <<: *ApplicationCapabilities
+#
+#    streamingchannel:
+#        # Org used to deliver content streaming from AppDevs to Customers.
+#        # Creators included to enable content usage monitoring
+#        Consortium: BeatchainConsortium
+#        Application:
+#            <<: *ApplicationDefaults
+#            Organizations:
+#                - *AppDevOrg
+#                - *CreatorOrg
+#                - *CustomerOrg
+#            Capabilities:
+#                <<: *ApplicationCapabilities

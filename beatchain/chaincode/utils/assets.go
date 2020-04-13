@@ -64,7 +64,7 @@ type Product struct {
 		Defines a product and its attributes on the ledger
 	*/
 
-	ProductId            string `json:"id"`
+	Id                   string `json:"id"`
 	CreatorId            string `json:"id"`
 	ProductName          string `json:"productName"`
 	TotalListens         int64  `json:"totalListens"`

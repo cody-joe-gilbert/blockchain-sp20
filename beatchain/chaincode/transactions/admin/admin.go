@@ -36,7 +36,7 @@ func addProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 		return shim.Error(err.Error())
 	}
 
-	t := time.Now.UnixNano()
+	t := time.Now().UnixNano()
 	productId := strconv.FormatInt(t, 10) //easiest way for unique identifier
 
 	totalListens := int64(0)
@@ -134,7 +134,7 @@ func addCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 		return shim.Error(err.Error())
 	}
 
-	t := time.Now.UnixNano()
+	t := time.Now().UnixNano()
 	id := strconv.FormatInt(t, 10) //easiest way for unique identifier
 
 	subscriptionFee := float32(-1) //negative means customer is just created, no subscription as of now

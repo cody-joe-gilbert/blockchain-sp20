@@ -427,3 +427,80 @@ func SetCreatorRecord(stub shim.ChaincodeStubInterface, creatorRecord *CreatorRe
 
 	return nil
 }
+
+
+func GetContract(stub shim.ChaincodeStubInterface, contractKey string) (*Contract, error) {
+	/*
+		Fetches a Contract object from off the ledger
+
+		Args:
+			stub: HF shim interface
+			contractKey: Primary Key of the Contract
+
+		Returns:
+			creatorRecord: CreatorRecord struct obj for the requested record
+			err: Error object. nil if no error occurred.
+
+	*/
+	var contractBytes []byte
+	var contract *Contract
+	var err error
+
+
+	// Pull the record bytes from the ledger
+	contractBytes, err = stub.GetState(contractKey)
+	if err != nil {
+		return contract, err
+	}
+
+	if len(contractBytes) == 0 {
+		err = errors.New(fmt.Sprintf("No record found for contractKey %s", contractKey))
+		return contract, err
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(contractBytes, &contract)
+	if err != nil {
+		return contract, err
+	}
+
+	return contract, nil
+}
+
+func SetContract(stub shim.ChaincodeStubInterface, contract *Contract) error {
+	/*
+		Sets a Contract object within the ledger
+
+		Args:
+			stub: HF shim interface
+			CreatorRecord: CreatorRecord object to be set in the ledger
+
+		Returns:
+			err: Error object. nil if no error occurred.
+
+	*/
+	var contractBytes []byte
+	var contractKey string
+	var err error
+
+	// Create the record key
+	contractKey, err = GetContractKey(stub, contract.CreatorId, contract.AppDevId, contract.ProductId)
+	if err != nil {
+		return err
+	}
+
+	// marshal the struct to JSON
+	contractBytes, err = json.Marshal(contract)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error marshaling Contract record with contractKey %s",
+			contractKey))
+	}
+
+	// Push the record back to the ledger
+	err = stub.PutState(contractKey, contractBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

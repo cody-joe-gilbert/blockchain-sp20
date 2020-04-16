@@ -60,9 +60,9 @@ type Contract struct {
 	/*
 		Defines a Contract record on the ledger
 	*/
-	CreatorId           string  `json:"id"`
-	AppDevId            string  `json:"id"`
-	ProductId           string  `json:"id"`
+	CreatorId           string  `json:"creatorid"`
+	AppDevId            string  `json:"appdevid"`
+	ProductId           string  `json:"productid"`
 	CreatorPayPerStream float32 `json:"creatorpayperstream"`
 	Status              string  `json:"contractstatus"`
 }

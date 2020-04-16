@@ -72,8 +72,7 @@ createChannel.createChannel(Constants.CHANNEL_NAME).then(() => {
 		Constants.CHAINCODE_PATH,
 		Constants.CHAINCODE_VERSION,
 		'init',
-		[],
-		//['LumberInc', 'LumberBank', '100000', 'WoodenToys', 'ToyBank', '200000', 'UniversalFrieght', 'ForestryDepartment'],
+		["1000", "1111", "1111", "0.1", "1000", "2222", "2222", "1.00", "2020-06-01", "1000"],
 		false
 	);
 }, (err) => {

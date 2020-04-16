@@ -31,7 +31,7 @@ func addProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 	productName := txn.Args[1]
 
 	// check for valid Creator
-	creator, err := utils.GetCreatorRecord(stub, txn.Args[0])
+	_, err = utils.GetCreatorRecord(stub, txn.Args[0])
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -46,7 +46,7 @@ func addProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 	additionalMetrics := int64(0)
 	isActive := true
 
-	raw_product := &utils.Product{ProductId: productId, CreatorId: creatorId, ProductName: productName, TotalListens: totalListens, UnRenumeratedListens: unRenumeratedListens, TotalMetrics: totalMetrics, UnRenumeratedMetrics: unRenumeratedMetrics, AdditionalMetrics: additionalMetrics, IsActive: isActive}
+	raw_product := &utils.Product{Id: productId, CreatorId: creatorId, ProductName: productName, TotalListens: totalListens, UnRenumeratedListens: unRenumeratedListens, TotalMetrics: totalMetrics, UnRenumeratedMetrics: unRenumeratedMetrics, AdditionalMetrics: additionalMetrics, IsActive: isActive}
 	err = utils.SetProduct(stub, raw_product) //tbd SetProduct
 	if err != nil {
 		return shim.Error(err.Error())
@@ -73,7 +73,6 @@ func deleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 		return shim.Error(err.Error())
 	}
 
-	creatorId := txn.Args[0]
 	productId := txn.Args[1]
 
 	// check for valid Creator

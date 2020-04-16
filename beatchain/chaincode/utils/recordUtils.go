@@ -307,7 +307,7 @@ func GetProduct(stub shim.ChaincodeStubInterface, productId string) (*Product, e
 
 }
 
-func Setproduct(stub shim.ChaincodeStubInterface, product *Product) error {
+func SetProduct(stub shim.ChaincodeStubInterface, product *Product) error {
 	/*
 		Sets a product object within the ledger
 
@@ -345,3 +345,85 @@ func Setproduct(stub shim.ChaincodeStubInterface, product *Product) error {
 	return nil
 }
 
+
+func GetCreatorRecord(stub shim.ChaincodeStubInterface, creatorId string) (*CreatorRecord, error) {
+	/*
+		Fetches a CreatorRecord object from off the ledger
+
+		Args:
+			stub: HF shim interface
+			creatorId: Primary Key of the Creator
+
+		Returns:
+			creatorRecord: CreatorRecord struct obj for the requested record
+			err: Error object. nil if no error occurred.
+
+	*/
+	var creatorRecordBytes []byte
+	var creatorRecord *CreatorRecord
+	var creatorKey string
+	var err error
+
+	// Create the record key
+	creatorKey, err = GetCreatorRecordKey(stub, creatorId)
+	if err != nil {
+		return creatorRecord, err
+	}
+
+	// Pull the record bytes from the ledger
+	creatorRecordBytes, err = stub.GetState(creatorKey)
+	if err != nil {
+		return creatorRecord, err
+	}
+
+	if len(creatorRecordBytes) == 0 {
+		err = errors.New(fmt.Sprintf("No record found for Creator.ID %s", creatorId))
+		return creatorRecord, err
+	}
+
+	// Unmarshal the JSON
+	err = json.Unmarshal(creatorRecordBytes, &creatorRecord)
+	if err != nil {
+		return creatorRecord, err
+	}
+
+	return creatorRecord, nil
+}
+
+func SetCreatorRecord(stub shim.ChaincodeStubInterface, creatorRecord *CreatorRecord) error {
+	/*
+		Sets a CreatorRecord object within the ledger
+
+		Args:
+			stub: HF shim interface
+			CreatorRecord: CreatorRecord object to be set in the ledger
+
+		Returns:
+			err: Error object. nil if no error occurred.
+
+	*/
+	var creatorRecordBytes []byte
+	var creatorKey string
+	var err error
+
+	// Create the record key
+	creatorKey, err = GetCreatorRecordKey(stub, creatorRecord.Id)
+	if err != nil {
+		return err
+	}
+
+	// marshal the struct to JSON
+	creatorRecordBytes, err = json.Marshal(creatorRecord)
+	if err != nil {
+		return errors.New(fmt.Sprintf("error marshaling Customer record with CustomerRecord.ID %s",
+			creatorRecord.Id))
+	}
+
+	// Push the record back to the ledger
+	err = stub.PutState(creatorKey, creatorRecordBytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

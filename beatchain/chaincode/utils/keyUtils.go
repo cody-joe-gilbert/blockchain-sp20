@@ -11,6 +11,15 @@ func GetCustomerRecordKey(stub shim.ChaincodeStubInterface, id string) (string, 
 	}
 }
 
+func GetCreatorRecordKey(stub shim.ChaincodeStubInterface, id string) (string, error) {
+	key, err := stub.CreateCompositeKey("CreatorRecord", []string{id})
+	if err != nil {
+		return "", err
+	} else {
+		return key, nil
+	}
+}
+
 func GetBankAccountKey(stub shim.ChaincodeStubInterface, id string) (string, error) {
 	key, err := stub.CreateCompositeKey("BankAccount", []string{id})
 	if err != nil {

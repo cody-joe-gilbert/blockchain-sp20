@@ -31,6 +31,14 @@ type CustomerRecord struct {
 	PreviousSong        string    `json:"previoussong"`
 }
 
+type CreatorRecord struct {
+	/*
+		Defines a single Creator
+	*/
+	Id                  string    `json:"id"`
+	BankAccountId       string    `json:"bankaccountid"`
+}
+
 type BankAccount struct {
 	/*
 		Defines a bank account on the ledger

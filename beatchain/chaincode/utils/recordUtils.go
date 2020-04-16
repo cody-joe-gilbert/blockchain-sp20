@@ -429,7 +429,7 @@ func SetCreatorRecord(stub shim.ChaincodeStubInterface, creatorRecord *CreatorRe
 }
 
 
-func GetContract(stub shim.ChaincodeStubInterface, contractKey string) (*Contract, error) {
+func GetContract(stub shim.ChaincodeStubInterface, creatorId string, appDevId string, productId string) (*Contract, error) {
 	/*
 		Fetches a Contract object from off the ledger
 
@@ -444,8 +444,14 @@ func GetContract(stub shim.ChaincodeStubInterface, contractKey string) (*Contrac
 	*/
 	var contractBytes []byte
 	var contract *Contract
+	var contractKey string
 	var err error
 
+	// Fetch the record key
+	contractKey, err = GetContractKey(stub, creatorId, appDevId, productId)
+	if err != nil {
+		return contract, err
+	}
 
 	// Pull the record bytes from the ledger
 	contractBytes, err = stub.GetState(contractKey)

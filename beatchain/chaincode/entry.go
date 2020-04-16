@@ -1,11 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -58,16 +54,16 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 
 // Invocation template
 func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	var txn *utils.Transaction
-	var err error
+	//var txn *utils.Transaction
+	//var err error
 
 	fmt.Println("BeatchainChaincode Invoke")
 
 	// Get the transaction details
-	txn, err = utils.GetTxInfo(stub)
+/*	txn, err = utils.GetTxInfo(stub)
 	if err != nil {
 		return shim.Error(err.Error())
-	}
+	}*/
 
 	fmt.Println("This is a call to the %v module and file.", transactions.TransactionsVariable)
 	fmt.Println("This is a call to the %v module and file.", admin.AdminVariable)
@@ -78,10 +74,10 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		Here we'll dispatch invocation to separate function modules
 	*/
 
-	if txn.CalledFunction == "" {
+	/*if txn.CalledFunction == "" {
 		// Importer requests a trade
 		return t.FUNCTION(stub, txn)
-	}
+	}*/
 	return shim.Error("Invalid invoke function name")
 }
 

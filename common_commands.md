@@ -6,7 +6,7 @@ To start the transaction scripts:
 
 ```shell script
 bash
-cd /Users/codygilbert/Desktop/go/src/trade-finance-logistics/network
+cd /Users/codygilbert/Desktop/go/chaincode/trade-finance-logistics/network
 ./trade.sh up -d true
 ```
 

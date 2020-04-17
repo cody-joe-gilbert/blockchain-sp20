@@ -49,7 +49,7 @@ var ACCEPT_ALL = {
 	}
 };
 
-var chaincodeLocation = '.';
+var chaincodeLocation = '../chaincode';
 
 var networkId = 'beatchain';
 
@@ -64,7 +64,7 @@ var CREATOR_ORG = 'creatororg';
 var CUSTOMER_ORG = 'customerorg';
 
 var CHANNEL_NAME = 'fullchannel';
-var CHAINCODE_PATH = 'blockchain-sp20/beatchain/chaincode';
+var CHAINCODE_PATH = '.';
 var CHAINCODE_ID = 'beatchain_alpha';
 var CHAINCODE_VERSION = 'v0';
 

@@ -29,7 +29,7 @@ services:
       - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp
       - GRPC_TRACE=all=true,
       - GRPC_VERBOSITY=debug
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    working_dir: /opt/gopath/chaincode/github.com/hyperledger/fabric
     command: orderer
     volumes:
       - ./crypto-config/ordererOrganizations/trade.com/orderers/orderer.trade.com/msp:/etc/hyperledger/msp
@@ -50,7 +50,7 @@ services:
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/devorg.trade.com/peers/peer0.devorg.trade.com/msp:/etc/hyperledger/msp
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    working_dir: /opt/gopath/chaincode/github.com/hyperledger/fabric/peer
     command: peer node start --peer-chaincodedev
     ports:
       - 7051:7051
@@ -82,12 +82,12 @@ services:
       - CORE_PEER_ADDRESS=peer:7051
       - CORE_PEER_LOCALMSPID=DevOrgMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp
-    working_dir: /opt/gopath/src/chaincodedev
+    working_dir: /opt/gopath/chaincode/chaincodedev
     command: /bin/bash -c '/opt/trade/setupChannel.sh'
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/devorg.trade.com/users/Admin@devorg.trade.com/msp:/etc/hyperledger/msp
-        - ./../../chaincode/src/github.com:/opt/gopath/src/chaincodedev/chaincode
+        - ./../../chaincode/chaincode/github.com:/opt/gopath/chaincode/chaincodedev/chaincode
         - ./:/opt/trade
     depends_on:
       - orderer
@@ -105,12 +105,12 @@ services:
       - CORE_PEER_ADDRESS=peer:7051
       - CORE_PEER_LOCALMSPID=DevOrgMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp
-    working_dir: /opt/gopath/src/chaincode
-    command: /bin/bash -c 'cp -r /opt/gopath/src/chaincode_copy/* /opt/gopath/src/chaincode/ && sed -i "s/twc\.testMode = false/twc\.testMode = true/g" /opt/gopath/src/chaincode/trade_workflow_v1/tradeWorkflow.go && sleep 600000'
+    working_dir: /opt/gopath/chaincode/chaincode
+    command: /bin/bash -c 'cp -r /opt/gopath/chaincode/chaincode_copy/* /opt/gopath/chaincode/chaincode/ && sed -i "s/twc\.testMode = false/twc\.testMode = true/g" /opt/gopath/chaincode/chaincode/trade_workflow_v1/tradeWorkflow.go && sleep 600000'
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/devorg.trade.com/peers/peer0.devorg.trade.com/msp:/etc/hyperledger/msp
-        - ./../../chaincode/src/github.com:/opt/gopath/src/chaincode_copy
+        - ./../../chaincode/chaincode/github.com:/opt/gopath/chaincode/chaincode_copy
     depends_on:
       - orderer
       - peer

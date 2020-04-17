@@ -26,8 +26,6 @@ services:
     - ./crypto-config/ordererOrganizations/beatchain.com/orderers/orderer.beatchain.com/msp:/var/hyperledger/orderer/msp
     - ./crypto-config/ordererOrganizations/beatchain.com/orderers/orderer.beatchain.com/tls/:/var/hyperledger/orderer/tls
     - orderer.beatchain.com:/var/hyperledger/production/orderer
-    - $GOPATH/src/github.com/golang/protobuf/proto:/opt/gopath/src/github.com/golang/protobuf/proto
-    - $GOPATH/src/github.com/hyperledger/fabric/core/chaincode/lib/cid:/opt/gopath/src/github.com/hyperledger/fabric/core/chaincode/lib/cid
     ports:
       - 7050:7050
 
@@ -47,8 +45,6 @@ services:
         - ./crypto-config/peerOrganizations/appdevorg.beatchain.com/peers/peer0.appdevorg.beatchain.com/msp:/etc/hyperledger/fabric/msp
         - ./crypto-config/peerOrganizations/appdevorg.beatchain.com/peers/peer0.appdevorg.beatchain.com/tls:/etc/hyperledger/fabric/tls
         - peer0.appdevorg.beatchain.com:/var/hyperledger/production
-        - $GOPATH/src/github.com/golang/protobuf/proto:/opt/gopath/src/github.com/golang/protobuf/proto
-        - $GOPATH/src/github.com/hyperledger/fabric/core/chaincode/lib/cid:/opt/gopath/src/github.com/hyperledger/fabric/core/chaincode/lib/cid
     ports:
       - 7051:7051
       - 7053:7053
@@ -70,8 +66,6 @@ services:
         - ./crypto-config/peerOrganizations/creatororg.beatchain.com/peers/peer0.creatororg.beatchain.com/msp:/etc/hyperledger/fabric/msp
         - ./crypto-config/peerOrganizations/creatororg.beatchain.com/peers/peer0.creatororg.beatchain.com/tls:/etc/hyperledger/fabric/tls
         - peer0.creatororg.beatchain.com:/var/hyperledger/production
-        - $GOPATH/src/github.com/golang/protobuf/proto:/opt/gopath/src/github.com/golang/protobuf/proto
-        - $GOPATH/src/github.com/hyperledger/fabric/core/chaincode/lib/cid:/opt/gopath/src/github.com/hyperledger/fabric/core/chaincode/lib/cid
     ports:
       - 8051:7051
       - 8053:7053
@@ -93,8 +87,6 @@ services:
         - ./crypto-config/peerOrganizations/customerorg.beatchain.com/peers/peer0.customerorg.beatchain.com/msp:/etc/hyperledger/fabric/msp
         - ./crypto-config/peerOrganizations/customerorg.beatchain.com/peers/peer0.customerorg.beatchain.com/tls:/etc/hyperledger/fabric/tls
         - peer0.customerorg.beatchain.com:/var/hyperledger/production
-        - $GOPATH/src/github.com/golang/protobuf/proto:/opt/gopath/src/github.com/golang/protobuf/proto
-        - $GOPATH/src/github.com/hyperledger/fabric/core/chaincode/lib/cid:/opt/gopath/src/github.com/hyperledger/fabric/core/chaincode/lib/cid
     ports:
       - 9051:7051
       - 9053:7053

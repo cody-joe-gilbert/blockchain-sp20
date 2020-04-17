@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/protos/msp"
-	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 )
 
 func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {

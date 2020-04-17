@@ -9,12 +9,12 @@ import (
 	/*
 		Import transaction packages here
 	*/
-	"blockchain-sp20/beatchain/chaincode/src/github.com/transactions"
-	"blockchain-sp20/beatchain/chaincode/src/github.com/transactions/admin"
-	"blockchain-sp20/beatchain/chaincode/src/github.com/transactions/banking"
-	"blockchain-sp20/beatchain/chaincode/src/github.com/transactions/streaming"
+	"github.com/beatchain/transactions"
+	"github.com/beatchain/transactions/admin"
+	"github.com/beatchain/transactions/banking"
+	"github.com/beatchain/transactions/streaming"
 
-	"blockchain-sp20/beatchain/chaincode/src/github.com/utils"
+	"github.com/beatchain/utils"
 
 )
 

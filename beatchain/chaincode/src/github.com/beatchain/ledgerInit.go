@@ -1,9 +1,9 @@
 package main
 
 import (
-	"blockchain-sp20/beatchain/chaincode/src/github.com/utils"
-	"fmt"
+	"github.com/beatchain/utils"
 	"errors"
+	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"strconv"
 	"time"

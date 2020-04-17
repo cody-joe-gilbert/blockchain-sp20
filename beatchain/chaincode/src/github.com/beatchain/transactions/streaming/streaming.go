@@ -1,7 +1,7 @@
 package streaming
 
 import (
-	"blockchain-sp20/beatchain/chaincode/src/github.com/utils"
+	"github.com/beatchain/utils"
 	"errors"
 	"fmt"
 

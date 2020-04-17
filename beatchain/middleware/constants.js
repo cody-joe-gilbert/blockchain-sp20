@@ -64,7 +64,7 @@ var CREATOR_ORG = 'creatororg';
 var CUSTOMER_ORG = 'customerorg';
 
 var CHANNEL_NAME = 'fullchannel';
-var CHAINCODE_PATH = 'github.com';
+var CHAINCODE_PATH = 'github.com/beatchain';
 var CHAINCODE_ID = 'beatchain_alpha';
 var CHAINCODE_VERSION = 'v0';
 

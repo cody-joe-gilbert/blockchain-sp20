@@ -151,7 +151,7 @@ function installChaincode(chaincode_path, chaincode_version, constants) {
 	ClientUtils.init(Constants);
 
 	// temporarily set $GOPATH to the chaincode folder
-	//process.env.GOPATH = path.join(__dirname, Constants.chaincodeLocation);
+	process.env.GOPATH = path.join(__dirname, Constants.chaincodeLocation);
 
 	ORGS = JSON.parse(fs.readFileSync(path.join(__dirname, Constants.networkConfig)))[Constants.networkId];
 	PEER_ORGS = [];

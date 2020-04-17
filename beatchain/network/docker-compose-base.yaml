@@ -43,7 +43,6 @@ services:
       - CORE_PEER_LOCALMSPID=AppDevMSP
     volumes:
         - /var/run/:/host/var/run/
-        - $GOPATH/chaincode/github.com/:/opt/gopath/chaincode/github.com
         - ./crypto-config/peerOrganizations/appdevorg.beatchain.com/peers/peer0.appdevorg.beatchain.com/msp:/etc/hyperledger/fabric/msp
         - ./crypto-config/peerOrganizations/appdevorg.beatchain.com/peers/peer0.appdevorg.beatchain.com/tls:/etc/hyperledger/fabric/tls
         - peer0.appdevorg.beatchain.com:/var/hyperledger/production
@@ -65,7 +64,6 @@ services:
       - CORE_PEER_LOCALMSPID=CreatorMSP
     volumes:
         - /var/run/:/host/var/run/
-        - $GOPATH/chaincode/github.com/:/opt/gopath/chaincode/github.com
         - ./crypto-config/peerOrganizations/creatororg.beatchain.com/peers/peer0.creatororg.beatchain.com/msp:/etc/hyperledger/fabric/msp
         - ./crypto-config/peerOrganizations/creatororg.beatchain.com/peers/peer0.creatororg.beatchain.com/tls:/etc/hyperledger/fabric/tls
         - peer0.creatororg.beatchain.com:/var/hyperledger/production
@@ -87,7 +85,6 @@ services:
       - CORE_PEER_LOCALMSPID=CustomerMSP
     volumes:
         - /var/run/:/host/var/run/
-        - $GOPATH/chaincode/github.com/:/opt/gopath/chaincode/github.com
         - ./crypto-config/peerOrganizations/customerorg.beatchain.com/peers/peer0.customerorg.beatchain.com/msp:/etc/hyperledger/fabric/msp
         - ./crypto-config/peerOrganizations/customerorg.beatchain.com/peers/peer0.customerorg.beatchain.com/tls:/etc/hyperledger/fabric/tls
         - peer0.customerorg.beatchain.com:/var/hyperledger/production

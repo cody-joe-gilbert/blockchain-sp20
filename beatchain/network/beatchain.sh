@@ -165,7 +165,7 @@ function networkDown () {
 
   docker-compose -f $COMPOSE_FILE down --volumes
 
-  for PEER in peer0.creatororg.beatchain.com peer0.customerorg.beatchain.com peer0.appdevorg.beatchain.com peer0.admin.beatchain.com; do
+  for PEER in peer0.creatororg.beatchain.com peer0.customerorg.beatchain.com peer0.appdevorg.beatchain.com; do
     # Remove any old containers and images for this peer
     CC_CONTAINERS=$(docker ps -a | grep dev-$PEER | awk '{print $1}')
     if [ -n "$CC_CONTAINERS" ] ; then
@@ -200,10 +200,6 @@ function replacePrivateKey () {
   # actual values of the private key file names for the CAs.
   if [ $(uname -s) == 'Darwin' ] ; then
     CURRENT_DIR=$PWD
-    cd crypto-config/peerOrganizations/beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/BEATCHAIN_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
     cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
@@ -218,10 +214,6 @@ function replacePrivateKey () {
     sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   else
     CURRENT_DIR=$PWD
-    cd crypto-config/peerOrganizations/beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/BEATCHAIN_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
     cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"

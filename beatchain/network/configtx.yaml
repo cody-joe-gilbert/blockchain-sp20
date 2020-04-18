@@ -254,7 +254,6 @@ Profiles:
             # We can separate consortiums later for multiple channels; for now, use one to prototype
             BeatchainConsortium:
                 Organizations:
-                    - *BeatchainOrg
                     - *AppDevOrg
                     - *CreatorOrg
                     - *CustomerOrg
@@ -269,7 +268,6 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *BeatchainOrg
                 - *AppDevOrg
                 - *CreatorOrg
                 - *CustomerOrg

@@ -6,20 +6,6 @@
 			"server-hostname": "orderer.beatchain.com",
 			"tls_cacerts": "../network/crypto-config/ordererOrganizations/beatchain.com/orderers/orderer.beatchain.com/msp/tlscacerts/tlsca.beatchain.com-cert.pem"
 		},
-		"admin": {
-			"name": "beatchainAdmin",
-			"mspid": "BeatchainMSP",
-			"ca": {
-				"url": "https://localhost:11054",
-				"name": "ca-beatchain"
-			},
-			"peer1": {
-				"requests": "grpcs://localhost:11051",
-				"events": "grpcs://localhost:11053",
-				"server-hostname": "peer0.admin.beatchain.com",
-				"tls_cacerts": "../network/crypto-config/peerOrganizations/beatchain.com/peers/peer0.beatchain.com/msp/tlscacerts/tlsca.beatchain.com-cert.pem"
-			}
-		},
 		"appdevorg": {
 			"name": "peerAppDevOrg",
 			"mspid": "AppDevMSP",

@@ -10,12 +10,12 @@
 			"name": "beatchainAdmin",
 			"mspid": "BeatchainMSP",
 			"ca": {
-				"url": "https://localhost:7054",
+				"url": "https://localhost:11054",
 				"name": "ca-beatchain"
 			},
 			"peer1": {
-				"requests": "grpcs://localhost:7051",
-				"events": "grpcs://localhost:7053",
+				"requests": "grpcs://localhost:11051",
+				"events": "grpcs://localhost:11053",
 				"server-hostname": "peer0.beatchain.com",
 				"tls_cacerts": "../network/crypto-config/peerOrganizations/beatchain.com/peers/peer0.beatchain.com/msp/tlscacerts/tlsca.beatchain.com-cert.pem"
 			}

@@ -23,7 +23,7 @@ services:
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.beatchain.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/BEATCHAIN_CA_PRIVATE_KEY
     ports:
-      - "7054:7054"
+      - "11054:7054"
     command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.beatchain.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/BEATCHAIN_CA_PRIVATE_KEY -b admin:adminpw -d'
     volumes:
       - ./crypto-config/peerOrganizations/beatchain.com/ca/:/etc/hyperledger/fabric-ca-server-config

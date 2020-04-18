@@ -1,5 +1,5 @@
 # Blockchain & Applications Project 2: Beatchain
-# Cody Gilbert
+# Owner(s): Cody Gilbert
 
 
 Organizations:
@@ -254,11 +254,13 @@ Profiles:
             # We can separate consortiums later for multiple channels; for now, use one to prototype
             BeatchainConsortium:
                 Organizations:
+                    - *BeatchainOrg
                     - *AppDevOrg
                     - *CreatorOrg
                     - *CustomerOrg
             ContractConsortium:
                 Organizations:
+                    - *BeatchainOrg
                     - *AppDevOrg
                     - *CreatorOrg
     fullchannel:
@@ -267,6 +269,7 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
+                - *BeatchainOrg
                 - *AppDevOrg
                 - *CreatorOrg
                 - *CustomerOrg

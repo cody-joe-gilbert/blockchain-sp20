@@ -1,5 +1,5 @@
 # Blockchain & Applications Project 2: Beatchain
-# Cody Gilbert
+# Owner(s): Cody Gilbert
 
 OrdererOrgs:
   - Name: BeatchainOrg
@@ -8,6 +8,14 @@ OrdererOrgs:
       - Hostname: orderer
 
 PeerOrgs:
+  - Name: BeatchainOrg
+      Domain: beatchain.com
+      EnableNodeOUs: true
+      Template:
+        Count: 1
+      Users:
+        Count: 2
+
   - Name: AppDevOrg
     Domain: appdevorg.beatchain.com
     EnableNodeOUs: true

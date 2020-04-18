@@ -1,6 +1,6 @@
 #!/bin/bash
 # Blockchain & Applications Project 2: Beatchain
-# Cody Gilbert
+# Owner(s): Cody Gilbert
 
 ####
 # This shell file was orginially used within the IBM TradeChannel example as `trade.sh`,
@@ -165,7 +165,7 @@ function networkDown () {
 
   docker-compose -f $COMPOSE_FILE down --volumes
 
-  for PEER in peer0.creatororg.beatchain.com peer0.customerorg.beatchain.com peer0.appdevorg.beatchain.com; do
+  for PEER in peer0.creatororg.beatchain.com peer0.customerorg.beatchain.com peer0.appdevorg.beatchain.com peer0.beatchain.com; do
     # Remove any old containers and images for this peer
     CC_CONTAINERS=$(docker ps -a | grep dev-$PEER | awk '{print $1}')
     if [ -n "$CC_CONTAINERS" ] ; then
@@ -200,6 +200,10 @@ function replacePrivateKey () {
   # actual values of the private key file names for the CAs.
   if [ $(uname -s) == 'Darwin' ] ; then
     CURRENT_DIR=$PWD
+    cd crypto-config/peerOrganizations/beatchain.com/ca/
+    PRIV_KEY=$(ls *_sk)
+    cd "$CURRENT_DIR"
+    sed -i '' "s/BEATCHAIN_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
     cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
@@ -214,6 +218,10 @@ function replacePrivateKey () {
     sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   else
     CURRENT_DIR=$PWD
+    cd crypto-config/peerOrganizations/beatchain.com/ca/
+    PRIV_KEY=$(ls *_sk)
+    cd "$CURRENT_DIR"
+    sed -i "s/BEATCHAIN_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
     cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
@@ -389,6 +397,20 @@ function generateChannelArtifacts() {
   set +x
   if [ $res -ne 0 ]; then
     echo "Failed to generate anchor peer update for CustomerMSP..."
+    exit 1
+  fi
+
+  echo
+  echo "####################################################################"
+  echo "#######  Generating anchor peer update for BeatchainMSP   ##########"
+  echo "####################################################################"
+  set -x
+  configtxgen -profile $CHANNEL_PROFILE -outputAnchorPeersUpdate \
+  ./channel-artifacts/BeatchainMSP.tx -channelID $CHANNEL_NAME -asOrg BeatchainOrg -channelID $CHANNEL_NAME
+  res=$?
+  set +x
+  if [ $res -ne 0 ]; then
+    echo "Failed to generate anchor peer update for BeatchainMSP..."
     exit 1
   fi
 

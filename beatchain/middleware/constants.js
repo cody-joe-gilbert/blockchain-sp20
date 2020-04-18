@@ -23,6 +23,11 @@ var FULL_CHANNEL_POLICY = [{
 	}
 }, {
 	role: {
+		name: 'member',
+		mspId: 'BeatchainMSP'
+	}
+}, {
+	role: {
 		name: 'admin',
 		mspId: 'BeatchainMSP'
 	}
@@ -35,10 +40,10 @@ var ONE_OF_THREE_ORG_MEMBER = {
 	}
 };
 
-var ALL_THREE_ORG_MEMBERS = {
+var ALL_ORG_MEMBERS = {
 	identities: FULL_CHANNEL_POLICY,
 	policy: {
-		'3-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }]
+		'4-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }, { 'signed-by': 3}]
 	}
 };
 
@@ -68,7 +73,7 @@ var CHAINCODE_PATH = 'github.com/beatchain';
 var CHAINCODE_ID = 'beatchain_alpha';
 var CHAINCODE_VERSION = 'v0';
 
-var TRANSACTION_ENDORSEMENT_POLICY = ALL_THREE_ORG_MEMBERS;
+var TRANSACTION_ENDORSEMENT_POLICY = ALL_ORG_MEMBERS;
 
 module.exports = {
 	tempdir: tempdir,
@@ -84,6 +89,6 @@ module.exports = {
 	CHAINCODE_PATH: CHAINCODE_PATH,
 	CHAINCODE_ID: CHAINCODE_ID,
 	CHAINCODE_VERSION: CHAINCODE_VERSION,
-	ALL_THREE_ORG_MEMBERS: ALL_THREE_ORG_MEMBERS,
+	ALL_ORG_MEMBERS: ALL_ORG_MEMBERS,
 	TRANSACTION_ENDORSEMENT_POLICY: TRANSACTION_ENDORSEMENT_POLICY
 };

@@ -9,12 +9,12 @@ OrdererOrgs:
 
 PeerOrgs:
   - Name: BeatchainOrg
-      Domain: beatchain.com
-      EnableNodeOUs: true
-      Template:
-        Count: 1
-      Users:
-        Count: 2
+    Domain: beatchain.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 2
 
   - Name: AppDevOrg
     Domain: appdevorg.beatchain.com

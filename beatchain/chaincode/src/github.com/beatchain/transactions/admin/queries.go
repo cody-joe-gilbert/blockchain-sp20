@@ -8,12 +8,9 @@ package admin
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
+	"strings"
 
 	"github.com/beatchain/utils"
 )
@@ -45,7 +42,7 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 
 	*/
 	var currentBankAccount *utils.BankAccount
-	var startKey, endKey string
+
 	var jsonOutput []string
 	var err error
 	var keysIterator shim.StateQueryIteratorInterface
@@ -56,21 +53,8 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 		return shim.Error(err.Error())
 	}
 
-	// Get the bounding keys
-	startKey, err = utils.GetBankAccountKey(stub, "1")
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	// Using the time method for key uniqueness, all previous keys must be bounded below the current time
-	t := time.Now().UnixNano()
-	endKey, err = utils.GetBankAccountKey(stub, strconv.FormatInt(t, 10))
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
 	// Create an iterator for fetching bank account keys
-	keysIterator, err = stub.GetStateByRange(startKey, endKey)
+	keysIterator, err = stub.GetStateByPartialCompositeKey(utils.BANK_ACCOUNT_KEY_PREFIX, nil)
 	if err != nil {
 		return shim.Error(err.Error())
 	}

@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "0000001"
+const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "1"
 
 type Transaction struct {
 	/*

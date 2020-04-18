@@ -1,3 +1,7 @@
+/*
+Handles transactions to renew a Customer's subscription by a month
+Owner(s): Cody Gilbert
+*/
 package banking
 
 import (
@@ -31,7 +35,7 @@ func validateRenewSubscription(transaction *utils.Transaction) error {
 	return nil
 }
 
-func renewSubscription(stub shim.ChaincodeStubInterface, transaction *utils.Transaction) pb.Response {
+func RenewSubscription(stub shim.ChaincodeStubInterface, transaction *utils.Transaction) pb.Response {
 	/*
 	Renews the Customer's subscription for a month. Transfers money from the Customer's
 	bank account to the AppDev's account and extends the subscription due date by a month.

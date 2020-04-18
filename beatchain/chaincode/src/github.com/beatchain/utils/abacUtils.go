@@ -83,3 +83,4 @@ func AuthenticateAppDev(txn *Transaction) bool {
 func AuthenticateCreator(txn *Transaction) bool {
 	return (txn.CreatorOrg == "CreatorMSP") && (txn.CreatorCertIssuer == "ca.creatororg.beatchain.com")
 }
+

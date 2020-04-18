@@ -392,7 +392,6 @@ function generateChannelArtifacts() {
     exit 1
   fi
 
-
 }
 
 # channel name (overrides default 'testchainid')

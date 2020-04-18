@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
     <content url="file://$MODULE_DIR$/../chaincode" />
+    <content url="file://$MODULE_DIR$/../github.com/beatchain" />
     <content url="file://$MODULE_DIR$/../trade-finance-logistics" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

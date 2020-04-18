@@ -392,19 +392,6 @@ function generateChannelArtifacts() {
     exit 1
   fi
 
-  echo
-  echo "####################################################################"
-  echo "#######  Generating anchor peer update for BeatchainMSP   ##########"
-  echo "####################################################################"
-  set -x
-  configtxgen -profile $CHANNEL_PROFILE -outputAnchorPeersUpdate \
-  ./channel-artifacts/BeatchainMSP.tx -channelID $CHANNEL_NAME -asOrg BeatchainOrg -channelID $CHANNEL_NAME
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate anchor peer update for BeatchainMSP..."
-    exit 1
-  fi
 
 }
 

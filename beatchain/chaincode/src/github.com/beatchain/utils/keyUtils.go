@@ -2,8 +2,6 @@ package utils
 
 import "github.com/hyperledger/fabric/core/chaincode/shim"
 
-func GetNewKey(stub shim.ChaincodeStubInterface, id string)
-
 func GetCustomerRecordKey(stub shim.ChaincodeStubInterface, id string) (string, error) {
 	key, err := stub.CreateCompositeKey(CUSTOMER_RECORD_KEY_PREFIX, []string{id})
 	if err != nil {

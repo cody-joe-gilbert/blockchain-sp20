@@ -54,7 +54,7 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 	}
 
 	// Create an iterator for fetching bank account keys
-	keysIterator, err = stub.GetStateByPartialCompositeKey(utils.BANK_ACCOUNT_KEY_PREFIX, nil)
+	keysIterator, err = stub.GetStateByPartialCompositeKey(utils.BANK_ACCOUNT_KEY_PREFIX, []string{})
 	if err != nil {
 		return shim.Error(err.Error())
 	}

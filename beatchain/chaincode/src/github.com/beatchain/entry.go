@@ -56,6 +56,9 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		return shim.Error(err.Error())
 	}
 
+	// Set the debug flag for threading debug state through the code
+	txn.DebugMode = t.testMode
+
 	/*
 		Here we'll dispatch invocation to separate function modules
 	*/
@@ -75,7 +78,7 @@ func main() {
 	Bootstraps the Beatchain chaincode
 	 */
 	bcc := new(BeatchainChaincode)
-	bcc.testMode = false
+	bcc.testMode = true
 	err := shim.Start(bcc)
 	if err != nil {
 		fmt.Printf("Error starting Trade Workflow chaincode: %s", err)

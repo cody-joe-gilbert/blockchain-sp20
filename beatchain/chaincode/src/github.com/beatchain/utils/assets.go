@@ -16,6 +16,7 @@ type Transaction struct {
 	CreatorOrg        string
 	CreatorCertIssuer string
 	Args              []string
+	DebugMode		  bool  // Flag used to bypass credential checks
 }
 
 type CustomerRecord struct {

@@ -90,11 +90,11 @@ services:
     networks:
       - beatchain
 
-  peer0.beatchain.com:
-    container_name: peer0.beatchain.com
+  peer0.admin.beatchain.com:
+    container_name: peer0.admin.beatchain.com
     extends:
       file:  docker-compose-base.yaml
-      service: peer0.beatchain.com
+      service: peer0.admin.beatchain.com
     networks:
       - beatchain
 

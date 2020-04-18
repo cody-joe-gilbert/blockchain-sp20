@@ -165,7 +165,7 @@ function networkDown () {
 
   docker-compose -f $COMPOSE_FILE down --volumes
 
-  for PEER in peer0.creatororg.beatchain.com peer0.customerorg.beatchain.com peer0.appdevorg.beatchain.com peer0.beatchain.com; do
+  for PEER in peer0.creatororg.beatchain.com peer0.customerorg.beatchain.com peer0.appdevorg.beatchain.com peer0.admin.beatchain.com; do
     # Remove any old containers and images for this peer
     CC_CONTAINERS=$(docker ps -a | grep dev-$PEER | awk '{print $1}')
     if [ -n "$CC_CONTAINERS" ] ; then

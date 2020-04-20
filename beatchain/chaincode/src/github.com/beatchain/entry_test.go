@@ -22,7 +22,7 @@ const TEST_CUSTOMER_BA_BALANCE = "1000"
 func stringToBytes(strArray []string) [][]byte {
 	var output [][]byte
 	for _ , p := range strArray {
-		output = append(output, []byte{p})
+		output = append(output, []byte(p))
 	}
 	return output
 }

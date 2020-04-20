@@ -53,8 +53,9 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 	}
 
 	// Create an iterator for fetching bank account keys
-	keysIterator, err = stub.GetStateByPartialCompositeKey(utils.BANK_ACCOUNT_KEY_PREFIX, []string{})
+	keysIterator, err = stub.GetStateByPartialCompositeKey("object~id", []string{utils.BANK_ACCOUNT_KEY_PREFIX})
 	if err != nil {
+		fmt.Print("Key iterator error: ")
 		return shim.Error(err.Error())
 	}
 	defer keysIterator.Close()
@@ -67,7 +68,11 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 			jsonOutput = append(jsonOutput, fmt.Sprintf("keys operation failed. Error accessing state: %s", err))
 			return shim.Error(strings.Join(jsonOutput, "\n"))
 		}
-		currentBankAccount, err = utils.GetBankAccount(stub, result.Key)
+		_, keyComponents, err := stub.SplitCompositeKey(result.Key)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		currentBankAccount, err = utils.GetBankAccount(stub, keyComponents[1])
 		if err != nil {
 			// Errors print the current listing prior to the error for debug purposes
 			jsonOutput = append(jsonOutput, fmt.Sprintf("keys operation failed. Error accessing Bank Account: %s", err))
@@ -76,7 +81,5 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 		jsonOutput = append(jsonOutput, fmt.Sprintf("Bank Account ID: %s Balance: %.2f", currentBankAccount.Id, currentBankAccount.Balance))
 	}
 	resultMsg := strings.Join(jsonOutput, "\n")
-	fmt.Print(resultMsg)
-
 	return shim.Success([]byte(resultMsg))
 }

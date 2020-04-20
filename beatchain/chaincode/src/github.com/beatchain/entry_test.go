@@ -14,7 +14,7 @@ const TEST_APPDEV_BA_ID = "1111"
 const TEST_APPDEV_DEVSHARE = "0.1"
 const TEST_APPDEV_BA_BALANCE = "1000"
 const TEST_CUSTOMER_ID = "2222"
-const TEST_CUSTOMER_BA_ID = "1111"
+const TEST_CUSTOMER_BA_ID = "2222"
 const TEST_CUSTOMER_SUBFEE = "1.00"
 const TEST_CUSTOMER_SUB_DUE_DATE = "2020-06-01"
 const TEST_CUSTOMER_BA_BALANCE = "1000"
@@ -65,7 +65,6 @@ func beatchain_init(t *testing.T)  (*BeatchainChaincode, *shim.MockStub) {
 
 func TestBeatchain_Init(t *testing.T) {
 	beatchain_init(t)
-
 }
 
 func TestListBAs_Query(t *testing.T) {

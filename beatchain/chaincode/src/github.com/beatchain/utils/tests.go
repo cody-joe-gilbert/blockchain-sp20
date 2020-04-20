@@ -13,7 +13,7 @@ func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float3
 	var key string
 	var err error
 
-	key, err = stub.CreateCompositeKey(BANK_ACCOUNT_KEY_PREFIX, []string{id})
+	key, err = stub.CreateCompositeKey("object~id", []string{BANK_ACCOUNT_KEY_PREFIX, id})
 	if err != nil {
 		fmt.Println("Cannot create key from id: ", id)
 		t.FailNow()

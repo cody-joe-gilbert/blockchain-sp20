@@ -54,7 +54,7 @@ func TestBeatchain_Init(t *testing.T) {
 	scc.testCreatorId = "test"
 	scc.testCreatorOrg = utils.APPDEV_MSP
 	scc.testCreatorCertIssuer = utils.APPDEV_CA
-	scc.testArgs = []string{}
+	scc.testArgs = []string{"test"}
 	checkInit(t, stub, getInitArguments())
 
 	bal, _ := strconv.ParseFloat(BEATCHAIN_ADMIN_BALANCE, 32)

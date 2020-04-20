@@ -71,6 +71,10 @@ func TestBeatchain_Init(t *testing.T) {
 func TestListBAs_Query(t *testing.T) {
 	_, stub := beatchain_init(t)
 	res := stub.MockInvoke("1", [][]byte{[]byte("ListBankAccounts")})
+	if res.Status != shim.OK {
+		fmt.Println("Query", "ListBankAccounts", "failed", string(res.Message))
+		t.FailNow()
+	}
 	if res.Payload == nil {
 		fmt.Println("Query", "ListBankAccounts", "failed to get value")
 		t.FailNow()

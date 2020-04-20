@@ -50,11 +50,18 @@ func TestBeatchain_Init(t *testing.T) {
 	stub := shim.NewMockStub("Beatchain", scc)
 
 	// Init
-	scc.testCalledFunction = "init"
 	scc.testCreatorId = "test"
 	scc.testCreatorOrg = utils.APPDEV_MSP
 	scc.testCreatorCertIssuer = utils.APPDEV_CA
-	scc.testArgs = []string{"test"}
+	scc.testArgs = []string{}
+	for i, p := range getInitArguments() {
+		if i == 0 {
+			scc.testCalledFunction = string(p)
+			continue
+		}
+		scc.testArgs = append(scc.testArgs, string(p))
+	}
+
 	checkInit(t, stub, getInitArguments())
 
 	bal, _ := strconv.ParseFloat(BEATCHAIN_ADMIN_BALANCE, 32)

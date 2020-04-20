@@ -67,17 +67,24 @@ func TestBeatchain_Init(t *testing.T) {
 	beatchain_init(t)
 }
 
-func TestListBAs_Query(t *testing.T) {
+func TestFullQueries(t *testing.T) {
 	_, stub := beatchain_init(t)
-	res := stub.MockInvoke("1", [][]byte{[]byte("ListBankAccounts")})
-	if res.Status != shim.OK {
-		fmt.Println("Query", "ListBankAccounts", "failed", string(res.Message))
-		t.FailNow()
-	}
-	if res.Payload == nil {
-		fmt.Println("Query", "ListBankAccounts", "failed to get value")
-		t.FailNow()
-	}
-	payload := string(res.Payload)
-	fmt.Println(payload)
+	utils.ExecQuery(t, stub, "ListBankAccounts")
+	utils.ExecQuery(t, stub, "ListCustomers")
 }
+
+func TestRenewal(t *testing.T) {
+	_, stub := beatchain_init(t)
+	res := stub.MockInvoke("1", [][]byte{[]byte("RenewSubscription")})
+	if res.Status != shim.OK {
+		fmt.Println("Query", "RenewSubscription", "failed", string(res.Message))
+		t.FailNow()
+	}
+	utils.ExecQuery(t, stub, "ListBankAccounts")
+	utils.ExecQuery(t, stub, "ListCustomers")
+}
+
+
+
+
+

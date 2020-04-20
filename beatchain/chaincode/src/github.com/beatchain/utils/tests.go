@@ -7,6 +7,9 @@ import (
 	"testing"
 )
 
+
+
+
 func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float32) {
 	var recordBytes []byte
 	var record *BankAccount
@@ -37,7 +40,20 @@ func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float3
 	}
 }
 
-
+func ExecQuery(t *testing.T, stub *shim.MockStub, function string) {
+	fmt.Println("Executing Query function:", function)
+	res := stub.MockInvoke("1", [][]byte{[]byte(function)})
+	if res.Status != shim.OK {
+		fmt.Println("Query", function, "failed", string(res.Message))
+		t.FailNow()
+	}
+	if res.Payload == nil {
+		fmt.Println("Query", function, "failed to get value")
+		t.FailNow()
+	}
+	payload := string(res.Payload)
+	fmt.Println(payload)
+}
 
 func checkQuery(t *testing.T, stub *shim.MockStub, function string, name string, value string) {
 	res := stub.MockInvoke("1", [][]byte{[]byte(function), []byte(name)})

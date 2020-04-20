@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+const TEST_CUSTOMER_ID = "2222"
 
 func validateRenewSubscription(transaction *utils.Transaction) error {
 	/*
@@ -23,6 +24,9 @@ func validateRenewSubscription(transaction *utils.Transaction) error {
 	if !transaction.TestMode && !utils.AuthenticateCustomer(transaction) {
 		return errors.New(fmt.Sprintf("caller not a member of Customer Org. Access denied"))
 	}
+	if transaction.TestMode {
+		transaction.CreatorId = TEST_CUSTOMER_ID
+	}
 	// Validate an ID is given
 	if !transaction.TestMode && transaction.CreatorId == "" {
 		return errors.New(fmt.Sprintf("customer ID not found"))
@@ -31,6 +35,7 @@ func validateRenewSubscription(transaction *utils.Transaction) error {
 	if len(transaction.Args) != 0 {
 		return errors.New(fmt.Sprintf("renewSubscription takes no arguments"))
 	}
+
 
 	return nil
 }

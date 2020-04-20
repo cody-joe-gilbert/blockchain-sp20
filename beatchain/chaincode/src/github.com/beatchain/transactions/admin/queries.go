@@ -6,7 +6,6 @@ Owner(s): Cody Gilbert
 package admin
 
 import (
-	"errors"
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -14,22 +13,6 @@ import (
 
 	"github.com/beatchain/utils"
 )
-
-func validateListBankAccounts(transaction *utils.Transaction) error {
-	/*
-		Validates the inputs to the ListBankAccounts function
-	*/
-
-	// Validate an ID is given
-	if !transaction.TestMode && transaction.CreatorId == "" {
-		return errors.New(fmt.Sprintf("calling user ID not found"))
-	}
-	// Validate no other args are specified
-	if len(transaction.Args) != 0 {
-		return errors.New(fmt.Sprintf("ListBankAccounts takes no arguments"))
-	}
-	return nil
-}
 
 
 func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Transaction) pb.Response {
@@ -46,10 +29,14 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 	var err error
 	var keysIterator shim.StateQueryIteratorInterface
 
-	// Validate request
-	err = validateListBankAccounts(transaction)
-	if err != nil {
-		return shim.Error(err.Error())
+
+	// Validate an ID is given
+	if !transaction.TestMode && transaction.CreatorId == "" {
+		return shim.Error(fmt.Sprintf("calling user ID not found"))
+	}
+	// Validate no other args are specified
+	if len(transaction.Args) != 0 {
+		return shim.Error(fmt.Sprintf("ListBankAccounts takes no arguments"))
 	}
 
 	// Create an iterator for fetching bank account keys
@@ -79,6 +66,78 @@ func ListBankAccounts(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 			return shim.Error(strings.Join(jsonOutput, "\n"))
 		}
 		jsonOutput = append(jsonOutput, fmt.Sprintf("Bank Account ID: %s Balance: %.2f", currentBankAccount.Id, currentBankAccount.Balance))
+	}
+	resultMsg := strings.Join(jsonOutput, "\n")
+	return shim.Success([]byte(resultMsg))
+}
+
+
+func ListCustomers(stub shim.ChaincodeStubInterface, transaction *utils.Transaction) pb.Response {
+	/*
+		Lists all of the customer records and their details from the ledger
+
+		Args:
+			transaction: Creator's transaction info
+
+	*/
+	var currentCustomerRecord *utils.CustomerRecord
+
+	var jsonOutput []string
+	var err error
+	var keysIterator shim.StateQueryIteratorInterface
+
+
+	// Validate an ID is given
+	if !transaction.TestMode && transaction.CreatorId == "" {
+		return shim.Error(fmt.Sprintf("calling user ID not found"))
+	}
+	// Validate no other args are specified
+	if len(transaction.Args) != 0 {
+		return shim.Error(fmt.Sprintf("ListCustomers takes no arguments"))
+	}
+
+	// Create an iterator for fetching keys
+	keysIterator, err = stub.GetStateByPartialCompositeKey("object~id", []string{utils.CUSTOMER_RECORD_KEY_PREFIX})
+	if err != nil {
+		fmt.Print("Key iterator error: ")
+		return shim.Error(err.Error())
+	}
+	defer keysIterator.Close()
+
+	// Loop through keys and print account balances
+	for keysIterator.HasNext() {
+		result, err := keysIterator.Next()
+		if err != nil {
+			// Errors print the current listing prior to the error for debug purposes
+			jsonOutput = append(jsonOutput, fmt.Sprintf("keys operation failed. Error accessing state: %s", err))
+			return shim.Error(strings.Join(jsonOutput, "\n"))
+		}
+		_, keyComponents, err := stub.SplitCompositeKey(result.Key)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		currentCustomerRecord, err = utils.GetCustomerRecord(stub, keyComponents[1])
+		if err != nil {
+			// Errors print the current listing prior to the error for debug purposes
+			jsonOutput = append(jsonOutput, fmt.Sprintf("keys operation failed. Error accessing Bank Account: %s", err))
+			return shim.Error(strings.Join(jsonOutput, "\n"))
+		}
+		msg := fmt.Sprintf(
+			"Customer ID: %s \n" +
+				"\tAppDevId: %s\n" +
+				"\tBankAccountId: %s\n" +
+				"\tSubscriptionFee: %0.2f\n" +
+				"\tSubscriptionDueDate: %s\n" +
+				"\tQueuedSong: %s\n" +
+				"\tPreviousSong: %s",
+			currentCustomerRecord.Id,
+			currentCustomerRecord.AppDevId,
+			currentCustomerRecord.BankAccountId,
+			currentCustomerRecord.SubscriptionFee,
+			currentCustomerRecord.SubscriptionDueDate.String(),
+			currentCustomerRecord.QueuedSong,
+			currentCustomerRecord.PreviousSong)
+		jsonOutput = append(jsonOutput, msg)
 	}
 	resultMsg := strings.Join(jsonOutput, "\n")
 	return shim.Success([]byte(resultMsg))

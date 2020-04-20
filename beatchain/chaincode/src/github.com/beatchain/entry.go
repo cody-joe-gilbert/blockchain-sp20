@@ -64,6 +64,8 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		return banking.RenewSubscription(stub, txn)
 	case "ListBankAccounts":
 		return admin.ListBankAccounts(stub, txn)
+	case "ListCustomers":
+		return admin.ListCustomers(stub, txn)
 	default:
 		return shim.Error("Invalid invoke function name")
 	}

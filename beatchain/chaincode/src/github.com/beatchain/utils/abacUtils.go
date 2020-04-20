@@ -11,6 +11,13 @@ import (
 	"github.com/hyperledger/fabric/protos/msp"
 )
 
+const CUSTOMER_MSP = "CustomerMSP"
+const CUSTOMER_CA = "ca.customerorg.beatchain.com"
+const APPDEV_MSP = "AppDevMSP"
+const APPDEV_CA = "ca.appdevorg.beatchain.com"
+const CREATOR_MSP = "CreatorMSP"
+const CREATOR_CA = "ca.creatororg.beatchain.com"
+
 func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {
 	/*
 	Grabs the transaction info from the calling user
@@ -34,7 +41,7 @@ func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {
 	txn = new(Transaction)
 	txn.CreatorOrg = ""
 	txn.CreatorCertIssuer = ""
-	txn.DebugMode = false
+	txn.TestMode = false
 
 	// Fetch the creator org and certificate info
 	creator, err := stub.GetCreator()
@@ -74,14 +81,14 @@ func GetTxInfo(stub shim.ChaincodeStubInterface) (*Transaction, error) {
 }
 
 func AuthenticateCustomer(txn *Transaction) bool {
-	return (txn.CreatorOrg == "CustomerMSP") && (txn.CreatorCertIssuer == "ca.customerorg.beatchain.com")
+	return (txn.CreatorOrg == CUSTOMER_MSP) && (txn.CreatorCertIssuer == CUSTOMER_CA)
 }
 
 func AuthenticateAppDev(txn *Transaction) bool {
-	return (txn.CreatorOrg == "AppDevMSP") && (txn.CreatorCertIssuer == "ca.appdevorg.beatchain.com")
+	return (txn.CreatorOrg == APPDEV_MSP) && (txn.CreatorCertIssuer == APPDEV_CA)
 }
 
 func AuthenticateCreator(txn *Transaction) bool {
-	return (txn.CreatorOrg == "CreatorMSP") && (txn.CreatorCertIssuer == "ca.creatororg.beatchain.com")
+	return (txn.CreatorOrg == CREATOR_MSP) && (txn.CreatorCertIssuer == CREATOR_CA)
 }
 

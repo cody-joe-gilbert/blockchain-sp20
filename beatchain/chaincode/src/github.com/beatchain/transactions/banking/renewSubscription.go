@@ -20,11 +20,11 @@ func validateRenewSubscription(transaction *utils.Transaction) error {
 	Validates the inputs to the renewSubscription function
 	 */
 	// Access control: Only an Customer Org member can invoke this transaction
-	if !transaction.DebugMode && !utils.AuthenticateCustomer(transaction) {
+	if !utils.AuthenticateCustomer(transaction) {
 		return errors.New(fmt.Sprintf("caller not a member of Customer Org. Access denied"))
 	}
 	// Validate an ID is given
-	if !transaction.DebugMode && transaction.CreatorId == "" {
+	if transaction.CreatorId == "" {
 		return errors.New(fmt.Sprintf("customer ID not found"))
 	}
 	// Validate no other args are specified

@@ -12,6 +12,11 @@ import (
 // BeatchainChaincode implementation
 type BeatchainChaincode struct {
 	testMode bool
+	testCalledFunction    string
+	testCreatorId         string
+	testCreatorOrg        string
+	testCreatorCertIssuer string
+	testArgs              []string
 }
 
 // Initialization template
@@ -22,10 +27,22 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 	fmt.Println("Initializing Beatchain chaincode")
 
 	// Get the transaction details
-	txn, err = utils.GetTxInfo(stub)
-	if err != nil {
-		return shim.Error(err.Error())
+	if !t.testMode {
+		txn, err = utils.GetTxInfo(stub)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	} else {
+		// In test mode, use the given credentials from the instance
+		txn = new(utils.Transaction)
+		txn.TestMode = t.testMode
+		txn.CalledFunction = t.testCalledFunction
+		txn.CreatorId = t.testCreatorId
+		txn.CreatorOrg  = t.testCreatorOrg
+		txn.CreatorCertIssuer = t.testCreatorCertIssuer
+		txn.Args = t.testArgs
 	}
+
 
 	if len(txn.Args) == 0 {
 		// Using existing ledger
@@ -51,13 +68,22 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 	fmt.Println("BeatchainChaincode Invoke")
 
 	// Get the transaction details
-	txn, err = utils.GetTxInfo(stub)
-	if err != nil {
-		return shim.Error(err.Error())
+	if !t.testMode {
+		txn, err = utils.GetTxInfo(stub)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	} else {
+		// In test mode, use the given credentials from the instance
+		txn = new(utils.Transaction)
+		txn.TestMode = t.testMode
+		txn.CalledFunction = t.testCalledFunction
+		txn.CreatorId = t.testCreatorId
+		txn.CreatorOrg  = t.testCreatorOrg
+		txn.CreatorCertIssuer = t.testCreatorCertIssuer
+		txn.Args = t.testArgs
 	}
 
-	// Set the debug flag for threading debug state through the code
-	txn.DebugMode = t.testMode
 
 	/*
 		Here we'll dispatch invocation to separate function modules

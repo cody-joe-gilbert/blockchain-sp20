@@ -21,7 +21,7 @@ func validateListBankAccounts(transaction *utils.Transaction) error {
 	*/
 
 	// Validate an ID is given
-	if !transaction.DebugMode && transaction.CreatorId == "" {
+	if transaction.CreatorId == "" {
 		return errors.New(fmt.Sprintf("calling user ID not found"))
 	}
 	// Validate no other args are specified

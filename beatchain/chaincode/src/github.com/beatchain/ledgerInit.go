@@ -36,18 +36,18 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 
 	fmt.Println("Re-Initializing ledger with input variables: ")
 
-	fmt.Printf("Beatchain Admin BankAccount Initial Balance: %s", txn.Args[0])
+	fmt.Printf("Beatchain Admin BankAccount Initial Balance: %s\n", txn.Args[0])
 
-	fmt.Printf("Test AppDev ID: %s", txn.Args[1])
-	fmt.Printf("Test AppDev BankAccount ID: %s", txn.Args[2])
-	fmt.Printf("Test AppDev AdminFeeFrac: %s", txn.Args[3])
-	fmt.Printf("Test AppDev BankAccount Initial Balance: %s", txn.Args[4])
+	fmt.Printf("Test AppDev ID: %s\n", txn.Args[1])
+	fmt.Printf("Test AppDev BankAccount ID: %s\n", txn.Args[2])
+	fmt.Printf("Test AppDev AdminFeeFrac: %s\n", txn.Args[3])
+	fmt.Printf("Test AppDev BankAccount Initial Balance: %s\n", txn.Args[4])
 
-	fmt.Printf("Test Customer ID: %s", txn.Args[5])
-	fmt.Printf("Test Customer BankAccount ID: %s", txn.Args[6])
-	fmt.Printf("Test Customer SubscriptionFee: %s", txn.Args[7])
-	fmt.Printf("Test Customer SubscriptionDueDate: %s", txn.Args[8])
-	fmt.Printf("Test Customer BankAccount Initial Balance: %s", txn.Args[9])
+	fmt.Printf("Test Customer ID: %s\n", txn.Args[5])
+	fmt.Printf("Test Customer BankAccount ID: %s\n", txn.Args[6])
+	fmt.Printf("Test Customer SubscriptionFee: %s\n", txn.Args[7])
+	fmt.Printf("Test Customer SubscriptionDueDate: %s\n", txn.Args[8])
+	fmt.Printf("Test Customer BankAccount Initial Balance: %s\n", txn.Args[9])
 
 	// Parse out and validate all of the above input
 	beatchainAdminBABalance, err := strconv.ParseFloat(txn.Args[0], 32)

@@ -8,7 +8,6 @@ import (
 	"testing"
 )
 
-
 const BEATCHAIN_ADMIN_BALANCE = "1000"
 const TEST_APPDEV_ID = "1111"
 const TEST_APPDEV_BA_ID = "1111"
@@ -20,6 +19,13 @@ const TEST_CUSTOMER_SUBFEE = "1.00"
 const TEST_CUSTOMER_SUB_DUE_DATE = "2020-06-01"
 const TEST_CUSTOMER_BA_BALANCE = "1000"
 
+func stringToBytes(strArray []string) [][]byte {
+	var output [][]byte
+	for _ , p := range strArray {
+		output = append(output, []byte{p})
+	}
+	return output
+}
 
 func getInitArguments() [][]byte {
 	return [][]byte{[]byte("init"),
@@ -41,29 +47,34 @@ func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
 		fmt.Println("Init failed", string(res.Message))
 		t.FailNow()
 	}
+	bal, _ := strconv.ParseFloat(BEATCHAIN_ADMIN_BALANCE, 32)
+	utils.CheckBankAccount(t, stub, utils.BEATCHAIN_ADMIN_BANK_ACCOUNT_ID, float32(bal))
+	bal, _ = strconv.ParseFloat(TEST_APPDEV_BA_BALANCE, 32)
+	utils.CheckBankAccount(t, stub, TEST_APPDEV_BA_ID, float32(bal))
+	bal, _ = strconv.ParseFloat(TEST_CUSTOMER_BA_BALANCE, 32)
+	utils.CheckBankAccount(t, stub, TEST_CUSTOMER_BA_ID, float32(bal))
 }
 
-
-func TestBeatchain_Init(t *testing.T) {
+func beatchain_init(t *testing.T)  (*BeatchainChaincode, *shim.MockStub) {
 	scc := new(BeatchainChaincode)
 	scc.testMode = true
 	stub := shim.NewMockStub("Beatchain", scc)
-
-	// Init
-	scc.testCreatorId = "test"
-	scc.testCreatorOrg = utils.APPDEV_MSP
-	scc.testCreatorCertIssuer = utils.APPDEV_CA
-	scc.testArgs = []string{}
-	for i, p := range getInitArguments() {
-		if i == 0 {
-			scc.testCalledFunction = string(p)
-			continue
-		}
-		scc.testArgs = append(scc.testArgs, string(p))
-	}
-
 	checkInit(t, stub, getInitArguments())
+	return scc, stub
+}
 
-	bal, _ := strconv.ParseFloat(BEATCHAIN_ADMIN_BALANCE, 32)
-	utils.CheckBankAccount(t, stub, utils.BEATCHAIN_ADMIN_BANK_ACCOUNT_ID, float32(bal))
+func TestBeatchain_Init(t *testing.T) {
+	beatchain_init(t)
+
+}
+
+func TestListBAs_Query(t *testing.T) {
+	_, stub := beatchain_init(t)
+	res := stub.MockInvoke("1", [][]byte{[]byte("ListBankAccounts")})
+	if res.Payload == nil {
+		fmt.Println("Query", "ListBankAccounts", "failed to get value")
+		t.FailNow()
+	}
+	payload := string(res.Payload)
+	fmt.Println(payload)
 }

@@ -35,5 +35,23 @@ func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float3
 		fmt.Printf("BA Balance %.2f != %.2f expected for key %s", record.Balance, value, key)
 		t.FailNow()
 	}
+}
 
+
+
+func checkQuery(t *testing.T, stub *shim.MockStub, function string, name string, value string) {
+	res := stub.MockInvoke("1", [][]byte{[]byte(function), []byte(name)})
+	if res.Status != shim.OK {
+		fmt.Println("Query", name, "failed", string(res.Message))
+		t.FailNow()
+	}
+	if res.Payload == nil {
+		fmt.Println("Query", name, "failed to get value")
+		t.FailNow()
+	}
+	payload := string(res.Payload)
+	if payload != value {
+		fmt.Println("Query value", name, "was", payload, "and not", value, "as expected")
+		t.FailNow()
+	}
 }

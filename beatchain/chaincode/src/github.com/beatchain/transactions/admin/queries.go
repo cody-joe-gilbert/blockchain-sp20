@@ -21,14 +21,13 @@ func validateListBankAccounts(transaction *utils.Transaction) error {
 	*/
 
 	// Validate an ID is given
-	if transaction.CreatorId == "" {
+	if !transaction.TestMode && transaction.CreatorId == "" {
 		return errors.New(fmt.Sprintf("calling user ID not found"))
 	}
 	// Validate no other args are specified
 	if len(transaction.Args) != 0 {
 		return errors.New(fmt.Sprintf("ListBankAccounts takes no arguments"))
 	}
-
 	return nil
 }
 

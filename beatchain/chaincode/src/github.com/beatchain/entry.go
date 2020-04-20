@@ -12,11 +12,6 @@ import (
 // BeatchainChaincode implementation
 type BeatchainChaincode struct {
 	testMode bool
-	testCalledFunction    string
-	testCreatorId         string
-	testCreatorOrg        string
-	testCreatorCertIssuer string
-	testArgs              []string
 }
 
 // Initialization template
@@ -27,22 +22,10 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 	fmt.Println("Initializing Beatchain chaincode")
 
 	// Get the transaction details
-	if !t.testMode {
-		txn, err = utils.GetTxInfo(stub)
-		if err != nil {
-			return shim.Error(err.Error())
-		}
-	} else {
-		// In test mode, use the given credentials from the instance
-		txn = new(utils.Transaction)
-		txn.TestMode = t.testMode
-		txn.CalledFunction = t.testCalledFunction
-		txn.CreatorId = t.testCreatorId
-		txn.CreatorOrg  = t.testCreatorOrg
-		txn.CreatorCertIssuer = t.testCreatorCertIssuer
-		txn.Args = t.testArgs
+	txn, err = utils.GetTxInfo(stub, t.testMode)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
-
 
 	if len(txn.Args) == 0 {
 		// Using existing ledger
@@ -56,7 +39,6 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 		return shim.Error(err.Error())
 	}
 
-
 	return shim.Success(nil)
 }
 
@@ -68,22 +50,11 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 	fmt.Println("BeatchainChaincode Invoke")
 
 	// Get the transaction details
-	if !t.testMode {
-		txn, err = utils.GetTxInfo(stub)
-		if err != nil {
-			return shim.Error(err.Error())
-		}
-	} else {
-		// In test mode, use the given credentials from the instance
-		txn = new(utils.Transaction)
-		txn.TestMode = t.testMode
-		txn.CalledFunction = t.testCalledFunction
-		txn.CreatorId = t.testCreatorId
-		txn.CreatorOrg  = t.testCreatorOrg
-		txn.CreatorCertIssuer = t.testCreatorCertIssuer
-		txn.Args = t.testArgs
-	}
 
+	txn, err = utils.GetTxInfo(stub, t.testMode)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
 
 	/*
 		Here we'll dispatch invocation to separate function modules

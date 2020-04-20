@@ -3,14 +3,13 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/beatchain/utils"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"testing"
 )
 
 func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float32) {
 	var recordBytes []byte
-	var record *utils.BankAccount
+	var record *BankAccount
 	var key string
 	var err error
 

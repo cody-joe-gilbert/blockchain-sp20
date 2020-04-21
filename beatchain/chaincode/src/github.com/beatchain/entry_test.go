@@ -8,16 +8,7 @@ import (
 	"testing"
 )
 
-const BEATCHAIN_ADMIN_BALANCE = "1000"
-const TEST_APPDEV_ID = "1111"
-const TEST_APPDEV_BA_ID = "1111"
-const TEST_APPDEV_DEVSHARE = "0.1"
-const TEST_APPDEV_BA_BALANCE = "1000"
-const TEST_CUSTOMER_ID = "2222"
-const TEST_CUSTOMER_BA_ID = "2222"
-const TEST_CUSTOMER_SUBFEE = "1.00"
-const TEST_CUSTOMER_SUB_DUE_DATE = "2020-06-01"
-const TEST_CUSTOMER_BA_BALANCE = "1000"
+
 
 func stringToBytes(strArray []string) [][]byte {
 	var output [][]byte
@@ -29,16 +20,16 @@ func stringToBytes(strArray []string) [][]byte {
 
 func getInitArguments() [][]byte {
 	return [][]byte{[]byte("init"),
-		[]byte(BEATCHAIN_ADMIN_BALANCE), // Beatchain admin BA balance
-		[]byte(TEST_APPDEV_ID), // Test Appdev ID
-		[]byte(TEST_APPDEV_BA_ID), // Test Appdev BA ID
-		[]byte(TEST_APPDEV_DEVSHARE),  // Test AdminFeeFrac BA ID
-		[]byte(TEST_APPDEV_BA_BALANCE), // Test AppDev BankAccount Initial Balance
-		[]byte(TEST_CUSTOMER_ID), // Test Customer ID
-		[]byte(TEST_CUSTOMER_BA_ID),  // Test Customer BankAccount ID
-		[]byte(TEST_CUSTOMER_SUBFEE),  // Test Customer SubscriptionFee
-		[]byte(TEST_CUSTOMER_SUB_DUE_DATE),  // Test Customer SubscriptionDueDate
-		[]byte(TEST_CUSTOMER_BA_BALANCE)}  // Test Customer BankAccount Initial Balance
+		[]byte(utils.BEATCHAIN_ADMIN_BALANCE), // Beatchain admin BA balance
+		[]byte(utils.TEST_APPDEV_ID), // Test Appdev ID
+		[]byte(utils.TEST_APPDEV_BA_ID), // Test Appdev BA ID
+		[]byte(utils.TEST_APPDEV_DEVSHARE),  // Test AdminFeeFrac BA ID
+		[]byte(utils.TEST_APPDEV_BA_BALANCE), // Test AppDev BankAccount Initial Balance
+		[]byte(utils.TEST_CUSTOMER_ID), // Test Customer ID
+		[]byte(utils.TEST_CUSTOMER_BA_ID),  // Test Customer BankAccount ID
+		[]byte(utils.TEST_CUSTOMER_SUBFEE),  // Test Customer SubscriptionFee
+		[]byte(utils.TEST_CUSTOMER_SUB_DUE_DATE),  // Test Customer SubscriptionDueDate
+		[]byte(utils.TEST_CUSTOMER_BA_BALANCE)}  // Test Customer BankAccount Initial Balance
 }
 
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
@@ -47,12 +38,12 @@ func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
 		fmt.Println("Init failed", string(res.Message))
 		t.FailNow()
 	}
-	bal, _ := strconv.ParseFloat(BEATCHAIN_ADMIN_BALANCE, 32)
+	bal, _ := strconv.ParseFloat(utils.BEATCHAIN_ADMIN_BALANCE, 32)
 	utils.CheckBankAccount(t, stub, utils.BEATCHAIN_ADMIN_BANK_ACCOUNT_ID, float32(bal))
-	bal, _ = strconv.ParseFloat(TEST_APPDEV_BA_BALANCE, 32)
-	utils.CheckBankAccount(t, stub, TEST_APPDEV_BA_ID, float32(bal))
-	bal, _ = strconv.ParseFloat(TEST_CUSTOMER_BA_BALANCE, 32)
-	utils.CheckBankAccount(t, stub, TEST_CUSTOMER_BA_ID, float32(bal))
+	bal, _ = strconv.ParseFloat(utils.TEST_APPDEV_BA_BALANCE, 32)
+	utils.CheckBankAccount(t, stub, utils.TEST_APPDEV_BA_ID, float32(bal))
+	bal, _ = strconv.ParseFloat(utils.TEST_CUSTOMER_BA_BALANCE, 32)
+	utils.CheckBankAccount(t, stub, utils.TEST_CUSTOMER_BA_ID, float32(bal))
 }
 
 func beatchain_init(t *testing.T)  (*BeatchainChaincode, *shim.MockStub) {

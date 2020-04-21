@@ -6,6 +6,35 @@ import (
 
 const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "1"
 
+// Authorization constants
+const CUSTOMER_MSP = "CustomerMSP"
+const CUSTOMER_CA = "ca.customerorg.beatchain.com"
+const APPDEV_MSP = "AppDevMSP"
+const APPDEV_CA = "ca.appdevorg.beatchain.com"
+const CREATOR_MSP = "CreatorMSP"
+const CREATOR_CA = "ca.creatororg.beatchain.com"
+
+// Key Constants
+const KEY_OBJECT_FORMAT = "object~id"
+const CUSTOMER_RECORD_KEY_PREFIX = "CustomerRecord"
+const CREATOR_RECORD_KEY_PREFIX = "CreatorRecord"
+const CONTRACT_KEY_PREFIX = "Contract"
+const BANK_ACCOUNT_KEY_PREFIX = "BankAccount"
+const APPDEV_RECORD_KEY_PREFIX = "AppDevRecord"
+const PRODUCT_KEY_PREFIX = "Product"
+
+// Test constants
+const BEATCHAIN_ADMIN_BALANCE = "1000"
+const TEST_APPDEV_ID = "1111"
+const TEST_APPDEV_BA_ID = "1111"
+const TEST_APPDEV_DEVSHARE = "0.1"
+const TEST_APPDEV_BA_BALANCE = "1000"
+const TEST_CUSTOMER_ID = "2222"
+const TEST_CUSTOMER_BA_ID = "2222"
+const TEST_CUSTOMER_SUBFEE = "1.00"
+const TEST_CUSTOMER_SUB_DUE_DATE = "2020-06-01"
+const TEST_CUSTOMER_BA_BALANCE = "1000"
+
 type Transaction struct {
 	/*
 		Defines the standard format of the user's transaction info. Used to prevent having to

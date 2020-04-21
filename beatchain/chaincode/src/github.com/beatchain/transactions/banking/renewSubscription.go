@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-const TEST_CUSTOMER_ID = "2222"
+
 
 func validateRenewSubscription(transaction *utils.Transaction) error {
 	/*
@@ -25,7 +25,7 @@ func validateRenewSubscription(transaction *utils.Transaction) error {
 		return errors.New(fmt.Sprintf("caller not a member of Customer Org. Access denied"))
 	}
 	if transaction.TestMode {
-		transaction.CreatorId = TEST_CUSTOMER_ID
+		transaction.CreatorId = utils.TEST_CUSTOMER_ID
 	}
 	// Validate an ID is given
 	if !transaction.TestMode && transaction.CreatorId == "" {

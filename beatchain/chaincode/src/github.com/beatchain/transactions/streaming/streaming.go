@@ -60,6 +60,9 @@ func requestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Re
 		product.UnRenumeratedListens += 1
 		product.TotalListens += 1
 
+		customer.PreviousSong = customer.QueuedSong
+		customer.QueuedSong = productId
+
 		err = utils.SetProduct(stub, product)
 		if err != nil {
 			return shim.Error(err.Error())

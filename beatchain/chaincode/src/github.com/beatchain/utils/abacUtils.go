@@ -11,12 +11,7 @@ import (
 	"github.com/hyperledger/fabric/protos/msp"
 )
 
-const CUSTOMER_MSP = "CustomerMSP"
-const CUSTOMER_CA = "ca.customerorg.beatchain.com"
-const APPDEV_MSP = "AppDevMSP"
-const APPDEV_CA = "ca.appdevorg.beatchain.com"
-const CREATOR_MSP = "CreatorMSP"
-const CREATOR_CA = "ca.creatororg.beatchain.com"
+
 
 func GetTxInfo(stub shim.ChaincodeStubInterface, testMode bool) (*Transaction, error) {
 	/*

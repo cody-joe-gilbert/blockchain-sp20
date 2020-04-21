@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/beatchain/transactions/admin"
+	"github.com/beatchain/transactions/banking"
+	"github.com/beatchain/utils"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
-	"github.com/beatchain/transactions/banking"
-	"github.com/beatchain/transactions/admin"
-	"github.com/beatchain/utils"
 )
 
 // BeatchainChaincode implementation
@@ -60,12 +60,15 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		Here we'll dispatch invocation to separate function modules
 	*/
 	switch fnct := txn.CalledFunction; fnct {
-	case "RenewSubscription":
-		return banking.RenewSubscription(stub, txn)
+
 	case "ListBankAccounts":
 		return admin.ListBankAccounts(stub, txn)
 	case "ListCustomers":
 		return admin.ListCustomers(stub, txn)
+	case "RenewSubscription":
+		return banking.RenewSubscription(stub, txn)
+	case "CollectPayment":
+		return banking.CollectPayment(stub, txn)
 	default:
 		return shim.Error("Invalid invoke function name")
 	}

@@ -20,16 +20,29 @@ func stringToBytes(strArray []string) [][]byte {
 
 func getInitArguments() [][]byte {
 	return [][]byte{[]byte("init"),
-		[]byte(utils.BEATCHAIN_ADMIN_BALANCE), // Beatchain admin BA balance
-		[]byte(utils.TEST_APPDEV_ID), // Test Appdev ID
-		[]byte(utils.TEST_APPDEV_BA_ID), // Test Appdev BA ID
-		[]byte(utils.TEST_APPDEV_DEVSHARE),  // Test AdminFeeFrac BA ID
-		[]byte(utils.TEST_APPDEV_BA_BALANCE), // Test AppDev BankAccount Initial Balance
-		[]byte(utils.TEST_CUSTOMER_ID), // Test Customer ID
-		[]byte(utils.TEST_CUSTOMER_BA_ID),  // Test Customer BankAccount ID
-		[]byte(utils.TEST_CUSTOMER_SUBFEE),  // Test Customer SubscriptionFee
-		[]byte(utils.TEST_CUSTOMER_SUB_DUE_DATE),  // Test Customer SubscriptionDueDate
-		[]byte(utils.TEST_CUSTOMER_BA_BALANCE)}  // Test Customer BankAccount Initial Balance
+		[]byte(utils.BEATCHAIN_ADMIN_BALANCE),
+		[]byte(utils.TEST_APPDEV_ID),
+		[]byte(utils.TEST_APPDEV_BA_ID),
+		[]byte(utils.TEST_APPDEV_DEVSHARE),
+		[]byte(utils.TEST_APPDEV_BA_BALANCE),
+		[]byte(utils.TEST_CUSTOMER_ID),
+		[]byte(utils.TEST_CUSTOMER_BA_ID),
+		[]byte(utils.TEST_CUSTOMER_SUBFEE),
+		[]byte(utils.TEST_CUSTOMER_SUB_DUE_DATE),
+		[]byte(utils.TEST_CUSTOMER_BA_BALANCE),
+		[]byte(utils.TEST_CREATOR_ID),
+		[]byte(utils.TEST_CREATOR_BA_ID),
+		[]byte(utils.TEST_CREATOR_BA_BALANCE),
+		[]byte(utils.TEST_PRODUCT_ID),
+		[]byte(utils.TEST_PRODUCT_NAME),
+		[]byte(utils.TEST_PRODUCT_TOTAL_LISTENS),
+		[]byte(utils.TEST_PRODUCT_UNREN_LISTENS),
+		[]byte(utils.TEST_PRODUCT_TOTAL_METRICS),
+		[]byte(utils.TEST_PRODUCT_UNREN_METRICS),
+		[]byte(utils.TEST_PRODUCT_ADD_METRICS),
+		[]byte(utils.TEST_PRODUCT_ACTIVE),
+		[]byte(utils.TEST_CONTRACT_PPS),
+		[]byte(utils.TEST_CONTRACT_STATUS)}
 }
 
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {
@@ -74,6 +87,13 @@ func TestRenewal(t *testing.T) {
 	utils.ExecQuery(t, stub, "ListBankAccounts")
 	utils.ExecQuery(t, stub, "ListCustomers")
 }
+
+func TestCollection(t *testing.T) {
+	_, stub := beatchain_init(t)
+	utils.ExecQuery(t, stub, "CollectPayment")
+	utils.ExecQuery(t, stub, "ListBankAccounts")
+}
+
 
 
 

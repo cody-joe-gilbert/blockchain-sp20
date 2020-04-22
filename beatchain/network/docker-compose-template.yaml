@@ -5,7 +5,6 @@ version: '2'
 
 volumes:
   orderer.beatchain.com:
-  peer0.beatchain.com:
   peer0.appdevorg.beatchain.com:
   peer0.creatororg.beatchain.com:
   peer0.customerorg.beatchain.com:
@@ -13,24 +12,6 @@ volumes:
 networks:
   beatchain:
 services:
-
-  beatchain-ca:
-    image: hyperledger/fabric-ca:$IMAGE_TAG
-    environment:
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - FABRIC_CA_SERVER_CA_NAME=ca-beatchain
-      - FABRIC_CA_SERVER_TLS_ENABLED=true
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.beatchain.com-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/BEATCHAIN_CA_PRIVATE_KEY
-    ports:
-      - "7054:7054"
-    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.beatchain.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/BEATCHAIN_CA_PRIVATE_KEY -b admin:adminpw -d'
-    volumes:
-      - ./crypto-config/peerOrganizations/beatchain.com/ca/:/etc/hyperledger/fabric-ca-server-config
-    container_name: ca_beatchainAdmin
-    networks:
-      - beatchain
-
   appdevorg-ca:
     image: hyperledger/fabric-ca:$IMAGE_TAG
     environment:
@@ -87,14 +68,6 @@ services:
       file:   docker-compose-base.yaml
       service: orderer.beatchain.com
     container_name: orderer.beatchain.com
-    networks:
-      - beatchain
-
-  peer0.beatchain.com:
-    container_name: peer0.beatchain.com
-    extends:
-      file:  docker-compose-base.yaml
-      service: peer0.beatchain.com
     networks:
       - beatchain
 

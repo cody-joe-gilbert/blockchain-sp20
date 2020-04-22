@@ -48,7 +48,7 @@
 		}
 	},
 	"orderers": {
-		"orderer.example.com": {
+		"orderer.beatchain.com": {
 			"url": "localhost:7050",
 			"grpcOptions": {
 				"grpc.ssl_target_name_override": "orderer.beatchain.com",

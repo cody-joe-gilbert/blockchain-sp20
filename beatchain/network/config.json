@@ -1,0 +1,50 @@
+{
+	"name": "Beatchain",
+	"description": "Beatchain. Music. Immutable.",
+	"version": "0.1",
+	"client": {
+		"organization": "beatchain",
+		"credentialStore": {
+			"path": "/tmp/hfc-kvs",
+			"cryptoStore": {
+				"path": "/tmp/hfc-cvs"
+			},
+			"wallet": "wallet-name"
+		}
+	},
+	"organizations": {
+		"orderer.beatchain.com": {
+			"mspid": "BeatchainMSP",
+			"orderers": [
+				"orderer.beatchain.com"
+			]
+		},
+		"appdevorg.beatchain.com": {
+			"mspid": "AppDevMSP",
+			"peers": [
+				"peer0.appdevorg.beatchain.com"
+			],
+			"certificateAuthorities": [
+				"ca-appdevorg"
+			]
+		},
+		"creatororg.beatchain.com": {
+			"mspid": "CreatorMSP",
+			"peers": [
+				"peer0.creatororg.beatchain.com"
+			],
+			"certificateAuthorities": [
+				"ca-creatororg"
+			]
+		},
+		"customerorg.beatchain.com": {
+			"mspid": "CustomerMSP",
+			"peers": [
+				"peer0.customerorg.beatchain.com"
+			],
+			"certificateAuthorities": [
+				"ca-customerorg"
+			]
+		}
+	}
+}

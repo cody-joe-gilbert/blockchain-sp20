@@ -150,7 +150,49 @@ func addCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 		return shim.Error(err.Error())
 	}
 
-	fmt.Println("Customer successfully created with id: %d",id)
+	fmt.Println("Customer successfully created with id: %s",id)
 	
 	return shim.Success(nil)
 }
+
+func addBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	
+	var err error
+
+	// Access control: Only an admin or app dev can invoke this transaction
+	if (utils.AuthenticateCreator(txn) || utils.AuthenticateCustomer(txn) || utils.AuthenticateAppDev(txn)){
+		return shim.Error("Caller not a member of admin org.")
+	}
+
+	args := txn.Args
+	if len(args) != 1 {
+		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: { Balance }. Found %d", len(args)))
+		return shim.Error(err.Error())
+	}
+
+	balance := txn.Args[0]
+	if floatBalance, err := strconv.ParseFloat(balance, 32); err == nil {
+		if floatBalance < 0 {
+			err := errors.New(fmt.Sprintf("Bank Balance must be a positive number \n"))
+			return shim.Error(err.Error()) //must be positive
+		}
+	} else {
+		return shim.Error(err.Error())
+	}
+
+
+	t := time.Now().UnixNano()
+	id := strconv.FormatInt(t, 10) 
+
+	raw_bankAccount := &utils.BankAccount{Id: id, Balance: floatBalance}
+
+	err = utils.SetBankAccount(stub, raw_bankAccount)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Println("Bank Account successfully created with id: %s and balance: %s ",id,balance)
+	
+	return shim.Success(nil)	
+}
+

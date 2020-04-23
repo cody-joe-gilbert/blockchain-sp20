@@ -15,6 +15,7 @@ var ContractVariable = "contractVariable"
 
 // THESE FUNCTIONS DO NOT CHECK TO SEE IF THE CALLER IS THE ACTUAL ORG MAKING/ACCEPTING/DENYING CONTRACT
 // Arun : Can we create a password asset or something like that?
+// Julian: This should be something handled through identity management. I'm also not sure how to do it.
 func offerContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 

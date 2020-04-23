@@ -4,7 +4,54 @@ import (
 	"time"
 )
 
-const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "0000001"
+const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "1"
+
+// Authorization constants
+const CUSTOMER_MSP = "CustomerMSP"
+const CUSTOMER_CA = "ca.customerorg.beatchain.com"
+const APPDEV_MSP = "AppDevMSP"
+const APPDEV_CA = "ca.appdevorg.beatchain.com"
+const CREATOR_MSP = "CreatorMSP"
+const CREATOR_CA = "ca.creatororg.beatchain.com"
+
+// Key Constants
+const KEY_OBJECT_FORMAT = "object~id"
+const CUSTOMER_RECORD_KEY_PREFIX = "CustomerRecord"
+const CREATOR_RECORD_KEY_PREFIX = "CreatorRecord"
+const CONTRACT_KEY_PREFIX = "Contract"
+const BANK_ACCOUNT_KEY_PREFIX = "BankAccount"
+const APPDEV_RECORD_KEY_PREFIX = "AppDevRecord"
+const PRODUCT_KEY_PREFIX = "Product"
+
+// Test constants
+const BEATCHAIN_ADMIN_BALANCE = "1000"
+
+const TEST_APPDEV_ID = "1111"
+const TEST_APPDEV_BA_ID = "1111"
+const TEST_APPDEV_DEVSHARE = "0.1"
+const TEST_APPDEV_BA_BALANCE = "1000"
+
+const TEST_CUSTOMER_ID = "2222"
+const TEST_CUSTOMER_BA_ID = "2222"
+const TEST_CUSTOMER_SUBFEE = "1.00"
+const TEST_CUSTOMER_SUB_DUE_DATE = "2020-06-01"
+const TEST_CUSTOMER_BA_BALANCE = "1000"
+
+const TEST_CREATOR_ID = "3333"
+const TEST_CREATOR_BA_ID = "3333"
+const TEST_CREATOR_BA_BALANCE = "1000"
+
+const TEST_PRODUCT_ID = "4444"
+const TEST_PRODUCT_NAME = "Test Product"
+const TEST_PRODUCT_TOTAL_LISTENS = "5"
+const TEST_PRODUCT_UNREN_LISTENS = "3"
+const TEST_PRODUCT_TOTAL_METRICS = "7"
+const TEST_PRODUCT_UNREN_METRICS = "4"
+const TEST_PRODUCT_ADD_METRICS = "0"
+const TEST_PRODUCT_ACTIVE = "true"
+
+const TEST_CONTRACT_PPS = "0.01"
+const TEST_CONTRACT_STATUS = "true"
 
 type Transaction struct {
 	/*
@@ -16,6 +63,7 @@ type Transaction struct {
 	CreatorOrg        string
 	CreatorCertIssuer string
 	Args              []string
+	TestMode		  bool
 }
 
 type CustomerRecord struct {

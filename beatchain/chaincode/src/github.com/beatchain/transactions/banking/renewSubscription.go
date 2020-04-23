@@ -1,3 +1,7 @@
+/*
+Handles transactions to renew a Customer's subscription by a month
+Owner(s): Cody Gilbert
+*/
 package banking
 
 import (
@@ -11,16 +15,20 @@ import (
 )
 
 
+
 func validateRenewSubscription(transaction *utils.Transaction) error {
 	/*
 	Validates the inputs to the renewSubscription function
 	 */
 	// Access control: Only an Customer Org member can invoke this transaction
-	if !utils.AuthenticateCustomer(transaction) {
+	if !transaction.TestMode && !utils.AuthenticateCustomer(transaction) {
 		return errors.New(fmt.Sprintf("caller not a member of Customer Org. Access denied"))
 	}
+	if transaction.TestMode {
+		transaction.CreatorId = utils.TEST_CUSTOMER_ID
+	}
 	// Validate an ID is given
-	if transaction.CreatorId == "" {
+	if !transaction.TestMode && transaction.CreatorId == "" {
 		return errors.New(fmt.Sprintf("customer ID not found"))
 	}
 	// Validate no other args are specified
@@ -28,10 +36,11 @@ func validateRenewSubscription(transaction *utils.Transaction) error {
 		return errors.New(fmt.Sprintf("renewSubscription takes no arguments"))
 	}
 
+
 	return nil
 }
 
-func renewSubscription(stub shim.ChaincodeStubInterface, transaction *utils.Transaction) pb.Response {
+func RenewSubscription(stub shim.ChaincodeStubInterface, transaction *utils.Transaction) pb.Response {
 	/*
 	Renews the Customer's subscription for a month. Transfers money from the Customer's
 	bank account to the AppDev's account and extends the subscription due date by a month.

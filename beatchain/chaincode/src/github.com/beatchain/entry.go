@@ -2,20 +2,11 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/hyperledger/fabric/core/chaincode/shim"
-	pb "github.com/hyperledger/fabric/protos/peer"
-
-	/*
-		Import transaction packages here
-	*/
-	"github.com/beatchain/transactions"
 	"github.com/beatchain/transactions/admin"
 	"github.com/beatchain/transactions/banking"
-	"github.com/beatchain/transactions/streaming"
-
 	"github.com/beatchain/utils"
-
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
 // BeatchainChaincode implementation
@@ -31,7 +22,7 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 	fmt.Println("Initializing Beatchain chaincode")
 
 	// Get the transaction details
-	txn, err = utils.GetTxInfo(stub)
+	txn, err = utils.GetTxInfo(stub, t.testMode)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -48,37 +39,40 @@ func (t *BeatchainChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response 
 		return shim.Error(err.Error())
 	}
 
-
 	return shim.Success(nil)
 }
 
 // Invocation template
 func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	//var txn *utils.Transaction
-	//var err error
+	var txn *utils.Transaction
+	var err error
 
 	fmt.Println("BeatchainChaincode Invoke")
 
 	// Get the transaction details
-/*	txn, err = utils.GetTxInfo(stub)
+
+	txn, err = utils.GetTxInfo(stub, t.testMode)
 	if err != nil {
 		return shim.Error(err.Error())
-	}*/
-
-	fmt.Println("This is a call to the %v module and file.", transactions.TransactionsVariable)
-	fmt.Println("This is a call to the %v module and file.", admin.AdminVariable)
-	fmt.Println("This is a call to the %v module and file.", banking.BankingVariable)
-	fmt.Println("This is a call to the %v module and file.", streaming.StreamingVariable)
+	}
 
 	/*
 		Here we'll dispatch invocation to separate function modules
 	*/
+	switch fnct := txn.CalledFunction; fnct {
 
-	/*if txn.CalledFunction == "" {
-		// Importer requests a trade
-		return t.FUNCTION(stub, txn)
-	}*/
-	return shim.Error("Invalid invoke function name")
+	case "ListBankAccounts":
+		return admin.ListBankAccounts(stub, txn)
+	case "ListCustomers":
+		return admin.ListCustomers(stub, txn)
+	case "RenewSubscription":
+		return banking.RenewSubscription(stub, txn)
+	case "CollectPayment":
+		return banking.CollectPayment(stub, txn)
+	default:
+		return shim.Error("Invalid invoke function name")
+	}
+
 }
 
 func main() {
@@ -86,7 +80,7 @@ func main() {
 	Bootstraps the Beatchain chaincode
 	 */
 	bcc := new(BeatchainChaincode)
-	bcc.testMode = false
+	bcc.testMode = true
 	err := shim.Start(bcc)
 	if err != nil {
 		fmt.Printf("Error starting Trade Workflow chaincode: %s", err)

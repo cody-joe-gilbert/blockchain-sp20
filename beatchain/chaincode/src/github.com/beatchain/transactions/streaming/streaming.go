@@ -1,9 +1,10 @@
 package streaming
 
 import (
-	"github.com/beatchain/utils"
+	"blockchain-sp20/beatchain/chaincode/src/github.com/beatchain/utils"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -35,14 +36,41 @@ func requestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Re
 	appDevId := txn.Args[1]
 	productId := txn.Args[2]
 
-	customerKey, err := utils.GetCustomerRecordKey(stub, customerID)
+	customer, err := utils.GetCustomerRecord(stub, customerID)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	fmt.Println(appDevId)
-	fmt.Println(productId)
-	fmt.Println(customerKey)
+	_, err = utils.GetAppDevRecord(stub, appDevId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	product, err := utils.GetProduct(stub, productId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	contract, err := utils.GetContract(stub, product.CreatorId, appDevId, productId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if customer.SubscriptionDueDate.After(time.Now()) && customer.AppDevId == appDevId && contract.CreatorId == product.CreatorId {
+		product.UnRenumeratedListens += 1
+		product.TotalListens += 1
+
+		customer.PreviousSong = customer.QueuedSong
+		customer.QueuedSong = productId
+
+		err = utils.SetProduct(stub, product)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+	} else {
+		err := errors.New(fmt.Sprintf("Invalid combination of parameters or subscription no longer active/valid."))
+		return shim.Error(err.Error())
+	}
 
 	return shim.Success(nil)
 }

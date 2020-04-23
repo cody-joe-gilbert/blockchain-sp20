@@ -78,7 +78,7 @@
 		}
 	},
 	"peers": {
-		"peer0.appdevorg.example.com": {
+		"peer0.appdevorg.beatchain.com": {
 			"url": "localhost:7051",
 			"eventUrl": "localhost:7053",
 			"grpcOptions": {

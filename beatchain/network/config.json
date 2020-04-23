@@ -30,7 +30,7 @@
 			"users": {
 				"Admin": {
 					"cert": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/users/Admin@appdevorg.beatchain.com/msp/signcerts/Admin@beatchain.com-cert.pem",
-					"private_key": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/users/Admin@appdevorg.beatchain.com/msp/keystore/APPDEVORG_CA_PRIVATE_KEY"
+					"private_key": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/users/Admin@appdevorg.beatchain.com/msp/keystore/APPDEVORG_ADMIN_PRIVATE_KEY"
 				}
 			}
 		},
@@ -45,7 +45,7 @@
 			"users": {
 				"Admin": {
 					"cert": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/users/Admin@creatororg.beatchain.com/msp/signcerts/Admin@creatororg.com-cert.pem",
-					"private_key": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/users/Admin@creatororg.beatchain.com/msp/keystore/CREATORORG_CA_PRIVATE_KEY"
+					"private_key": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/users/Admin@creatororg.beatchain.com/msp/keystore/CREATORORG_ADMIN_PRIVATE_KEY"
 				}
 			}
 		},
@@ -60,7 +60,7 @@
 			"users": {
 				"Admin": {
 					"cert": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/users/Admin@customerorg.beatchain.com/msp/signcerts/Admin@customerorg.com-cert.pem",
-					"private_key": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/users/Admin@customerorg.beatchain.com/msp/keystore/CUSTOMERORG_CA_PRIVATE_KEY"
+					"private_key": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/users/Admin@customerorg.beatchain.com/msp/keystore/CUSTOMERORG_ADMIN_PRIVATE_KEY"
 				}
 			}
 		}

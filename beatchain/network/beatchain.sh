@@ -198,41 +198,64 @@ function replacePrivateKey () {
   cp docker-compose-template.yaml docker-compose.yaml
   # The next steps will replace the template's contents with the
   # actual values of the private key file names for the CAs.
+  CURRENT_DIR=$PWD
+  CUR_ORG="appdevorg"
+  ORG_KEY="APPDEVORG"
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/ca/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
   if [ $(uname -s) == 'Darwin' ] ; then
-    CURRENT_DIR=$PWD
-    cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    sed -i '' "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
-    cd crypto-config/peerOrganizations/creatororg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    sed -i '' "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
-    cd crypto-config/peerOrganizations/customerorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+    sed -i '' "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   else
-    CURRENT_DIR=$PWD
-    cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    sed -i "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
-    cd crypto-config/peerOrganizations/creatororg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    sed -i "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
-    cd crypto-config/peerOrganizations/customerorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    sed -i "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+    sed -i "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   fi
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/users/Admin@${CUR_ORG}.beatchain.com/msp/keystore/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+
+  CUR_ORG="creatororg"
+  ORG_KEY="CREATORORG"
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/ca/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/users/Admin@${CUR_ORG}.beatchain.com/msp/keystore/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+
+  CUR_ORG="customerorg"
+  ORG_KEY="CUSTOMERORG"
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/ca/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/users/Admin@${CUR_ORG}.beatchain.com/msp/keystore/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+
 
 }
 

@@ -126,7 +126,7 @@ for org in orgs:
                    peers=peers,
                    orderer=orderers[0]
                    ))
-    if sum(responses) == len(peers):
+    if len(responses) == len(peers):
         print(f'Org {org} successfully joined channel {channel_name}')
     else:
         raise ValueError(f'Org {org} failed to joined channel {channel_name}')
@@ -146,7 +146,7 @@ for org in orgs:
                    cc_name=chaincode_name,
                    cc_version=chaincode_version
                    ))
-    if sum(responses) == len(peers):
+    if len(responses) == len(peers):
         print(f'Org {org} successfully installed chaincode')
     else:
         raise ValueError(f'Org {org} failed to install chaincode')

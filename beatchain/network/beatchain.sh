@@ -213,9 +213,9 @@ function replacePrivateKey () {
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
   if [ $(uname -s) == 'Darwin' ] ; then
-    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   else
-    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   fi
 
   CUR_ORG="creatororg"
@@ -232,9 +232,9 @@ function replacePrivateKey () {
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
   if [ $(uname -s) == 'Darwin' ] ; then
-    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   else
-    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   fi
 
   CUR_ORG="customerorg"
@@ -251,9 +251,9 @@ function replacePrivateKey () {
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
   if [ $(uname -s) == 'Darwin' ] ; then
-    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   else
-    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   fi
 
 

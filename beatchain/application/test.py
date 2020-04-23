@@ -1,4 +1,4 @@
 from middleware.create_app import create_app
-from middleware.constants import constants
+import middleware.constants as constants
 
 create_app(constants.install_org, True)

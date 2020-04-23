@@ -1,10 +1,10 @@
 install_org = 'appdevorg.beatchain.com'
-config_path = '../../network/config.json'
-config_yaml_path= '../../network/'  # Needs the folder for some reason
+config_path = '../network/config.json'
+config_yaml_path= '../network/'  # Needs the folder for some reason
 channel_name = 'fullchannel'
 chaincode_name = 'beatchain'
 chaincode_version = 'v0.1'
-chaincode_store_path = '../../chaincode'
+chaincode_store_path = '../chaincode'
 chaincode_gopath_rel_path = 'github.com/beatchain'
 
 

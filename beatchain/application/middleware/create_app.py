@@ -79,7 +79,7 @@ def install_chaincode(hf_client,
         peers = network_info['organizations'][org]['peers']
         # Join Peers into Channel, the response should be true if succeed
         org_admin = hf_client.get_user(org_name=org, name='Admin')
-        responses = loop.run_until_complete(cli.chaincode_install(
+        responses = loop.run_until_complete(hf_client.chaincode_install(
             requestor=org_admin,
             peers=peers,
             cc_path=chaincode_gopath_rel_path,

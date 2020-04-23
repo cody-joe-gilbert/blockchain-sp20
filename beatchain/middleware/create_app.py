@@ -1,3 +1,4 @@
+import os
 import asyncio
 from hfc.fabric import Client
 from hfc.fabric_ca.caservice import ca_service
@@ -5,7 +6,7 @@ from hfc.fabric_network import wallet
 
 install_org = 'appdevorg.beatchain.com'
 config_path = '../network/config.json'
-config_yaml='../network/configtx.yaml'
+config_yaml='../network/'  # Needs the folder for some reason
 channel_name = 'fullchannel'
 chaincode_name = 'beatchain'
 chaincode_version = 'v0.1'

@@ -89,7 +89,7 @@ orderers = [x for x in network_info['orderers'].keys()]
 
 
 # Create a New Channel, the response should be true if succeed
-org_admin = enroll_admin(cli, install_org)
+org_admin = cli.get_user(org_name=install_org, name='Admin')
 response = loop.run_until_complete(cli.channel_create(
             orderer=orderers[0],
             channel_name=channel_name,
@@ -118,7 +118,7 @@ for org in orgs:
         continue
     peers = network_info['organizations'][org]['peers']
     # Join Peers into Channel, the response should be true if succeed
-    org_admin = enroll_admin(cli, org)
+    org_admin = cli.get_user(org_name=org, name='Admin')
     responses = loop.run_until_complete(cli.channel_join(
                    requestor=org_admin,
                    channel_name=channel_name,
@@ -137,7 +137,7 @@ for org in orgs:
         continue
     peers = network_info['organizations'][org]['peers']
     # Join Peers into Channel, the response should be true if succeed
-    org_admin = enroll_admin(cli, org)
+    org_admin = cli.get_user(org_name=org, name='Admin')
     responses = loop.run_until_complete(cli.chaincode_install(
                    requestor=org_admin,
                    peers=peers,
@@ -151,7 +151,7 @@ for org in orgs:
         raise ValueError(f'Org {org} failed to install chaincode')
 
 # Instantiate the chaincode
-org_admin = enroll_admin(cli, install_org)
+org_admin = cli.get_user(org_name=install_org, name='Admin')
 response = loop.run_until_complete(cli.chaincode_instantiate(
                requestor=org_admin,
                channel_name=channel_name,

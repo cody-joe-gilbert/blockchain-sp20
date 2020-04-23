@@ -204,28 +204,34 @@ function replacePrivateKey () {
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
     sed -i '' "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
     cd crypto-config/peerOrganizations/creatororg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
     sed -i '' "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
     cd crypto-config/peerOrganizations/customerorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
     sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   else
     CURRENT_DIR=$PWD
     cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
     sed -i "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
     cd crypto-config/peerOrganizations/creatororg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
     sed -i "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
     cd crypto-config/peerOrganizations/customerorg.beatchain.com/ca/
     PRIV_KEY=$(ls *_sk)
     cd "$CURRENT_DIR"
     sed -i "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" config.json
   fi
 
 }

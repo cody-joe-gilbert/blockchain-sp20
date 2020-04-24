@@ -93,6 +93,7 @@ type BankAccount struct {
 	*/
 	Id      string  `json:"id"`
 	Balance float32 `json:"balance"`
+	InUse	bool 	`json:"inUse"` //if true cant be assigned to a new entity. can be assigned to only one person
 }
 
 type AppDevRecord struct {

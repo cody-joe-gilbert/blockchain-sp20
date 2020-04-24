@@ -51,6 +51,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	beatchainAdminBA = &utils.BankAccount{
 		Id:      utils.BEATCHAIN_ADMIN_BANK_ACCOUNT_ID,
 		Balance: float32(beatchainAdminBABalance),
+		InUse: true,
 	}
 	err = utils.SetBankAccount(stub, beatchainAdminBA)
 	if err != nil {
@@ -89,6 +90,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	appDevBA = &utils.BankAccount{
 		Id:      testAppDevBAId,
 		Balance: float32(testAppDevBABalance),
+		InUse: true
 	}
 	err = utils.SetBankAccount(stub, appDevBA)
 	if err != nil {
@@ -122,6 +124,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	customerBA = &utils.BankAccount{
 		Id:      testCustomerBAId,
 		Balance: float32(testCustomerBABalance),
+		InUse: true
 	}
 	err = utils.SetBankAccount(stub, customerBA)
 	if err != nil {
@@ -168,6 +171,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	creatorBA = &utils.BankAccount{
 		Id:      testCreatorBAId,
 		Balance: float32(testCreatorBABalance),
+		InUse: true
 	}
 	err = utils.SetBankAccount(stub, creatorBA)
 	if err != nil {

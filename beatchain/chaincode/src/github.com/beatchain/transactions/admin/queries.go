@@ -225,4 +225,3 @@ func ListAppCustomers(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 	resultMsg := strings.Join(jsonOutput, "\n")
 	return shim.Success([]byte(resultMsg))
 }
-

@@ -5,7 +5,7 @@ import (
 )
 
 const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "1"
-
+// to be done:  need to factor in changes for bank account inUse bool - Arun
 // Authorization constants
 const CUSTOMER_MSP = "CustomerMSP"
 const CUSTOMER_CA = "ca.customerorg.beatchain.com"

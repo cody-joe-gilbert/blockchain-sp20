@@ -90,7 +90,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	appDevBA = &utils.BankAccount{
 		Id:      testAppDevBAId,
 		Balance: float32(testAppDevBABalance),
-		InUse: true
+		InUse: true,
 	}
 	err = utils.SetBankAccount(stub, appDevBA)
 	if err != nil {
@@ -124,7 +124,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	customerBA = &utils.BankAccount{
 		Id:      testCustomerBAId,
 		Balance: float32(testCustomerBABalance),
-		InUse: true
+		InUse: true,
 	}
 	err = utils.SetBankAccount(stub, customerBA)
 	if err != nil {
@@ -171,7 +171,7 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	creatorBA = &utils.BankAccount{
 		Id:      testCreatorBAId,
 		Balance: float32(testCreatorBABalance),
-		InUse: true
+		InUse: true,
 	}
 	err = utils.SetBankAccount(stub, creatorBA)
 	if err != nil {

@@ -172,7 +172,9 @@ func createNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transacti
 
 	balance := txn.Args[0]
 	var floatBalance float32
-	if floatBalance, err = strconv.ParseFloat(balance, 32); err == nil {
+	var floatBalance64 float64
+	if floatBalance64, err = strconv.ParseFloat(balance, 32); err == nil {
+		floatBalance = float32(floatBalance64)
 		if floatBalance < 0.0 {
 			err := errors.New(fmt.Sprintf("Bank Balance must be a positive number \n"))
 			return shim.Error(err.Error()) //must be positive
@@ -216,7 +218,7 @@ func addCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 	bankAccountId := txn.Args[0]
 
 	// check for valid bank account
-	account, err = utils.GetBankAccount(stub, bankAccountId)
+	account, err := utils.GetBankAccount(stub, bankAccountId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -244,7 +246,7 @@ func addCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 }
 
 func addAppDevRecord(stub shim.ChaincodeStubInterface,txn *utils.Transaction) pb.Response {
-	
+	var account *utils.BankAccount
 	var err error
 
 	// Access control: Only an admin can invoke this transaction
@@ -260,14 +262,13 @@ func addAppDevRecord(stub shim.ChaincodeStubInterface,txn *utils.Transaction) pb
 	
 	bankAccountId := txn.Args[0]
 	FeeFrac := txn.Args[1]
-
-	var adminFeeFrac float32
-
-	if adminFeeFrac, err = strconv.ParseFloat(FeeFrac, 32); err != nil {
+	adminFeeFrac64, err := strconv.ParseFloat(FeeFrac, 32)
+	if err != nil {
 		return shim.Error(err.Error())
 	}
+	adminFeeFrac := float32(adminFeeFrac64)
 
-	if (adminFeeFrac<0.0 or adminFeeFrac>1.0){
+	if  adminFeeFrac < 0.0 || adminFeeFrac > 1.0 {
 		err = errors.New(fmt.Sprintf("Admin fee frac must be between 0 and 1"))
 		return shim.Error(err.Error())
 	}
@@ -284,8 +285,6 @@ func addAppDevRecord(stub shim.ChaincodeStubInterface,txn *utils.Transaction) pb
 		err := errors.New(fmt.Sprintf("Bank Account ID number already in use. Please Retry"))
 		return shim.Error(err.Error())
 	}
-
-	if 
 
 	t := time.Now().UnixNano()
 	id := strconv.FormatInt(t, 10) 

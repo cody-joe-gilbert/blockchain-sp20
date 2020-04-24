@@ -63,8 +63,10 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 
 	case "ListBankAccounts":
 		return admin.ListBankAccounts(stub, txn)
-	case "ListCustomers":
-		return admin.ListCustomers(stub, txn)
+	case "ListAllCustomers":
+		return admin.ListAllCustomers(stub, txn)
+	case "ListAppCustomers":
+		return admin.ListAppCustomers(stub, txn)
 	case "RenewSubscription":
 		return banking.RenewSubscription(stub, txn)
 	case "CollectPayment":

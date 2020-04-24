@@ -74,7 +74,7 @@ func TestBeatchain_Init(t *testing.T) {
 func TestFullQueries(t *testing.T) {
 	_, stub := beatchain_init(t)
 	utils.ExecQuery(t, stub, "ListBankAccounts")
-	utils.ExecQuery(t, stub, "ListCustomers")
+	utils.ExecQuery(t, stub, "ListAllCustomers")
 }
 
 func TestRenewal(t *testing.T) {
@@ -85,7 +85,7 @@ func TestRenewal(t *testing.T) {
 		t.FailNow()
 	}
 	utils.ExecQuery(t, stub, "ListBankAccounts")
-	utils.ExecQuery(t, stub, "ListCustomers")
+	utils.ExecQuery(t, stub, "ListAllCustomers")
 }
 
 func TestCollection(t *testing.T) {

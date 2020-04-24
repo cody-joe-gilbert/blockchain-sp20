@@ -167,7 +167,7 @@ func ListAppCustomers(stub shim.ChaincodeStubInterface, transaction *utils.Trans
 		return shim.Error(fmt.Sprintf("ListCustomers takes 1 argument : {AppdevId}"))
 	}
 
-	appDevId := txn.Args[0]
+	appDevId := transaction.Args[0]
 	// check for valid AppDev
 	_, err = utils.GetAppDevRecord(stub, appDevId)
 	if err != nil {

@@ -23,6 +23,13 @@ function invokeChaincode(userOrg, version, funcName, argList, userName, constant
 	}
 	ClientUtils.init(Constants);
 
+	if (typeof argList === 'string') {
+		argList = argList.split(', ')
+		if (argList[0] === '' && argList.length === 1) {
+			argList = []
+		}
+	}
+
 	var ORGS = JSON.parse(fs.readFileSync(path.join(__dirname, Constants.networkConfig)))[Constants.networkId];
 
 	logger.debug('invokeChaincode begin');

@@ -12,10 +12,18 @@ var ClientUtils = require('./clientUtils.js');
 // Send chaincode query request to the peer
 //
 function queryChaincode(userOrg, version, funcName, argList, userName, constants) {
+
 	if (constants) {
 		Constants = constants;
 	}
 	ClientUtils.init(Constants);
+
+	if (typeof argList === 'string') {
+		argList = argList.split(', ');
+		if (argList[0] === '' && argList.length === 1) {
+			argList = []
+		}
+	}
 
 	var ORGS = JSON.parse(fs.readFileSync(path.join(__dirname, Constants.networkConfig)))[Constants.networkId];
 
@@ -58,11 +66,11 @@ function queryChaincode(userOrg, version, funcName, argList, userName, constants
 		return ClientUtils.getSubmitter(client, false, userOrg, userName);
 
 	}).then((user) => {
-		if (userName) {
+		/*if (userName) {
 			console.log('Successfully enrolled user', userName);
 		} else {
 			console.log('Successfully enrolled user \'admin\'');
-		}
+		}*/
 
 		// send query
 		var request = {
@@ -105,3 +113,4 @@ function queryChaincode(userOrg, version, funcName, argList, userName, constants
 };
 
 module.exports.queryChaincode = queryChaincode;
+require('make-runnable');

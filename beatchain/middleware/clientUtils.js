@@ -29,14 +29,14 @@ var Constants = require('./constants.js');
 // all temporary files and directories are created under here
 var tempdir = Constants.tempdir;
 
-logger.info(util.format(
+/*logger.info(util.format(
 	'\n\n*******************************************************************************' +
 	'\n*******************************************************************************' +
 	'\n*                                          ' +
 	'\n* Using temp dir: %s' +
 	'\n*                                          ' +
 	'\n*******************************************************************************' +
-	'\n*******************************************************************************\n', tempdir));
+	'\n*******************************************************************************\n', tempdir));*/
 
 module.exports.getTempDir = function() {
 	fs.ensureDirSync(tempdir);
@@ -102,7 +102,7 @@ function getMember(username, password, client, userOrg) {
 	.then((user) => {
 		return new Promise((resolve, reject) => {
 			if (user && user.isEnrolled()) {
-				console.log('Successfully loaded member from persistence');
+				// console.log('Successfully loaded member from persistence');
 				return resolve(user);
 			}
 

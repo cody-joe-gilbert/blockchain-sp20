@@ -72,7 +72,7 @@ createChannel.createChannel(Constants.CHANNEL_NAME).then(() => {
 		Constants.CHAINCODE_PATH,
 		Constants.CHAINCODE_VERSION,
 		'init',
-		["1000", "1111", "1111", "0.1", "1000", "2222", "2222", "1.00", "2020-06-01", "1000"],
+		["1000", "1111", "1111", "0.1", "1000", "2222", "2222", "1.00", "2020-06-01", "1000", "3333", "3333", "1000", "4444",  "Test Product", "5", "3", "7", "4", "0", "true", "0.01", "true"],
 		false
 	);
 }, (err) => {

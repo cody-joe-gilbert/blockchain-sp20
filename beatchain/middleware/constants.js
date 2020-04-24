@@ -38,7 +38,7 @@ var ONE_OF_THREE_ORG_MEMBER = {
 var ALL_ORG_MEMBERS = {
 	identities: FULL_CHANNEL_POLICY,
 	policy: {
-		'4-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }]
+		'3-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }, { 'signed-by': 2 }]
 	}
 };
 

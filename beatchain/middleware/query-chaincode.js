@@ -63,7 +63,12 @@ function queryChaincode(userOrg, version, funcName, argList, userName, constants
 	}).then((store) => {
 
 		client.setStateStore(store);
-		return ClientUtils.getSubmitter(client, false, userOrg, userName);
+		if (userName === 'admin') {
+			return ClientUtils.getSubmitter(client, true, userOrg, userName);
+		} else {
+			return ClientUtils.getSubmitter(client, false, userOrg, userName);
+		}
+
 
 	}).then((user) => {
 		/*if (userName) {

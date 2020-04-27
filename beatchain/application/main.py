@@ -4,6 +4,7 @@
 #   acceptable in a production environment, but is considered acceptable here as it can be replaced with
 #   the Fabric Python SDK functions once those tools are released as stable.
 
+from enum import Enum
 from fastapi import FastAPI
 from Naked.toolshed.shell import muterun_js
 

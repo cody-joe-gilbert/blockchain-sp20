@@ -196,37 +196,82 @@ function networkClean () {
 function replacePrivateKey () {
   # Copy the template to the file that will be modified to add the private key
   cp docker-compose-template.yaml docker-compose.yaml
+  cp config-template.json config.json
+
   # The next steps will replace the template's contents with the
   # actual values of the private key file names for the CAs.
+  CURRENT_DIR=$PWD
+  CUR_ORG="appdevorg"
+  ORG_KEY="APPDEVORG"
+  CA_DIR=crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/ca/
+  cp fabric-ca-server-config.yaml ${CA_DIR}/fabric-ca-server-config.yaml
+  cd ${CA_DIR}
+  PRIV_KEY=$(ls *_sk)
+  cp ca.${CUR_ORG}.beatchain.com-cert.pem ca-cert.pem
+  cp ${PRIV_KEY} ca-key.pem
+  cd "$CURRENT_DIR"
   if [ $(uname -s) == 'Darwin' ] ; then
-    CURRENT_DIR=$PWD
-    cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    cd crypto-config/peerOrganizations/creatororg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    cd crypto-config/peerOrganizations/customerorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i '' "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i '' "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   else
-    CURRENT_DIR=$PWD
-    cd crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/APPDEVORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    cd crypto-config/peerOrganizations/creatororg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/CREATORORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
-    cd crypto-config/peerOrganizations/customerorg.beatchain.com/ca/
-    PRIV_KEY=$(ls *_sk)
-    cd "$CURRENT_DIR"
-    sed -i "s/CUSTOMERORG_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+    sed -i "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
   fi
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/users/Admin@${CUR_ORG}.beatchain.com/msp/keystore/
+  PRIV_KEY=$(ls *_sk)
+  cp ca.${CUR_ORG}.beatchain.com-cert.pem ca-cert.pem
+  cp ${PRIV_KEY} ca-key.pem
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+  else
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+  fi
+
+  CUR_ORG="creatororg"
+  ORG_KEY="CREATORORG"
+  CA_DIR=crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/ca/
+  cp fabric-ca-server-config.yaml ${CA_DIR}/fabric-ca-server-config.yaml
+  cd ${CA_DIR}
+  PRIV_KEY=$(ls *_sk)
+  cp ca.${CUR_ORG}.beatchain.com-cert.pem ca-cert.pem
+  cp ${PRIV_KEY} ca-key.pem
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/users/Admin@${CUR_ORG}.beatchain.com/msp/keystore/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+  else
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+  fi
+
+  CUR_ORG="customerorg"
+  ORG_KEY="CUSTOMERORG"
+  CA_DIR=crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/ca/
+  cp fabric-ca-server-config.yaml ${CA_DIR}/fabric-ca-server-config.yaml
+  cd ${CA_DIR}
+  PRIV_KEY=$(ls *_sk)
+  cp ca.${CUR_ORG}.beatchain.com-cert.pem ca-cert.pem
+  cp ${PRIV_KEY} ca-key.pem
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  else
+    sed -i "s/${ORG_KEY}_CA_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose.yaml
+  fi
+  cd crypto-config/peerOrganizations/${CUR_ORG}.beatchain.com/users/Admin@${CUR_ORG}.beatchain.com/msp/keystore/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  if [ $(uname -s) == 'Darwin' ] ; then
+    sed -i '' "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+  else
+    sed -i "s/${ORG_KEY}_ADMIN_PRIVATE_KEY/${PRIV_KEY}/g" config.json
+  fi
+
 
 }
 

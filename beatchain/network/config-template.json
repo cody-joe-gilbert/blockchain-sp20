@@ -1,0 +1,161 @@
+{
+	"name": "Beatchain",
+	"description": "Beatchain. Music. Immutable.",
+	"version": "0.1",
+	"client": {
+		"organization": "beatchain",
+		"credentialStore": {
+			"path": "/tmp/hfc-kvs",
+			"cryptoStore": {
+				"path": "/tmp/hfc-cvs"
+			},
+			"wallet": "wallet-name"
+		}
+	},
+	"organizations": {
+		"orderer.beatchain.com": {
+			"mspid": "BeatchainMSP",
+			"orderers": [
+				"orderer.beatchain.com"
+			]
+		},
+		"appdevorg.beatchain.com": {
+			"mspid": "AppDevMSP",
+			"peers": [
+				"peer0.appdevorg.beatchain.com"
+			],
+			"certificateAuthorities": [
+				"ca-appdevorg"
+			],
+			"users": {
+				"Admin": {
+					"cert": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/users/Admin@appdevorg.beatchain.com/msp/signcerts/Admin@appdevorg.beatchain.com-cert.pem",
+					"private_key": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/users/Admin@appdevorg.beatchain.com/msp/keystore/APPDEVORG_ADMIN_PRIVATE_KEY"
+				}
+			}
+		},
+		"creatororg.beatchain.com": {
+			"mspid": "CreatorMSP",
+			"peers": [
+				"peer0.creatororg.beatchain.com"
+			],
+			"certificateAuthorities": [
+				"ca-creatororg"
+			],
+			"users": {
+				"Admin": {
+					"cert": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/users/Admin@creatororg.beatchain.com/msp/signcerts/Admin@creatororg.beatchain.com-cert.pem",
+					"private_key": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/users/Admin@creatororg.beatchain.com/msp/keystore/CREATORORG_ADMIN_PRIVATE_KEY"
+				}
+			}
+		},
+		"customerorg.beatchain.com": {
+			"mspid": "CustomerMSP",
+			"peers": [
+				"peer0.customerorg.beatchain.com"
+			],
+			"certificateAuthorities": [
+				"ca-customerorg"
+			],
+			"users": {
+				"Admin": {
+					"cert": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/users/Admin@customerorg.beatchain.com/msp/signcerts/Admin@customerorg.beatchain.com-cert.pem",
+					"private_key": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/users/Admin@customerorg.beatchain.com/msp/keystore/CUSTOMERORG_ADMIN_PRIVATE_KEY"
+				}
+			}
+		}
+	},
+	"orderers": {
+		"orderer.beatchain.com": {
+			"url": "localhost:7050",
+			"grpcOptions": {
+				"grpc.ssl_target_name_override": "orderer.beatchain.com",
+				"grpc-max-send-message-length": 15
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/ordererOrganizations/beatchain.com/orderers/orderer.beatchain.com/msp/tlscacerts/tlsca.beatchain.com-cert.pem"
+			}
+		}
+	},
+	"peers": {
+		"peer0.appdevorg.beatchain.com": {
+			"url": "localhost:7051",
+			"eventUrl": "localhost:7053",
+			"grpcOptions": {
+				"grpc.ssl_target_name_override": "peer0.appdevorg.beatchain.com",
+				"grpc.http2.keepalive_time": 15
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/peers/peer0.appdevorg.beatchain.com/msp/tlscacerts/tlsca.appdevorg.beatchain.com-cert.pem"
+			}
+		},
+		"peer0.creatororg.beatchain.com": {
+			"url": "localhost:8051",
+			"eventUrl": "localhost:8053",
+			"grpcOptions": {
+				"grpc.ssl_target_name_override": "peer0.creatororg.beatchain.com"
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/peers/peer0.creatororg.beatchain.com/msp/tlscacerts/tlsca.creatororg.beatchain.com-cert.pem"
+			}
+		},
+		"peer0.customerorg.beatchain.com": {
+			"url": "localhost:9051",
+			"eventUrl": "localhost:9053",
+			"grpcOptions": {
+				"grpc.ssl_target_name_override": "peer0.customerorg.beatchain.com",
+				"grpc.http2.keepalive_time": 15
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/peers/peer0.customerorg.beatchain.com/msp/tlscacerts/tlsca.customerorg.beatchain.com-cert.pem"
+			}
+		}
+	},
+	"certificateAuthorities": {
+		"ca-appdevorg": {
+			"url": "http://localhost:7054",
+			"grpcOptions": {
+				"verify": true
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/peerOrganizations/appdevorg.beatchain.com/ca/ca.appdevorg.beatchain.com-cert.pem"
+			},
+			"registrar": [
+				{
+					"enrollId": "admin",
+					"enrollSecret": "adminpw"
+				}
+			]
+		},
+		"ca-creatororg": {
+			"url": "http://localhost:8054",
+			"grpcOptions": {
+				"verify": true
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/peerOrganizations/creatororg.beatchain.com/ca/ca.creatororg.beatchain.com-cert.pem"
+			},
+			"registrar": [
+				{
+					"enrollId": "admin",
+					"enrollSecret": "adminpw"
+				}
+			]
+		},
+		"ca-customerorg": {
+			"url": "http://localhost:9054",
+			"grpcOptions": {
+				"verify": true
+			},
+			"tlsCACerts": {
+				"path": "../network/crypto-config/peerOrganizations/customerorg.beatchain.com/ca/ca.customerorg.beatchain.com-cert.pem"
+			},
+			"registrar": [
+				{
+					"enrollId": "admin",
+					"enrollSecret": "adminpw"
+				}
+			]
+		}
+	}
+}

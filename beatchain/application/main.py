@@ -18,7 +18,7 @@ class CreateAppRequest(BaseModel):
     admin_password: str
 
 @app.post('/admin/create_app')
-def creation_request(req: CreateAppRequest,
+async def creation_request(req: CreateAppRequest,
                      org_name: constants.OrgNames = Query(..., title="Organization Name"),
                      test_mode: bool = Query(False, title="Debug Initialization Mode Flag"),
                      ):
@@ -27,7 +27,7 @@ def creation_request(req: CreateAppRequest,
     HF network.
     """
     try:
-        create_app(org_name,
+        await create_app(org_name,
                    req.admin_user_name,
                    req.admin_password,
                    test_mode)
@@ -43,17 +43,19 @@ class RegisterUserRequest(BaseModel):
     admin_password: str
 
 @app.post('/admin/register')
-def register(req: RegisterUserRequest,
+async def register(req: RegisterUserRequest,
              org_name: constants.OrgNames = Query(..., title="Organization Name"),
              ):
     """
     Submits a request to register a user on HF network using the given
     org's certificate authority. If successful, return's the user's
     login password with the response.
+    Note: Passing a user secret via API is *not* secure, and this endpoint should be
+    used for demo purposes only.
     """
     # TODO: Passing a secret back is NOT secure! This section is for demo only!
     try:
-        secret = access_utils.register_user(org_name,
+        secret = await access_utils.register_user(org_name,
                                             req.user_name,
                                             req.admin_user_name,
                                             req.admin_password)

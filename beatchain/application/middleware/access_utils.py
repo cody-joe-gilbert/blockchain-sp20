@@ -2,12 +2,12 @@
 # Owner(s): Cody Gilbert
 
 import hfc.fabric.user
-import constants
+import middleware.constants as constants
 from hfc.fabric import Client
 from hfc.fabric_ca.caservice import ca_service
 from hfc.fabric_network import wallet
 
-def register_user(org_name: str,
+async def register_user(org_name: str,
                   user_name: str,
                   admin_user_name: str,
                   admin_password: str) -> str:
@@ -34,7 +34,6 @@ def register_user(org_name: str,
 
     # if user already exists, pull ID from storage
     if cred_wallet.exists(user_name):
-        logger.warn('User %s already registered!', user_name)
         return None
     casvc = ca_service(target=ca_info['url'])
     admin_enrollment = casvc.enroll(admin_user_name, admin_password)

@@ -69,12 +69,13 @@ class UserAffiliations(str, Enum):
 # These request classes are used by FastAPI to validate and parse
 # the request body to the API endpoint
 class RegisterUserRequest(BaseModel):
-    user_name: str
     admin_user_name: str
     admin_password: str
-    role: Optional[UserRoles] = None
-    affiliation: Optional[UserAffiliations] = None
-    attrs: Optional[List[Dict[str, str]]] = None  # Yes, a list of dicts. I don't like it either.
+    user_name: str
+    user_password: Optional[str]
+    role: Optional[UserRoles]
+    affiliation: Optional[UserAffiliations]
+    attrs: Optional[List[Dict[str, str]]]  # Yes, a list of dicts. I don't like it either.
 
 class CreateAppRequest(BaseModel):
     admin_user_name: str

@@ -1,6 +1,7 @@
 # Blockchain & Applications Project 2: Beatchain
 # Owner(s): Cody Gilbert
 
+import os
 import hfc.fabric.user
 import middleware.constants as constants
 from hfc.fabric import Client
@@ -12,19 +13,23 @@ async def register_user(org_name: str, request: constants.RegisterUserRequest) -
     Registers a user to the Org's Fabric CA Server
     Args:
         org_name: Organization's name
-        request: Provided RegisterUserRequest object containing
+        request: RegisterUserRequest object containing
             registration information
     Returns:
         Pre-generated user secret
     """
+    # Create/Open a wallet on a temp path including the org name
+    # Org name must be included, otherwise usernames must be unique
+    # over all orgs
+    wallet_path = os.path.join(os.getcwd(), 'tmp', 'hfc-kvs', org_name)
+    cred_wallet = wallet.FileSystenWallet(path=wallet_path)  # [sic]
+
     # Setup a HF network client
     hf_client = Client(net_profile=constants.config_path)
     hf_client.new_channel(constants.channel_name)
 
-    network_info = hf_client.get_net_info()
-    cred_wallet = wallet.FileSystenWallet()
-
     # Extract CA info
+    network_info = hf_client.get_net_info()
     org_info = network_info['organizations'][org_name]
     ca_name = org_info['certificateAuthorities'][0]
     ca_info = network_info['certificateAuthorities'][ca_name]
@@ -36,10 +41,11 @@ async def register_user(org_name: str, request: constants.RegisterUserRequest) -
     admin_enrollment = casvc.enroll(request.admin_user_name, request.admin_password)
 
     secret = admin_enrollment.register(enrollmentID=request.user_name,
-                                       enrollmentSecret=None,  # Automatically generate a secret
+                                       enrollmentSecret=request.user_password,
                                        role=request.role,
                                        affiliation=request.affiliation,
                                        attrs=request.attrs)
+
     return secret
 
 def enroll_user(hf_client: hfc.fabric.Client,
@@ -57,8 +63,11 @@ def enroll_user(hf_client: hfc.fabric.Client,
     Returns:
         Enrolled User object
     """
-
-    cred_wallet = wallet.FileSystenWallet()
+    # Create/Open a wallet on a temp path including the org name
+    # Org name must be included, otherwise usernames must be unique
+    # over all orgs
+    wallet_path = os.path.join(os.getcwd(), 'tmp', 'hfc-kvs', org_name)
+    cred_wallet = wallet.FileSystenWallet(path=wallet_path)  # [sic]
 
     # Extract CA info
     network_info = hf_client.get_net_info()

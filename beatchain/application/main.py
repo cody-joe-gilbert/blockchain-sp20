@@ -47,7 +47,7 @@ async def register(req: constants.RegisterUserRequest,
         return {'Status': 'Registration Request failed',
                 'Secret': None,
                 'Error': repr(e)}
-    return {'Status': 'Application Created',
+    return {'Status': 'Registration Request Succeeded',
             'Secret': secret,
             'Error': None}
 

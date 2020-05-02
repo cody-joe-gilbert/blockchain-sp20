@@ -1,8 +1,6 @@
 # Blockchain & Applications Project 2: Beatchain
 # Owner(s): Cody Gilbert
 
-from typing import List
-from pydantic import BaseModel, Field
 from fastapi import FastAPI, Query
 import middleware.constants as constants
 import middleware.access_utils as access_utils
@@ -11,14 +9,8 @@ import middleware.operations as operations
 
 app = FastAPI()
 
-# These request classes are used by FastAPI to validate and parse
-# the request body to the API endpoint
-class CreateAppRequest(BaseModel):
-    admin_user_name: str
-    admin_password: str
-
 @app.post('/admin/create_app')
-async def creation_request(req: CreateAppRequest,
+async def creation_request(req: constants.CreateAppRequest,
                      org_name: constants.OrgNames = Query(..., title="Organization Name"),
                      test_mode: bool = Query(False, title="Debug Initialization Mode Flag"),
                      ):
@@ -37,13 +29,8 @@ async def creation_request(req: CreateAppRequest,
     return {'Status': 'Application Created',
             'Error': None}
 
-class RegisterUserRequest(BaseModel):
-    user_name: str
-    admin_user_name: str
-    admin_password: str
-
 @app.post('/admin/register')
-async def register(req: RegisterUserRequest,
+async def register(req: constants.RegisterUserRequest,
              org_name: constants.OrgNames = Query(..., title="Organization Name"),
              ):
     """
@@ -55,10 +42,7 @@ async def register(req: RegisterUserRequest,
     """
     # TODO: Passing a secret back is NOT secure! This section is for demo only!
     try:
-        secret = await access_utils.register_user(org_name,
-                                            req.user_name,
-                                            req.admin_user_name,
-                                            req.admin_password)
+        secret = await access_utils.register_user(org_name, req)
     except Exception as e:
         return {'Status': 'Registration Request failed',
                 'Secret': None,
@@ -67,13 +51,8 @@ async def register(req: RegisterUserRequest,
             'Secret': secret,
             'Error': None}
 
-class InvokeRequest(BaseModel):
-    user_name: str
-    user_password: str
-    args: List[str] = []
-
 @app.post('/invoke')
-async def invoke_request(req: InvokeRequest,
+async def invoke_request(req: constants.InvokeRequest,
                    org_name: constants.OrgNames = Query(..., title="Organization Name"),
                    channel_name: constants.ChannelNames = Query(..., title="Network Channel Name"),
                    function: constants.InvokeFunctions = Query(..., title="Chaincode Function"),
@@ -99,13 +78,8 @@ async def invoke_request(req: InvokeRequest,
             'Error': None,
             }
 
-class QueryRequest(BaseModel):
-    user_name: str
-    user_password: str
-    args: List[str] = []
-
 @app.post('/query')
-async def query_request(req: QueryRequest,
+async def query_request(req: constants.InvokeRequest,
                   org_name: constants.OrgNames = Query(..., title="Organization Name"),
                   channel_name: constants.ChannelNames = Query(..., title="Network Channel Name"),
                   function: constants.QueryFunctions = Query(..., title="Chaincode Function"),

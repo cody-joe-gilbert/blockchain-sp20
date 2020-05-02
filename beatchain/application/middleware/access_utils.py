@@ -7,22 +7,19 @@ from hfc.fabric import Client
 from hfc.fabric_ca.caservice import ca_service
 from hfc.fabric_network import wallet
 
-async def register_user(org_name: str,
-                  user_name: str,
-                  admin_user_name: str,
-                  admin_password: str) -> str:
+async def register_user(org_name: str, request: constants.RegisterUserRequest) -> str:
     """
     Registers a user to the Org's Fabric CA Server
     Args:
         org_name: Organization's name
-        user_name: Username to register
-        admin_user_name: Org admin username
-        admin_password: Org admin password
+        request: Provided RegisterUserRequest object containing
+            registration information
     Returns:
         Pre-generated user secret
     """
     # Setup a HF network client
     hf_client = Client(net_profile=constants.config_path)
+    hf_client.new_channel(constants.channel_name)
 
     network_info = hf_client.get_net_info()
     cred_wallet = wallet.FileSystenWallet()
@@ -33,11 +30,17 @@ async def register_user(org_name: str,
     ca_info = network_info['certificateAuthorities'][ca_name]
 
     # if user already exists, pull ID from storage
-    if cred_wallet.exists(user_name):
+    if cred_wallet.exists(request.user_name):
         return None
     casvc = ca_service(target=ca_info['url'])
-    admin_enrollment = casvc.enroll(admin_user_name, admin_password)
-    return admin_enrollment.register(user_name)
+    admin_enrollment = casvc.enroll(request.admin_user_name, request.admin_password)
+
+    secret = admin_enrollment.register(enrollmentID=request.user_name,
+                                       enrollmentSecret=None,  # Automatically generate a secret
+                                       role=request.role,
+                                       affiliation=request.affiliation,
+                                       attrs=request.attrs)
+    return secret
 
 def enroll_user(hf_client: hfc.fabric.Client,
                 org_name: str,

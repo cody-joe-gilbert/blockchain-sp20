@@ -1,12 +1,15 @@
 # Blockchain & Applications Project 2: Beatchain
 # Owner(s): Cody Gilbert
-
+from typing import Optional, Dict, List
 from enum import Enum
+from pydantic import BaseModel
 
 # Pydantic Enum Validation Classes
 class InvokeFunctions(str, Enum):
     """
     Chaincode functions supporting 'invoke' transactions
+    Note: These functions must match those specified in the
+    chaincode 'invoke' function
     """
     RenewSubscription = "RenewSubscription"
     CollectPayment = "CollectPayment"
@@ -14,6 +17,8 @@ class InvokeFunctions(str, Enum):
 class QueryFunctions(str, Enum):
     """
     Chaincode functions supporting 'query' transactions
+    Note: These functions must match those specified in the
+    chaincode 'invoke' function
     """
     ListBankAccounts = "ListBankAccounts"
     ListCustomers = "ListCustomers"
@@ -21,6 +26,8 @@ class QueryFunctions(str, Enum):
 class OrgNames(str, Enum):
     """
     Organization Names
+    Note: These names must match those specified in the
+    configuration files within ../network
     """
     beatchainorg = "beatchainorg.beatchain.com"
     appdevorg = "appdevorg.beatchain.com"
@@ -30,8 +37,53 @@ class OrgNames(str, Enum):
 class ChannelNames(str, Enum):
     """
     HF Network Channel names
+    Note: These names must match those specified in the
+    configuration files within ../network
     """
     fullchannel = "fullchannel"
+
+class UserRoles(str, Enum):
+    """
+    HF user roles
+    Note: These names must match those specified in the
+    Fabric CA server configuration file fabric-ca-server-config.yaml
+    """
+    admin = "admin"
+    client = "client"
+
+class UserAffiliations(str, Enum):
+    """
+    HF user roles
+    Note: These names must match those specified in the
+    Fabric CA server configuration file fabric-ca-server-config.yaml
+    """
+    # beatchain = "beatchain"
+    # customer = "customer"
+    # creator = "creator"
+    # dotify = "dotify"
+    # waval = "waval"
+    # cantcloseboxa = "cantcloseboxa"
+    # sometimesytunes = "sometimesytunes"
+    org1_department1 = "org1.department1"
+
+# These request classes are used by FastAPI to validate and parse
+# the request body to the API endpoint
+class RegisterUserRequest(BaseModel):
+    user_name: str
+    admin_user_name: str
+    admin_password: str
+    role: Optional[UserRoles] = None
+    affiliation: Optional[UserAffiliations] = None
+    attrs: Optional[List[Dict[str, str]]] = None  # Yes, a list of dicts. I don't like it either.
+
+class CreateAppRequest(BaseModel):
+    admin_user_name: str
+    admin_password: str
+
+class InvokeRequest(BaseModel):
+    user_name: str
+    user_password: str
+    args: List[str] = []
 
 # App creation parameters
 install_org = 'appdevorg.beatchain.com'

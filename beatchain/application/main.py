@@ -9,7 +9,14 @@ import middleware.operations as operations
 
 app = FastAPI()
 
-@app.post('/admin/create_app')
+### To simplify layout, all API entry points are included here despite the
+# the length of this module.
+
+##############################
+## Admin Functions
+##############################
+
+@app.post('/admin/beatchain/create_app')
 async def creation_request(req: constants.CreateAppRequest,
                      org_name: constants.OrgNames = Query(..., title="Organization Name"),
                      test_mode: bool = Query(False, title="Debug Initialization Mode Flag"),
@@ -29,7 +36,37 @@ async def creation_request(req: constants.CreateAppRequest,
     return {'Status': 'Application Created',
             'Error': None}
 
-@app.post('/admin/register')
+
+@app.post('/admin/beatchain/transfer')
+async def transfer_request(req: constants.CreateAppRequest,
+                           org_name: constants.OrgNames = Query(..., title="Organization Name"),
+                           bank_account_id: str = Query(..., title="Bank Account ID"),
+                           amount: float = Query(..., title="Transfer Amount (+/- for Deposite/Withdrawal)")
+                           ):
+    """
+    Transfers funds in/out of a given Bank Account. The function serves as the main source
+    and sink of monies on the ledger.
+
+    Must be executed as a Beatchain Admin
+    """
+    try:
+        amount = str(round(amount, 2))
+        response = await operations.invoke(org_name,
+                                           req.admin_user_name,
+                                           req.admin_password,
+                                           constants.channel_name,
+                                           function='TransferFunds',
+                                           args=[bank_account_id, amount])
+    except Exception as e:
+        return {'Status': 'Transfer Request failed',
+                'Response': None,
+                'Error': repr(e)}
+    return {'Status': 'Transfer Request Successful',
+            'Response': response,
+            'Error': None}
+
+
+@app.post('/admin/beatchain/register')
 async def register(req: constants.RegisterUserRequest,
              org_name: constants.OrgNames = Query(..., title="Organization Name"),
              ):
@@ -50,6 +87,226 @@ async def register(req: constants.RegisterUserRequest,
     return {'Status': 'Registration Request Succeeded',
             'Secret': secret,
             'Error': None}
+
+
+@app.post('/admin/creator/add_creator')
+async def add_creator(req: constants.AddUserRecordRequest):
+    """
+    FUNCTION NOT YET IMPLEMENTED
+
+    Adds a creator user to the CreatorOrg (creatororg.beatchain.com) and generates
+    a CreatorRecord asset on the ledger.
+
+    Returns the new creator's ledger ID and login secret.
+
+    Request must be submitted by an admin of the CreatorOrg (creatororg.beatchain.com)
+    """
+    # TODO: Passing a secret back is NOT secure! This section is for demo only!
+    response = None
+    try:
+        # First add creator to the ledger
+        response = await operations.invoke('creatororg.beatchain.com',
+                                           req.user_name,
+                                           req.user_password,
+                                           constants.channel_name,
+                                           function='AddCreatorRecord',
+                                           args=[])
+    except Exception as e:
+        return {'Status': 'Failed to add creator to ledger',
+                'Creator ID': None,
+                'Creator Secret': None,
+                'Error': repr(e)}
+
+    # Attempt to parse out the creator ID from the response
+    try:
+        creator_id = int(response.split()[-1])
+        creator_id = int(creator_id)
+    except Exception as e:
+        return {'Status': 'Cannot parse int creator id from response: ' + response,
+                'Creator ID': None,
+                'Creator Secret': None,
+                'Error': repr(e)}
+
+    # Register the new creator user
+    try:
+        register_req = constants.RegisterUserRequest(
+            admin_user_name=req.admin_user_name,
+            admin_password=req.admin_password,
+            user_name=req.user_name,
+            user_password=req.user_password,
+            role='client',
+            attrs=[{'creator_id': str(creator_id)}])
+        secret = await access_utils.register_user('creatororg.beatchain.com',
+                                                  register_req)
+    except Exception as e:
+        return {'Status': 'Creator User Creation Failed',
+                'Creator ID': creator_id,
+                'Creator Secret': None,
+                'Error': repr(e)}
+
+    return {'Status': 'Creator Creation Request Successful',
+            'Creator ID': creator_id,
+            'Creator Secret': secret,
+            'Error': None}
+
+
+@app.post('/admin/appdev/add_appdev')
+async def add_appdev(req: constants.AddUserRecordRequest,
+                     admin_fee_frac: float = Query(..., title="Subscription Administration Fee Fraction")
+                     ):
+    """
+    FUNCTION NOT YET IMPLEMENTED
+
+    Adds an appdev user to the AppdevOrg (appdevorg.beatchain.com) and generates
+    a AppDevRecord asset on the ledger.
+
+    Returns the new appdev's ledger ID and login secret.
+
+    Request must be submitted by an admin of the AppDevOrg (appdevorg.beatchain.com)
+    """
+    # TODO: Passing a secret back is NOT secure! This section is for demo only!
+    response = None
+    try:
+        # First add appdev to the ledger
+        response = await operations.invoke('appdevorg.beatchain.com',
+                                           req.user_name,
+                                           req.user_password,
+                                           constants.channel_name,
+                                           function='AddAppDevRecord',
+                                           args=[str(round(admin_fee_frac, 3))])
+    except Exception as e:
+        return {'Status': 'Failed to add appdev record to ledger',
+                'AppDev ID': None,
+                'AppDev Secret': None,
+                'Error': repr(e)}
+
+    # Attempt to parse out the appdev ID from the response
+    try:
+        appdev_id = int(response.split()[-1])
+    except Exception as e:
+        return {'Status': 'Cannot parse int appdev_id from response: ' + response,
+                'Creator ID': None,
+                'Creator Secret': None,
+                'Error': repr(e)}
+
+    # Register the new creator user
+    try:
+        register_req = constants.RegisterUserRequest(
+            admin_user_name=req.admin_user_name,
+            admin_password=req.admin_password,
+            user_name=req.user_name,
+            user_password=req.user_password,
+            role='client',
+            attrs=[{'appdev_id': str(appdev_id)}])
+        secret = await access_utils.register_user('appdevorg.beatchain.com',
+                                                  register_req)
+    except Exception as e:
+        return {'Status': 'AppDev User Creation Failed',
+                'AppDev ID': appdev_id,
+                'AppDev Secret': None,
+                'Error': repr(e)}
+
+    return {'Status': 'AppDev Creation Request Successful',
+            'AppDev ID': appdev_id,
+            'AppDev Secret': secret,
+            'Error': None}
+
+
+@app.post('/admin/customer/add_customer')
+async def add_customer(req: constants.AddUserRecordRequest,
+                      appdev_id: int = Query(..., title="Customer's Subscribing AppDev ID")
+                      ):
+    """
+    FUNCTION NOT YET IMPLEMENTED
+
+    Adds a customer user to the CustomerOrg (customerorg.beatchain.com) and generates
+    a CustomerRecord asset on the ledger. Note that the customer's subscription fee and
+    due date are set separately by an AppDevOrg client.
+
+    Returns the new customer's ledger ID and login secret.
+
+    Request must be submitted by an admin of the CustomerOrg (customerorg.beatchain.com)
+    """
+    # TODO: Passing a secret back is NOT secure! This section is for demo only!
+    response = None
+    try:
+        # First add customer to the ledger
+        response = await operations.invoke('customerorg.beatchain.com',
+                                           req.user_name,
+                                           req.user_password,
+                                           constants.channel_name,
+                                           function='AddCustomerRecord',
+                                           args=[str(appdev_id)])
+    except Exception as e:
+        return {'Status': 'Failed to add Customer to ledger',
+                'Customer ID': None,
+                'Customer Secret': None,
+                'Error': repr(e)}
+
+    # Attempt to parse out the creator ID from the response
+    try:
+        customer_id = int(response.split()[-1])
+    except Exception as e:
+        return {'Status': 'Cannot parse int Customer id from response: ' + response,
+                'Customer ID': None,
+                'Customer Secret': None,
+                'Error': repr(e)}
+
+    # Register the new creator user
+    try:
+        register_req = constants.RegisterUserRequest(
+            admin_user_name=req.admin_user_name,
+            admin_password=req.admin_password,
+            user_name=req.user_name,
+            user_password=req.user_password,
+            role='client',
+            attrs=[{'customer_id': str(customer_id)}])
+        secret = await access_utils.register_user('customerorg.beatchain.com',
+                                                  register_req)
+    except Exception as e:
+        return {'Status': 'Customer User Creation Failed',
+                'Customer ID': creator_id,
+                'Customer Secret': None,
+                'Error': repr(e)}
+
+    return {'Status': 'Customer Creation Request Successful',
+            'Customer ID': creator_id,
+            'Customer Secret': secret,
+            'Error': None}
+
+
+@app.post('/admin/add_product')
+async def add_product(req: constants.AddProductRequest):
+    """
+    FUNCTION NOT YET IMPLEMENTED
+
+    Submits a request to add a product to the ledger with the given
+    product_name under the CreatorID of the creator that submits the
+    product creation request. The results will return the chaincode-generated Product
+    ID.
+
+    Request must be submitted by the CreatorOrg (creatororg.beatchain.com)
+    """
+
+    try:
+        response = await operations.invoke('creatororg.beatchain.com',
+                                           req.user_name,
+                                           req.user_password,
+                                           constants.channel_name,
+                                           function='AddProduct',
+                                           args=[req.product_name])
+    except Exception as e:
+        return {'Status': 'Product Creation failed',
+                'Product ID': None,
+                'Error': repr(e)}
+    return {'Status': 'Product Creation Succeeded',
+            'Product ID': response,
+            'Error': repr(e)}
+
+
+##############################
+## Invoke Functions
+##############################
 
 @app.post('/invoke')
 async def invoke_request(req: constants.InvokeRequest,
@@ -86,7 +343,9 @@ async def query_request(req: constants.InvokeRequest,
                   ):
     """
     Submits a ledger query to a single peer within the specified org.
-    Note that queries will NOT submit any changes to the ledger state
+    Note that queries will NOT submit any changes to the ledger state, and will ONLY
+    reflect the ledger state of the peer to which the request was submitted.
+    Therefore, this query does NOT guarantee consistency like invoke operations.
     """
     try:
         response = await operations.query(org_name,

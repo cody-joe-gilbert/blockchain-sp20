@@ -86,6 +86,21 @@ class InvokeRequest(BaseModel):
     user_password: str
     args: List[str] = []
 
+class AddProductRequest(BaseModel):
+    user_name: str
+    user_password: str
+    product_name: str
+
+class AddUserRecordRequest(BaseModel):
+    admin_user_name: str
+    admin_password: str
+    user_name: str
+    user_password: Optional[str]
+    affiliation: Optional[UserAffiliations]
+
+
+
+
 # App creation parameters
 install_org = 'appdevorg.beatchain.com'
 config_path = '../network/config.json'

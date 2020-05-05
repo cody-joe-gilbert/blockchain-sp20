@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"blockchain-sp20/beatchain/chaincode/src/github.com/beatchain/transactions/streaming"
 	"github.com/beatchain/transactions/admin"
 	"github.com/beatchain/transactions/banking"
 	"github.com/beatchain/utils"
@@ -67,12 +69,30 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		return admin.ListAllCustomers(stub, txn)
 	case "ListAppCustomers":
 		return admin.ListAppCustomers(stub, txn)
+	case "AddProduct":
+		return admin.AddProduct(stub, txn)
+	case "DeleteProduct":
+		return admin.DeleteProduct(stub, txn)
+	case "AddCustomerRecord":
+		return admin.AddCustomerRecord(stub, txn)
+	case "AddAppDevRecord":
+		return admin.AddAppDevRecord(stub, txn)
+	case "AddCreatorRecord":
+		return admin.AddCreatorRecord(stub, txn)
 	case "RenewSubscription":
 		return banking.RenewSubscription(stub, txn)
 	case "CollectPayment":
 		return banking.CollectPayment(stub, txn)
 	case "TransferFunds":
 		return banking.TransferFunds(stub, txn)
+	case "OfferContract":
+		return streaming.OfferContract(stub, txn)
+	case "AcceptContract":
+		return streaming.AcceptContract(stub, txn)
+	case "RejectContract":
+		return streaming.RejectContract(stub, txn)
+	case "RequestSong":
+		return streaming.RequestSong(stub, txn)
 	default:
 		return shim.Error("Invalid invoke function name")
 	}
@@ -81,8 +101,8 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 
 func main() {
 	/*
-	Bootstraps the Beatchain chaincode
-	 */
+		Bootstraps the Beatchain chaincode
+	*/
 	bcc := new(BeatchainChaincode)
 	bcc.testMode = true
 	err := shim.Start(bcc)

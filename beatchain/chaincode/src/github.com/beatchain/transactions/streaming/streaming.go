@@ -1,10 +1,11 @@
 package streaming
 
 import (
-	"blockchain-sp20/beatchain/chaincode/src/github.com/beatchain/utils"
 	"errors"
 	"fmt"
 	"time"
+
+	"blockchain-sp20/beatchain/chaincode/src/github.com/beatchain/utils"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -19,7 +20,7 @@ var StreamingVariable = "streaming"
 		ProductID,
 	]
 */
-func requestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 
 	// Access control: Only an Customer Org member can invoke this transaction
 	if !utils.AuthenticateCustomer(txn) {

@@ -1,11 +1,12 @@
 package streaming
 
 import (
-	"github.com/beatchain/transactions"
-	"github.com/beatchain/utils"
 	"errors"
 	"fmt"
 	"strconv"
+
+	"github.com/beatchain/transactions"
+	"github.com/beatchain/utils"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -16,7 +17,7 @@ var ContractVariable = "contractVariable"
 // THESE FUNCTIONS DO NOT CHECK TO SEE IF THE CALLER IS THE ACTUAL ORG MAKING/ACCEPTING/DENYING CONTRACT
 // Arun : Can we create a password asset or something like that?
 // Julian: This should be something handled through identity management. I'm also not sure how to do it.
-func offerContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 
 	// Access control: Only an AppDev Org member can invoke this transaction
@@ -70,7 +71,7 @@ func offerContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 	return shim.Success(nil)
 }
 
-func acceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 
 	// Access control: Only an Creator Org member can invoke this transaction
@@ -103,7 +104,7 @@ func acceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb
 	return shim.Success(nil)
 }
 
-func rejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+func RejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 
 	// Access control: Only an Creator Org member can invoke this transaction

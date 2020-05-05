@@ -3,12 +3,10 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"testing"
+
+	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
-
-
-
 
 func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float32) {
 	var recordBytes []byte
@@ -39,8 +37,6 @@ func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float3
 		t.FailNow()
 	}
 }
-
-
 
 func CheckProduct(t *testing.T, stub *shim.MockStub, id string, value float32) {
 	var recordBytes []byte

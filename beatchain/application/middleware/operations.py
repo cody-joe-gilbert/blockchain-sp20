@@ -64,7 +64,7 @@ async def invoke(org_name: str,
                                                )
 
     if not response:
-        raise ValueError(f'Failure to invoke chaincode function {function}')
+        raise ValueError(f'Failure to invoke chaincode function {function} with response: {response}')
     return response
 
 
@@ -113,6 +113,6 @@ async def query(org_name: str,
                                                 args=args,
                                                 cc_name=constants.chaincode_name)
     if not response:
-        raise ValueError(f'Failure to query chaincode function {function}')
+        raise ValueError(f'Failure to query chaincode function {function} with response: {response}')
     return response
 

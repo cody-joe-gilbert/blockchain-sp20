@@ -2,7 +2,7 @@
 # Owner(s): Cody Gilbert
 
 import random
-from typing import List
+from typing import List, Optional, Dict
 from hfc.fabric import Client
 import middleware.constants as constants
 from middleware.access_utils import enroll_user
@@ -116,3 +116,126 @@ async def query(org_name: str,
         raise ValueError(f'Failure to query chaincode function {function} with response: {response}')
     return response
 
+def get_network_info() -> Dict:
+    '''
+    Returns the dictionary containing the network information
+    Returns:
+        Dictionary of network configuration information
+    '''
+    hf_client = Client(net_profile=constants.config_path)
+    return hf_client.get_net_info()
+
+async def get_channels(org_name: str,
+                 user_name: str,
+                 user_password: str) -> List[str]:
+    """
+    Fetches the IDs of all the channels on the network
+    Args:
+        org_name: Name of the submitting user's organization
+        user_name: Username of the submitter
+        user_password: Password of the submitting user
+    Returns:
+        List of channel IDs
+    """
+    # Setup a HF network client
+    hf_client = Client(net_profile=constants.config_path)
+
+    # Gather information about the network
+    network_info = hf_client.get_net_info()
+
+    # For queries, we only need a single peer
+    # Here we will randomly select one from our org
+    peers = network_info['organizations'][org_name]['peers']
+    random_peer = random.choice(peers)
+
+    user = enroll_user(hf_client, org_name, user_name, user_password)
+
+    response = await hf_client.query_channels(
+        requestor=user,
+        peers=[random_peer]
+    )
+    return [x.channel_id for x in response.channels]
+
+async def get_block_info(org_name: str,
+                       user_name: str,
+                       user_password: str,
+                       channel_name: str = constants.channel_name) -> str:
+    """
+    Fetches the blockchain state of the given channel
+    Args:
+        org_name: Name of the submitting user's organization
+        user_name: Username of the submitter
+        user_password: Password of the submitting user
+        channel_name: Name of the channel on which to connect client
+    Returns:
+        String of blockchain info
+    """
+    # Setup a HF network client
+    hf_client = Client(net_profile=constants.config_path)
+
+    # Connect to the given channel
+    hf_client.new_channel(channel_name)
+
+    # Gather information about the network
+    network_info = hf_client.get_net_info()
+
+    # For queries, we only need a single peer
+    # Here we will randomly select one from our org
+    peers = network_info['organizations'][org_name]['peers']
+    random_peer = random.choice(peers)
+
+    user = enroll_user(hf_client, org_name, user_name, user_password)
+
+    response = await hf_client.query_info(
+        requestor=user,
+        channel_name=channel_name,
+        peers=[random_peer]
+    )
+    return str(response)
+
+async def get_instantiated_chaincodes(org_name: str,
+                         user_name: str,
+                         user_password: str,
+                         channel_name: str = constants.channel_name) -> List[Dict[str, str]]:
+    """
+    Fetches the blockchain state of the given channel
+    Args:
+        org_name: Name of the submitting user's organization
+        user_name: Username of the submitter
+        user_password: Password of the submitting user
+        channel_name: Name of the channel on which to connect client
+    Returns:
+        List of instantiated chaincodes, each of which contains:
+            'Name': Chaincode name,
+            'Version': Chaincode version,
+            'Path': GOPATH relative chaincode location
+    """
+    # Setup a HF network client
+    hf_client = Client(net_profile=constants.config_path)
+
+    # Connect to the given channel
+    hf_client.new_channel(channel_name)
+
+    # Gather information about the network
+    network_info = hf_client.get_net_info()
+
+    # For queries, we only need a single peer
+    # Here we will randomly select one from our org
+    peers = network_info['organizations'][org_name]['peers']
+    random_peer = random.choice(peers)
+
+    user = enroll_user(hf_client, org_name, user_name, user_password)
+
+    response = await hf_client.query_instantiated_chaincodes(
+        requestor=user,
+        channel_name=channel_name,
+        peers=[random_peer]
+    )
+    chaincodes = []
+    for chaincode in response[0].chaincodes:
+        code = {'Name': chaincode.name,
+                'Version': chaincode.version,
+                'Path': chaincode.path}
+        chaincodes.append(code)
+
+    return chaincodes

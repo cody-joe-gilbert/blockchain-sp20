@@ -1,11 +1,13 @@
 # Blockchain & Applications Project 2: Beatchain
 # Owner(s): Cody Gilbert
 
-from fastapi import FastAPI, Query
+from fastapi import BackgroundTasks, FastAPI, Query
+from fastapi.responses import JSONResponse
 import middleware.constants as constants
 import middleware.access_utils as access_utils
 from middleware.create_app import create_app
 import middleware.operations as operations
+
 
 app = FastAPI()
 
@@ -18,23 +20,96 @@ app = FastAPI()
 
 @app.post('/admin/beatchain/create_app')
 async def creation_request(req: constants.CreateAppRequest,
-                     org_name: constants.OrgNames = Query(..., title="Organization Name"),
-                     test_mode: bool = Query(False, title="Debug Initialization Mode Flag"),
-                     ):
+                           background_tasks: BackgroundTasks,
+                           org_name: constants.OrgNames = Query(..., title="Organization Name"),
+                           test_mode: bool = Query(False, title="Debug Initialization Mode Flag")):
     """
     Submits a request to bootstrap the application on the
     HF network.
     """
     try:
-        await create_app(org_name,
-                   req.admin_user_name,
-                   req.admin_password,
-                   test_mode)
+        background_tasks.add_task(create_app, org_name, req.admin_user_name, req.admin_password, test_mode)
     except Exception as e:
-        return {'Status': 'Application Creation Request failed',
-                'Error': repr(e)}
-    return {'Status': 'Application Created',
-            'Error': None}
+        content = {'Status': 'Application Creation Request failed',
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Application Creation Request Submitted. Note: App creation may still fail during initialization',
+               'Error': None}
+    return JSONResponse(status_code=201, content=content)
+
+@app.get('/info/network_info')
+async def network_info_request():
+    """
+    Returns the network configuration information
+    """
+    try:
+        info = operations.get_network_info()
+    except Exception as e:
+        content = {'Status': 'Info Request failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Info Request Succeeded',
+               'Response': info,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)
+
+@app.post('/info/channels')
+async def channel_info_request(req: constants.CreateAppRequest,
+                           org_name: constants.OrgNames = Query(..., title="Organization Name")):
+    """
+    Returns a listing of all active channels
+    """
+    try:
+        info = await operations.get_channels(org_name, req.admin_user_name, req.admin_password)
+    except Exception as e:
+        content = {'Status': 'Channel Info Request Failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Channel Info Request Succeeded',
+               'Response': info,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)
+
+@app.post('/info/block_info')
+async def block_info_request(req: constants.CreateAppRequest,
+                             org_name: constants.OrgNames = Query(..., title="Organization Name"),
+                             channel_name: constants.ChannelNames = Query(constants.channel_name, title="Channel Name")):
+    """
+    Returns the information of the given channel's current block
+    """
+    try:
+        info = await operations.get_block_info(org_name, req.admin_user_name, req.admin_password, channel_name)
+    except Exception as e:
+        content = {'Status': 'Block Info Request Failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Block Info Request Succeeded',
+               'Response': info,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)
+
+
+@app.post('/info/instantiated_chaincodes')
+async def inst_code_request(req: constants.CreateAppRequest,
+                             org_name: constants.OrgNames = Query(..., title="Organization Name"),
+                             channel_name: constants.ChannelNames = Query(constants.channel_name, title="Channel Name")):
+    """
+    Returns a listing of all the instantiated chaincodes within the given channel
+    """
+    try:
+        info = await operations.get_instantiated_chaincodes(org_name, req.admin_user_name, req.admin_password, channel_name)
+    except Exception as e:
+        content = {'Status': 'Chaincode Info Request Failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Chaincode Info Request Succeeded',
+               'Response': info,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)
 
 
 @app.post('/admin/beatchain/transfer')
@@ -58,13 +133,14 @@ async def transfer_request(req: constants.CreateAppRequest,
                                            function='TransferFunds',
                                            args=[bank_account_id, amount])
     except Exception as e:
-        return {'Status': 'Transfer Request failed',
-                'Response': None,
-                'Error': repr(e)}
-    return {'Status': 'Transfer Request Successful',
-            'Response': response,
-            'Error': None}
-
+        content = {'Status': 'Transfer Request failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Transfer Request Successful',
+               'Response': response,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)
 
 @app.post('/admin/beatchain/register')
 async def register(req: constants.RegisterUserRequest,
@@ -81,12 +157,14 @@ async def register(req: constants.RegisterUserRequest,
     try:
         secret = await access_utils.register_user(org_name, req)
     except Exception as e:
-        return {'Status': 'Registration Request failed',
-                'Secret': None,
-                'Error': repr(e)}
-    return {'Status': 'Registration Request Succeeded',
-            'Secret': secret,
-            'Error': None}
+        content = {'Status': 'Registration Request Failed',
+                   'Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Registration Request Succeeded',
+               'Secret': secret,
+               'Error': None}
+    return JSONResponse(status_code=201, content=content)
 
 
 @app.post('/admin/creator/add_creator')
@@ -112,20 +190,21 @@ async def add_creator(req: constants.AddUserRecordRequest):
                                            function='AddCreatorRecord',
                                            args=[])
     except Exception as e:
-        return {'Status': 'Failed to add creator to ledger',
-                'Creator ID': None,
-                'Creator Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Failed to add creator to ledger',
+                   'Creator ID': None,
+                   'Creator Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
     # Attempt to parse out the creator ID from the response
     try:
         creator_id = int(response.split()[-1])
-        creator_id = int(creator_id)
     except Exception as e:
-        return {'Status': 'Cannot parse int creator id from response: ' + response,
-                'Creator ID': None,
-                'Creator Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Cannot parse int creator id from response: ' + response,
+                   'Creator ID': None,
+                   'Creator Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
     # Register the new creator user
     try:
@@ -139,15 +218,17 @@ async def add_creator(req: constants.AddUserRecordRequest):
         secret = await access_utils.register_user('creatororg.beatchain.com',
                                                   register_req)
     except Exception as e:
-        return {'Status': 'Creator User Creation Failed',
-                'Creator ID': creator_id,
-                'Creator Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Creator User Creation Failed',
+                   'Creator ID': creator_id,
+                   'Creator Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
-    return {'Status': 'Creator Creation Request Successful',
-            'Creator ID': creator_id,
-            'Creator Secret': secret,
-            'Error': None}
+    content = {'Status': 'Creator Creation Request Successful',
+               'Creator ID': creator_id,
+               'Creator Secret': secret,
+               'Error': None}
+    return JSONResponse(status_code=201, content=content)
 
 
 @app.post('/admin/appdev/add_appdev')
@@ -175,19 +256,21 @@ async def add_appdev(req: constants.AddUserRecordRequest,
                                            function='AddAppDevRecord',
                                            args=[str(round(admin_fee_frac, 3))])
     except Exception as e:
-        return {'Status': 'Failed to add appdev record to ledger',
-                'AppDev ID': None,
-                'AppDev Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Failed to add appdev record to ledger',
+                   'AppDev ID': None,
+                   'AppDev Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
     # Attempt to parse out the appdev ID from the response
     try:
         appdev_id = int(response.split()[-1])
     except Exception as e:
-        return {'Status': 'Cannot parse int appdev_id from response: ' + response,
-                'Creator ID': None,
-                'Creator Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Cannot parse int appdev_id from response: ' + response,
+                   'Creator ID': None,
+                   'Creator Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
     # Register the new creator user
     try:
@@ -201,15 +284,17 @@ async def add_appdev(req: constants.AddUserRecordRequest,
         secret = await access_utils.register_user('appdevorg.beatchain.com',
                                                   register_req)
     except Exception as e:
-        return {'Status': 'AppDev User Creation Failed',
-                'AppDev ID': appdev_id,
-                'AppDev Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'AppDev User Creation Failed',
+                   'AppDev ID': appdev_id,
+                   'AppDev Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
-    return {'Status': 'AppDev Creation Request Successful',
-            'AppDev ID': appdev_id,
-            'AppDev Secret': secret,
-            'Error': None}
+    content = {'Status': 'AppDev Creation Request Successful',
+               'AppDev ID': appdev_id,
+               'AppDev Secret': secret,
+               'Error': None}
+    return JSONResponse(status_code=201, content=content)
 
 
 @app.post('/admin/customer/add_customer')
@@ -238,19 +323,21 @@ async def add_customer(req: constants.AddUserRecordRequest,
                                            function='AddCustomerRecord',
                                            args=[str(appdev_id)])
     except Exception as e:
-        return {'Status': 'Failed to add Customer to ledger',
-                'Customer ID': None,
-                'Customer Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Failed to add Customer to ledger',
+                   'Customer ID': None,
+                   'Customer Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
     # Attempt to parse out the creator ID from the response
     try:
         customer_id = int(response.split()[-1])
     except Exception as e:
-        return {'Status': 'Cannot parse int Customer id from response: ' + response,
-                'Customer ID': None,
-                'Customer Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Cannot parse int Customer id from response: ' + response,
+                   'Customer ID': None,
+                   'Customer Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
     # Register the new creator user
     try:
@@ -264,15 +351,17 @@ async def add_customer(req: constants.AddUserRecordRequest,
         secret = await access_utils.register_user('customerorg.beatchain.com',
                                                   register_req)
     except Exception as e:
-        return {'Status': 'Customer User Creation Failed',
-                'Customer ID': creator_id,
-                'Customer Secret': None,
-                'Error': repr(e)}
+        content = {'Status': 'Customer User Creation Failed',
+                   'Customer ID': customer_id,
+                   'Customer Secret': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
 
-    return {'Status': 'Customer Creation Request Successful',
-            'Customer ID': creator_id,
-            'Customer Secret': secret,
-            'Error': None}
+    content = {'Status': 'Customer Creation Request Successful',
+               'Customer ID': customer_id,
+               'Customer Secret': secret,
+               'Error': None}
+    return JSONResponse(status_code=201, content=content)
 
 
 @app.post('/admin/add_product')
@@ -296,12 +385,14 @@ async def add_product(req: constants.AddProductRequest):
                                            function='AddProduct',
                                            args=[req.product_name])
     except Exception as e:
-        return {'Status': 'Product Creation failed',
-                'Product ID': None,
-                'Error': repr(e)}
-    return {'Status': 'Product Creation Succeeded',
-            'Product ID': response,
-            'Error': repr(e)}
+        content = {'Status': 'Product Creation failed',
+                   'Product ID': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Product Creation Succeeded',
+               'Product ID': response,
+               'Error': repr(e)}
+    return JSONResponse(status_code=201, content=content)
 
 
 ##############################
@@ -326,14 +417,14 @@ async def invoke_request(req: constants.InvokeRequest,
                                      function,
                                      req.args)
     except Exception as e:
-        return {'Status': 'Invoke Request failed',
-                'Response': None,
-                'Error': repr(e),
-                }
-    return {'Status': 'Invoke Request successful',
-            'Response': response,
-            'Error': None,
-            }
+        content = {'Status': 'Invoke Request failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Invoke Request successful',
+               'Response': response,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)
 
 @app.post('/query')
 async def query_request(req: constants.InvokeRequest,
@@ -355,11 +446,11 @@ async def query_request(req: constants.InvokeRequest,
                                      function,
                                      req.args)
     except Exception as e:
-        return {'Status': 'Query Request failed',
-                'Response': None,
-                'Error': repr(e),
-                }
-    return {'Status': 'Invoke Request successful',
-            'Response': response,
-            'Error': None,
-            }
+        content = {'Status': 'Query Request Failed',
+                   'Response': None,
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Query Request Successful',
+               'Response': response,
+               'Error': None}
+    return JSONResponse(status_code=200, content=content)

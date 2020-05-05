@@ -71,6 +71,8 @@ func (t *BeatchainChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Respons
 		return banking.RenewSubscription(stub, txn)
 	case "CollectPayment":
 		return banking.CollectPayment(stub, txn)
+	case "TransferFunds":
+		return banking.TransferFunds(stub, txn)
 	default:
 		return shim.Error("Invalid invoke function name")
 	}

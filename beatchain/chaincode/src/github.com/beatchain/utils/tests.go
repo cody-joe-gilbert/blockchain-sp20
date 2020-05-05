@@ -40,6 +40,34 @@ func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float3
 	}
 }
 
+
+
+func CheckProduct(t *testing.T, stub *shim.MockStub, id string, value float32) {
+	var recordBytes []byte
+	var record *Product
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey("object~id", []string{PRODUCT_KEY_PREFIX, id})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", id)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+}
+
 func ExecQuery(t *testing.T, stub *shim.MockStub, function string) {
 	fmt.Println("Executing Query function:", function)
 	res := stub.MockInvoke("1", [][]byte{[]byte(function)})
@@ -53,6 +81,24 @@ func ExecQuery(t *testing.T, stub *shim.MockStub, function string) {
 	}
 	payload := string(res.Payload)
 	fmt.Println(payload)
+}
+
+func ExecInvoke(t *testing.T, stub *shim.MockStub, function string, args []string) {
+	fmt.Println("Executing invoke function:", function)
+
+	var byteArgs [][]byte
+	byteArgs = append(byteArgs, []byte(function))
+	for i, s := range args {
+		fmt.Println("Arg:", i, "Value:", s)
+		byteArgs = append(byteArgs, []byte(s))
+	}
+
+	res := stub.MockInvoke("1", byteArgs)
+	if res.Status != shim.OK {
+		fmt.Println("Invoke", function, "failed", string(res.Message))
+		t.FailNow()
+	}
+
 }
 
 func checkQuery(t *testing.T, stub *shim.MockStub, function string, name string, value string) {

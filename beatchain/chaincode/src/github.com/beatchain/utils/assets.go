@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const BEATCHAIN_ADMIN_MSP = "BeatchainMSP"
+const BEATCHAIN_ADMIN_CA = "ca.admin.beatchain.com"
 const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "1"
 // to be done:  need to factor in changes for bank account inUse bool - Arun
 // Authorization constants

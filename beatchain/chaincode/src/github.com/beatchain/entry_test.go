@@ -94,6 +94,25 @@ func TestCollection(t *testing.T) {
 	utils.ExecQuery(t, stub, "ListBankAccounts")
 }
 
+func TestAdminFunctions(t *testing.T) {
+	_, stub := beatchain_init(t)
+	amount64, err := strconv.ParseFloat(utils.TEST_APPDEV_BA_BALANCE, 64)
+	if err != nil {
+		fmt.Println("Failed to parse test appdev balance to float64:", utils.TEST_APPDEV_BA_BALANCE)
+		t.FailNow()
+	}
+	// Test add money
+	utils.ExecInvoke(t, stub, "TransferFunds", []string{utils.TEST_APPDEV_BA_ID, "100"})
+	amount64 += 100.00
+	utils.CheckBankAccount(t, stub, utils.TEST_APPDEV_BA_ID, float32(amount64))
+
+	// Test withdrawal money
+	utils.ExecInvoke(t, stub, "TransferFunds", []string{utils.TEST_APPDEV_BA_ID, "-100"})
+	amount64 += -100.00
+	utils.CheckBankAccount(t, stub, utils.TEST_APPDEV_BA_ID, float32(amount64))
+}
+
+
 
 
 

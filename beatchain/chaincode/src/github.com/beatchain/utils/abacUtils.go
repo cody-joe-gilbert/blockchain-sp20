@@ -81,6 +81,10 @@ func GetTxInfo(stub shim.ChaincodeStubInterface, testMode bool) (*Transaction, e
 	return txn, nil
 }
 
+func AuthenticateBeatchainAdmin(txn *Transaction) bool {
+	return (txn.CreatorOrg == BEATCHAIN_ADMIN_MSP) && (txn.CreatorCertIssuer == BEATCHAIN_ADMIN_CA)
+}
+
 func AuthenticateCustomer(txn *Transaction) bool {
 	return (txn.CreatorOrg == CUSTOMER_MSP) && (txn.CreatorCertIssuer == CUSTOMER_CA)
 }

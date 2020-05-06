@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"blockchain-sp20/beatchain/chaincode/src/github.com/beatchain/transactions/streaming"
+	"github.com/beatchain/transactions/streaming"
 	"github.com/beatchain/transactions/admin"
 	"github.com/beatchain/transactions/banking"
 	"github.com/beatchain/utils"

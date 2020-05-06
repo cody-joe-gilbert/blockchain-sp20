@@ -57,7 +57,7 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 	fmt.Println("ProductName : %s", productName)
 	fmt.Println("CreatorID : %s", creatorId)
 
-	return shim.Success(productId)
+	return shim.Success([]byte(productId))
 }
 
 func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
@@ -117,12 +117,12 @@ func CreateNewBankAccHelper(stub shim.ChaincodeStubInterface) pb.Response {
 
 	rawBankAccount := &utils.BankAccount{Id: id, Balance: floatBalance, InUse: inUse}
 
-	err = utils.SetBankAccount(stub, rawBankAccount)
+	err := utils.SetBankAccount(stub, rawBankAccount)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(id)
+	return shim.Success([]byte(id))
 
 }
 
@@ -159,8 +159,9 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 	previousSong := ""
 
 	bankAccountId := CreateNewBankAccHelper(stub)
+	bankAccountIdByte := bankAccountId.Payload
 
-	rawCustomer := &utils.CustomerRecord{Id: id, AppDevId: appDevId, BankAccountId: bankAccountId, SubscriptionFee: subscriptionFee, SubscriptionDueDate: subscriptionDueDate, QueuedSong: queuedSong, PreviousSong: previousSong}
+	rawCustomer := &utils.CustomerRecord{Id: id, AppDevId: appDevId, BankAccountId: string(bankAccountIdByte), SubscriptionFee: subscriptionFee, SubscriptionDueDate: subscriptionDueDate, QueuedSong: queuedSong, PreviousSong: previousSong}
 	err = utils.SetCustomerRecord(stub, rawCustomer)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -231,11 +232,12 @@ func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 	}
 
 	bankAccountId := CreateNewBankAccHelper(stub)
+	bankAccountIdBytes := bankAccountId.Payload
 
 	t := time.Now().UnixNano()
 	id := strconv.FormatInt(t, 10)
 
-	rawCreator := &utils.CreatorRecord{Id: id, BankAccountId: bankAccountId}
+	rawCreator := &utils.CreatorRecord{Id: id, BankAccountId: string(bankAccountIdBytes)}
 	err = utils.SetCreatorRecord(stub, rawCreator)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -243,11 +245,10 @@ func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 
 	fmt.Println("Creator successfully created with id: %s and bank account id: %s and balance = 0.0", id, bankAccountId)
 
-	return shim.Success(id)
+	return shim.Success([]byte(id))
 }
 
 func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-	var account *utils.BankAccount
 	var err error
 
 	// Access control: Only an admin can invoke this transaction
@@ -277,8 +278,9 @@ func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) p
 	id := strconv.FormatInt(t, 10)
 
 	bankAccountId := CreateNewBankAccHelper(stub)
+	bankAccountIdBytes := bankAccountId.Payload
 
-	rawAppDevRecord := &utils.AppDevRecord{Id: id, BankAccountId: bankAccountId, AdminFeeFrac: adminFeeFrac}
+	rawAppDevRecord := &utils.AppDevRecord{Id: id, BankAccountId: string(bankAccountIdBytes), AdminFeeFrac: adminFeeFrac}
 	err = utils.SetAppDevRecord(stub, rawAppDevRecord)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -286,5 +288,5 @@ func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) p
 
 	fmt.Println("Appdev Record successfully created with id: %s, bank account's id %s and admin fee frac : %s", id, bankAccountId, adminFeeFrac)
 
-	return shim.Success(id)
+	return shim.Success([]byte(id))
 }

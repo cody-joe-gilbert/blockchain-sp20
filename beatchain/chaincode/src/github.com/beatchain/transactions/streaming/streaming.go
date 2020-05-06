@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"blockchain-sp20/beatchain/chaincode/src/github.com/beatchain/utils"
+	"github.com/beatchain/utils"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"

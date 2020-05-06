@@ -9,33 +9,28 @@ from middleware.create_app import create_app
 import middleware.operations as operations
 
 
-app = FastAPI()
+OPEN_DESC = '''
+Beatchain is a Hyperledger Fabric (HF) based blockchain system providing content
+creators extraordinary access to robust tools for hosting their creations
+with independent application developers (appdevs) and sharing their products
+with customers with guarantees of transparent streaming and compensation.
+
+This FastAPI-based webapp shows the operations available to users of each organization
+with helpful descriptions and examples of the REST API endpoint available for interacting
+with the Beatchain network.
+'''
+
+app = FastAPI(title="Beatchain. Music. Immutable.",
+              description=OPEN_DESC,
+              version="1.0.0",
+              )
 
 ### To simplify layout, all API entry points are included here despite the
 # the length of this module.
 
 ##############################
-## Admin Functions
+## Info Functions
 ##############################
-
-@app.post('/admin/beatchain/create_app')
-async def creation_request(req: constants.CreateAppRequest,
-                           background_tasks: BackgroundTasks,
-                           org_name: constants.OrgNames = Query(..., title="Organization Name"),
-                           test_mode: bool = Query(False, title="Debug Initialization Mode Flag")):
-    """
-    Submits a request to bootstrap the application on the
-    HF network.
-    """
-    try:
-        background_tasks.add_task(create_app, org_name, req.admin_user_name, req.admin_password, test_mode)
-    except Exception as e:
-        content = {'Status': 'Application Creation Request failed',
-                   'Error': repr(e)}
-        return JSONResponse(status_code=500, content=content)
-    content = {'Status': 'Application Creation Request Submitted. Note: App creation may still fail during initialization',
-               'Error': None}
-    return JSONResponse(status_code=201, content=content)
 
 @app.get('/info/network_info')
 async def network_info_request():
@@ -110,6 +105,29 @@ async def inst_code_request(req: constants.CreateAppRequest,
                'Response': info,
                'Error': None}
     return JSONResponse(status_code=200, content=content)
+
+##############################
+## Admin Functions
+##############################
+
+@app.post('/admin/beatchain/create_app')
+async def creation_request(req: constants.CreateAppRequest,
+                           background_tasks: BackgroundTasks,
+                           org_name: constants.OrgNames = Query(..., title="Organization Name"),
+                           test_mode: bool = Query(False, title="Debug Initialization Mode Flag")):
+    """
+    Submits a request to bootstrap the application on the
+    HF network.
+    """
+    try:
+        background_tasks.add_task(create_app, org_name, req.admin_user_name, req.admin_password, test_mode)
+    except Exception as e:
+        content = {'Status': 'Application Creation Request failed',
+                   'Error': repr(e)}
+        return JSONResponse(status_code=500, content=content)
+    content = {'Status': 'Application Creation Request Submitted. Note: App creation may still fail during initialization',
+               'Error': None}
+    return JSONResponse(status_code=201, content=content)
 
 
 @app.post('/admin/beatchain/transfer')
@@ -454,3 +472,4 @@ async def query_request(req: constants.InvokeRequest,
                'Response': response,
                'Error': None}
     return JSONResponse(status_code=200, content=content)
+

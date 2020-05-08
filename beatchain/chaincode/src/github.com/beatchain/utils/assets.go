@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const KEY_TIMEOUT_LOOPS = 5
+
 const BEATCHAIN_ADMIN_MSP = "BeatchainMSP"
 const BEATCHAIN_ADMIN_CA = "ca.admin.beatchain.com"
 const BEATCHAIN_ADMIN_BANK_ACCOUNT_ID = "1"
@@ -64,6 +66,7 @@ type Transaction struct {
 	CreatorId         string
 	CreatorOrg        string
 	CreatorCertIssuer string
+	CreatorAdmin      bool
 	Args              []string
 	TestMode		  bool
 }

@@ -68,11 +68,21 @@ func GetTxInfo(stub shim.ChaincodeStubInterface, testMode bool) (*Transaction, e
 		} else {
 			txn.CreatorId = ""
 		}
+
+		// Check for admin rights
+		attribute, found, err = cid.GetAttributeValue(stub, "role")
+		if found {
+			txn.CreatorAdmin = attribute == "admin"
+		} else {
+			txn.CreatorAdmin = false
+		}
+
 	} else {
 		// if in test mode, add in dummy values
 		txn.CreatorId = "test"
 		txn.CreatorOrg = "test"
 		txn.CreatorCertIssuer = "test"
+		txn.CreatorAdmin = true
 	}
 
 	// Fetch the function call info

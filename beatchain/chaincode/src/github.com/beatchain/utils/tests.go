@@ -38,6 +38,9 @@ func CheckBankAccount(t *testing.T, stub *shim.MockStub, id string, value float3
 	}
 }
 
+
+
+
 func CheckProduct(t *testing.T, stub *shim.MockStub, id string, value float32) {
 	var recordBytes []byte
 	var record *Product
@@ -79,7 +82,7 @@ func ExecQuery(t *testing.T, stub *shim.MockStub, function string) {
 	fmt.Println(payload)
 }
 
-func ExecInvoke(t *testing.T, stub *shim.MockStub, function string, args []string) {
+func ExecInvoke(t *testing.T, stub *shim.MockStub, function string, args []string) *string {
 	fmt.Println("Executing invoke function:", function)
 
 	var byteArgs [][]byte
@@ -94,6 +97,13 @@ func ExecInvoke(t *testing.T, stub *shim.MockStub, function string, args []strin
 		fmt.Println("Invoke", function, "failed", string(res.Message))
 		t.FailNow()
 	}
+
+	if res.Payload != nil {
+		payload := string(res.Payload)
+		fmt.Println("Returned payload:", payload)
+		return &payload
+	}
+	return nil
 
 }
 
@@ -112,4 +122,143 @@ func checkQuery(t *testing.T, stub *shim.MockStub, function string, name string,
 		fmt.Println("Query value", name, "was", payload, "and not", value, "as expected")
 		t.FailNow()
 	}
+}
+
+
+func FetchTestBankAccount(t *testing.T, stub *shim.MockStub, id string,) *BankAccount {
+	var recordBytes []byte
+	var record *BankAccount
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey("object~id", []string{BANK_ACCOUNT_KEY_PREFIX, id})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", id)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+	return record
+}
+
+
+func FetchTestAppdevRecord(t *testing.T, stub *shim.MockStub, id string,) *AppDevRecord {
+	var recordBytes []byte
+	var record *AppDevRecord
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey("object~id", []string{APPDEV_RECORD_KEY_PREFIX, id})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", id)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+	return record
+}
+
+
+func FetchTestCustomerRecord(t *testing.T, stub *shim.MockStub, id string,) *CustomerRecord {
+	var recordBytes []byte
+	var record *CustomerRecord
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey("object~id", []string{CUSTOMER_RECORD_KEY_PREFIX, id})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", id)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+	return record
+}
+
+func FetchTestCreatorRecord(t *testing.T, stub *shim.MockStub, id string,) *CreatorRecord {
+	var recordBytes []byte
+	var record *CreatorRecord
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey("object~id", []string{CREATOR_RECORD_KEY_PREFIX, id})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", id)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+	return record
+}
+
+
+func FetchTestProductRecord(t *testing.T, stub *shim.MockStub, id string,) *Product {
+	var recordBytes []byte
+	var record *Product
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey("object~id", []string{PRODUCT_KEY_PREFIX, id})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", id)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+	return record
 }

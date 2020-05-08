@@ -94,7 +94,7 @@ func TestCollection(t *testing.T) {
 	utils.ExecQuery(t, stub, "ListBankAccounts")
 }
 
-func TestAdminFunctions(t *testing.T) {
+func TestTransferFunctions(t *testing.T) {
 	_, stub := beatchain_init(t)
 	amount64, err := strconv.ParseFloat(utils.TEST_APPDEV_BA_BALANCE, 64)
 	if err != nil {
@@ -110,6 +110,43 @@ func TestAdminFunctions(t *testing.T) {
 	utils.ExecInvoke(t, stub, "TransferFunds", []string{utils.TEST_APPDEV_BA_ID, "-100"})
 	amount64 += -100.00
 	utils.CheckBankAccount(t, stub, utils.TEST_APPDEV_BA_ID, float32(amount64))
+}
+
+func TestAddFunctions(t *testing.T) {
+	var id *string
+	_, stub := beatchain_init(t)
+
+	// Add an appdev record
+	id = utils.ExecInvoke(t, stub, "AddAppDevRecord", []string{"0.5"})
+	fmt.Println("Returned id:", *id)
+	appdevrec := utils.FetchTestAppdevRecord(t, stub, *id)
+	fmt.Printf("Record: %+v\n", appdevrec)
+	appdevbaRec := utils.FetchTestBankAccount(t, stub, appdevrec.BankAccountId)
+	fmt.Printf("Bank Account Record: %+v\n", appdevbaRec)
+
+
+	// Add a customer record
+	id = utils.ExecInvoke(t, stub, "AddCustomerRecord", []string{"20.00"})
+	fmt.Println("Returned id:", *id)
+	custrec := utils.FetchTestCustomerRecord(t, stub, *id)
+	fmt.Printf("Record: %+v\n", custrec)
+	custbarec := utils.FetchTestBankAccount(t, stub, custrec.BankAccountId)
+	fmt.Printf("Bank Account Record: %+v\n", custbarec)
+
+	// Add a Creator record
+	id = utils.ExecInvoke(t, stub, "AddCreatorRecord", []string{})
+	fmt.Println("Returned id:", *id)
+	createrec := utils.FetchTestCreatorRecord(t, stub, *id)
+	fmt.Printf("Record: %+v\n", createrec)
+	createbarec := utils.FetchTestBankAccount(t, stub, createrec.BankAccountId)
+	fmt.Printf("Bank Account Record: %+v\n", createbarec)
+
+	// Add a product record
+	id = utils.ExecInvoke(t, stub, "AddProduct", []string{"test product name"})
+	fmt.Println("Returned id:", *id)
+	prodrec := utils.FetchTestProductRecord(t, stub, *id)
+	fmt.Printf("Record: %+v\n", prodrec)
+
 }
 
 

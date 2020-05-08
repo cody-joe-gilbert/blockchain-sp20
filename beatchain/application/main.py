@@ -202,25 +202,25 @@ async def add_creator(req: constants.AddUserRecordRequest):
     try:
         # First add creator to the ledger
         response = await operations.invoke('creatororg.beatchain.com',
-                                           req.user_name,
-                                           req.user_password,
+                                           req.admin_user_name,
+                                           req.admin_password,
                                            constants.channel_name,
                                            function='AddCreatorRecord',
                                            args=[])
     except Exception as e:
         content = {'Status': 'Failed to add creator to ledger',
-                   'Creator ID': None,
-                   'Creator Secret': None,
+                   'ID': None,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
     # Attempt to parse out the creator ID from the response
     try:
-        creator_id = int(response.split()[-1])
+        creator_id = int(response)
     except Exception as e:
         content = {'Status': 'Cannot parse int creator id from response: ' + response,
-                   'Creator ID': None,
-                   'Creator Secret': None,
+                   'ID': None,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
@@ -232,19 +232,19 @@ async def add_creator(req: constants.AddUserRecordRequest):
             user_name=req.user_name,
             user_password=req.user_password,
             role='client',
-            attrs=[{'creator_id': str(creator_id)}])
+            attrs=[{'id': str(creator_id)}])
         secret = await access_utils.register_user('creatororg.beatchain.com',
                                                   register_req)
     except Exception as e:
         content = {'Status': 'Creator User Creation Failed',
-                   'Creator ID': creator_id,
-                   'Creator Secret': None,
+                   'ID': creator_id,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
     content = {'Status': 'Creator Creation Request Successful',
-               'Creator ID': creator_id,
-               'Creator Secret': secret,
+               'ID': creator_id,
+               'Secret': secret,
                'Error': None}
     return JSONResponse(status_code=201, content=content)
 
@@ -268,25 +268,26 @@ async def add_appdev(req: constants.AddUserRecordRequest,
     try:
         # First add appdev to the ledger
         response = await operations.invoke('appdevorg.beatchain.com',
-                                           req.user_name,
-                                           req.user_password,
+                                           req.admin_user_name,
+                                           req.admin_password,
                                            constants.channel_name,
                                            function='AddAppDevRecord',
                                            args=[str(round(admin_fee_frac, 3))])
     except Exception as e:
         content = {'Status': 'Failed to add appdev record to ledger',
-                   'AppDev ID': None,
-                   'AppDev Secret': None,
+                   'ID': None,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
     # Attempt to parse out the appdev ID from the response
+    print('add appdev response: ', response)
     try:
-        appdev_id = int(response.split()[-1])
+        appdev_id = int(response)
     except Exception as e:
         content = {'Status': 'Cannot parse int appdev_id from response: ' + response,
-                   'Creator ID': None,
-                   'Creator Secret': None,
+                   'ID': None,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
@@ -298,27 +299,25 @@ async def add_appdev(req: constants.AddUserRecordRequest,
             user_name=req.user_name,
             user_password=req.user_password,
             role='client',
-            attrs=[{'appdev_id': str(appdev_id)}])
+            attrs=[{'id': str(appdev_id)}])
         secret = await access_utils.register_user('appdevorg.beatchain.com',
                                                   register_req)
     except Exception as e:
         content = {'Status': 'AppDev User Creation Failed',
-                   'AppDev ID': appdev_id,
-                   'AppDev Secret': None,
+                   'ID': appdev_id,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
     content = {'Status': 'AppDev Creation Request Successful',
-               'AppDev ID': appdev_id,
-               'AppDev Secret': secret,
+               'ID': appdev_id,
+               'Secret': secret,
                'Error': None}
     return JSONResponse(status_code=201, content=content)
 
 
 @app.post('/admin/customer/add_customer')
-async def add_customer(req: constants.AddUserRecordRequest,
-                      appdev_id: int = Query(..., title="Customer's Subscribing AppDev ID")
-                      ):
+async def add_customer(req: constants.AddUserRecordRequest):
     """
     FUNCTION NOT YET IMPLEMENTED
 
@@ -335,25 +334,25 @@ async def add_customer(req: constants.AddUserRecordRequest,
     try:
         # First add customer to the ledger
         response = await operations.invoke('customerorg.beatchain.com',
-                                           req.user_name,
-                                           req.user_password,
+                                           req.admin_user_name,
+                                           req.admin_password,
                                            constants.channel_name,
                                            function='AddCustomerRecord',
-                                           args=[str(appdev_id)])
+                                           args=[])
     except Exception as e:
         content = {'Status': 'Failed to add Customer to ledger',
-                   'Customer ID': None,
-                   'Customer Secret': None,
+                   'ID': None,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
     # Attempt to parse out the creator ID from the response
     try:
-        customer_id = int(response.split()[-1])
+        customer_id = int(response)
     except Exception as e:
         content = {'Status': 'Cannot parse int Customer id from response: ' + response,
-                   'Customer ID': None,
-                   'Customer Secret': None,
+                   'ID': None,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
@@ -365,19 +364,19 @@ async def add_customer(req: constants.AddUserRecordRequest,
             user_name=req.user_name,
             user_password=req.user_password,
             role='client',
-            attrs=[{'customer_id': str(customer_id)}])
+            attrs=[{'id': str(customer_id)}])
         secret = await access_utils.register_user('customerorg.beatchain.com',
                                                   register_req)
     except Exception as e:
         content = {'Status': 'Customer User Creation Failed',
-                   'Customer ID': customer_id,
-                   'Customer Secret': None,
+                   'ID': customer_id,
+                   'Secret': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
 
     content = {'Status': 'Customer Creation Request Successful',
-               'Customer ID': customer_id,
-               'Customer Secret': secret,
+               'ID': customer_id,
+               'Secret': secret,
                'Error': None}
     return JSONResponse(status_code=201, content=content)
 
@@ -404,11 +403,11 @@ async def add_product(req: constants.AddProductRequest):
                                            args=[req.product_name])
     except Exception as e:
         content = {'Status': 'Product Creation failed',
-                   'Product ID': None,
+                   'ID': None,
                    'Error': repr(e)}
         return JSONResponse(status_code=500, content=content)
     content = {'Status': 'Product Creation Succeeded',
-               'Product ID': response,
+               'ID': response,
                'Error': repr(e)}
     return JSONResponse(status_code=201, content=content)
 

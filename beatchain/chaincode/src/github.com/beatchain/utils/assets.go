@@ -4,7 +4,8 @@ import (
 	"time"
 )
 
-const KEY_TIMEOUT_LOOPS = 5
+const UNIQUE_ID_KEY = "UNIQUE_ID_VARIABLE"
+const UNIQUE_STARTING_ID = "100000000"
 
 const BEATCHAIN_ADMIN_MSP = "BeatchainMSP"
 const BEATCHAIN_ADMIN_CA = "ca.admin.beatchain.com"

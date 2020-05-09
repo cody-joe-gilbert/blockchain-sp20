@@ -1,6 +1,60 @@
 package utils
 
-import "github.com/hyperledger/fabric/core/chaincode/shim"
+import (
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"strconv"
+)
+
+var LAST_UNIQUE_ID int64 = -1
+
+func GetUniqueId(stub shim.ChaincodeStubInterface) (string, error) {
+	var byteId []byte
+	var strId string
+	var intId int64
+	var err error
+
+	if LAST_UNIQUE_ID < 0 {
+		/*
+		If this is the first time this function has been called in
+		this instance of the chaincode, fetch the unique key from the ledger
+		 */
+		// Fetch the last unique ID
+		byteId, err = stub.GetState(UNIQUE_ID_KEY)
+		if err != nil {
+			return strId, err
+		}
+
+		// Convert to string
+		strId = string(byteId)
+
+		// convert to int
+		intId, err = strconv.ParseInt(strId, 10, 64)
+		if err != nil {
+			return strId, err
+		}
+	} else {
+		/*
+		If GetUniqueId has been executed already in the chaincode,
+		the unique ID fetched from the ledger will be stale.
+		This section will use the last key in memory and
+		update the ledger accordingly.
+		 */
+		intId = LAST_UNIQUE_ID
+		strId = strconv.FormatInt(intId, 10)
+	}
+
+	// increment to get a new unique ID
+	intId += 1
+	LAST_UNIQUE_ID = intId
+
+	// Set new unique ID back on the ledger
+	err = stub.PutState(UNIQUE_ID_KEY, []byte(strconv.FormatInt(intId, 10)))
+	if err != nil {
+		return strId, err
+	}
+	return strId, nil
+}
+
 
 func GetCustomerRecordKey(stub shim.ChaincodeStubInterface, id string) (string, error) {
 	key, err := stub.CreateCompositeKey(KEY_OBJECT_FORMAT, []string{CUSTOMER_RECORD_KEY_PREFIX, id})

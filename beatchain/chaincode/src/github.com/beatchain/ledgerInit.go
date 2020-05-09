@@ -31,11 +31,20 @@ func ledgerInit(stub shim.ChaincodeStubInterface, txn *utils.Transaction) error 
 	var product *utils.Product
 	var contract *utils.Contract
 	var beatchainAdminBA, customerBA, appDevBA, creatorBA *utils.BankAccount
+	var err error
 
 	// Validate length of arguments
 	if len(txn.Args) < 23 {
 		return errors.New(fmt.Sprintf("Too few arguments given; given %d arguments", len(txn.Args)))
 	}
+
+	fmt.Println("Initializing with new starting unique key ")
+	// Push the record back to the ledger
+	err = stub.PutState(utils.UNIQUE_ID_KEY, []byte(utils.UNIQUE_STARTING_ID))
+	if err != nil {
+		return err
+	}
+
 
 	fmt.Println("Re-Initializing ledger with input variables: ")
 

@@ -14,8 +14,7 @@ import (
 
 
 func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-	var id, key string
-	var recordBytes []byte
+	var id string
 	var err error
 
 	// Access control: Only a Creator can invoke this transaction
@@ -38,27 +37,9 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 		return shim.Error(err.Error())
 	}
 	// Get a unique key
-	for i := 0; i < utils.KEY_TIMEOUT_LOOPS + 1; i++ {
-		if i == utils.KEY_TIMEOUT_LOOPS {
-			err := errors.New(fmt.Sprintf("Key Finder timeout: Cannot find unique id after %d attempts", utils.KEY_TIMEOUT_LOOPS))
-			return shim.Error(err.Error())
-		}
-		id = strconv.FormatInt(time.Now().UnixNano(), 10)
-		// Create the record key
-		key, err = utils.GetCustomerRecordKey(stub, id)
-		if err != nil {
-			continue
-		}
-		// Pull the record bytes from the ledger
-		recordBytes, err = stub.GetState(key)
-		if err != nil {
-			continue
-		}
-		// Unused record found; id unique
-		if len(recordBytes) == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	id, err = utils.GetUniqueId(stub)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 
@@ -133,34 +114,15 @@ func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 }
 
 func createNewBankAccHelper(stub shim.ChaincodeStubInterface) (string, error) {
-	var id, key string
-	var recordBytes []byte
+	var id string
 	var floatBalance float32
 	var err error
 	floatBalance = 0.0
 
 	// Get a unique key
-	for i := 0; i < utils.KEY_TIMEOUT_LOOPS + 1; i++ {
-		if i == utils.KEY_TIMEOUT_LOOPS {
-			err = errors.New(fmt.Sprintf("Key Finder timeout: Cannot find unique id after %d attempts", utils.KEY_TIMEOUT_LOOPS))
-			return "", err
-		}
-		id = strconv.FormatInt(time.Now().UnixNano(), 10)
-		// Create the record key
-		key, err = utils.GetBankAccountKey(stub, id)
-		if err != nil {
-			continue
-		}
-		// Pull the record bytes from the ledger
-		recordBytes, err = stub.GetState(key)
-		if err != nil {
-			continue
-		}
-		// Unused record found; id unique
-		if len(recordBytes) == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	id, err = utils.GetUniqueId(stub)
+	if err != nil {
+		return id, err
 	}
 
 	rawBankAccount := &utils.BankAccount{Id: id, Balance: floatBalance, InUse: true}
@@ -174,8 +136,7 @@ func createNewBankAccHelper(stub shim.ChaincodeStubInterface) (string, error) {
 }
 
 func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-	var id, key string
-	var recordBytes []byte
+	var id string
 	var err error
 
 	// Access control: Only appdev org can invoke this transaction
@@ -206,27 +167,9 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 	}
 
 	// Get a unique key
-	for i := 0; i < utils.KEY_TIMEOUT_LOOPS + 1; i++ {
-		if i == utils.KEY_TIMEOUT_LOOPS {
-			err := errors.New(fmt.Sprintf("Key Finder timeout: Cannot find unique id after %d attempts", utils.KEY_TIMEOUT_LOOPS))
-			return shim.Error(err.Error())
-		}
-		id = strconv.FormatInt(time.Now().UnixNano(), 10)
-		// Create the record key
-		key, err = utils.GetCustomerRecordKey(stub, id)
-		if err != nil {
-			continue
-		}
-		// Pull the record bytes from the ledger
-		recordBytes, err = stub.GetState(key)
-		if err != nil {
-			continue
-		}
-		// Unused record found; id unique
-		if len(recordBytes) == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	id, err = utils.GetUniqueId(stub)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 	// Sub due 1 month from creation date
@@ -257,8 +200,7 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 }
 
 func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-	var id, key string
-	var recordBytes []byte
+	var id string
 	var err error
 
 	// Org-based Access control not needed as all orgs access this function
@@ -276,27 +218,9 @@ func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transacti
 
 
 	// Get a unique key
-	for i := 0; i < utils.KEY_TIMEOUT_LOOPS + 1; i++ {
-		if i == utils.KEY_TIMEOUT_LOOPS {
-			err := errors.New(fmt.Sprintf("Key Finder timeout: Cannot find unique id after %d attempts", utils.KEY_TIMEOUT_LOOPS))
-			return shim.Error(err.Error())
-		}
-		id = strconv.FormatInt(time.Now().UnixNano(), 10)
-		// Create the record key
-		key, err = utils.GetCustomerRecordKey(stub, id)
-		if err != nil {
-			continue
-		}
-		// Pull the record bytes from the ledger
-		recordBytes, err = stub.GetState(key)
-		if err != nil {
-			continue
-		}
-		// Unused record found; id unique
-		if len(recordBytes) == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	id, err = utils.GetUniqueId(stub)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 	// All BAs initialized to $0.00 to prevent money creation via account creation
@@ -313,8 +237,7 @@ func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transacti
 }
 
 func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-	var id, key string
-	var recordBytes []byte
+	var id string
 	var err error
 
 	// Check for admin rights
@@ -339,27 +262,9 @@ func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 	}
 
 	// Get a unique key
-	for i := 0; i < utils.KEY_TIMEOUT_LOOPS + 1; i++ {
-		if i == utils.KEY_TIMEOUT_LOOPS {
-			err := errors.New(fmt.Sprintf("Key Finder timeout: Cannot find unique id after %d attempts", utils.KEY_TIMEOUT_LOOPS))
-			return shim.Error(err.Error())
-		}
-		id = strconv.FormatInt(time.Now().UnixNano(), 10)
-		// Create the record key
-		key, err = utils.GetCustomerRecordKey(stub, id)
-		if err != nil {
-			continue
-		}
-		// Pull the record bytes from the ledger
-		recordBytes, err = stub.GetState(key)
-		if err != nil {
-			continue
-		}
-		// Unused record found; id unique
-		if len(recordBytes) == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	id, err = utils.GetUniqueId(stub)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 	rawCreator := &utils.CreatorRecord{Id: id, BankAccountId: bankAccountId}
@@ -374,8 +279,7 @@ func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 }
 
 func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-	var id, key string
-	var recordBytes []byte
+	var id string
 	var err error
 
 	if !txn.CreatorAdmin {
@@ -405,28 +309,11 @@ func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) p
 		return shim.Error(err.Error())
 	}
 
+
 	// Get a unique key
-	for i := 0; i < utils.KEY_TIMEOUT_LOOPS + 1; i++ {
-		if i == utils.KEY_TIMEOUT_LOOPS {
-			err := errors.New(fmt.Sprintf("Key Finder timeout: Cannot find unique id after %d attempts", utils.KEY_TIMEOUT_LOOPS))
-			return shim.Error(err.Error())
-		}
-		id = strconv.FormatInt(time.Now().UnixNano(), 10)
-		// Create the record key
-		key, err = utils.GetCustomerRecordKey(stub, id)
-		if err != nil {
-			continue
-		}
-		// Pull the record bytes from the ledger
-		recordBytes, err = stub.GetState(key)
-		if err != nil {
-			continue
-		}
-		// Unused record found; id unique
-		if len(recordBytes) == 0 {
-			break
-		}
-		time.Sleep(1 * time.Second)
+	id, err = utils.GetUniqueId(stub)
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
 	bankAccountId, err := createNewBankAccHelper(stub)

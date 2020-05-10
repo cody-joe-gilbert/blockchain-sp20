@@ -13,6 +13,9 @@ class InvokeFunctions(str, Enum):
     """
     RenewSubscription = "RenewSubscription"
     CollectPayment = "CollectPayment"
+    OfferContract = "OfferContract"
+    AcceptContract = "AcceptContract"
+    RejectContract = "RejectContract"
 
 class QueryFunctions(str, Enum):
     """
@@ -98,6 +101,12 @@ class AddUserRecordRequest(BaseModel):
     user_password: Optional[str]
     affiliation: Optional[UserAffiliations]
 
+class AddCustomerRecordRequest(BaseModel):
+    admin_user_name: str
+    admin_password: str
+    user_name: str
+    user_password: Optional[str]
+    affiliation: Optional[UserAffiliations]
 
 
 

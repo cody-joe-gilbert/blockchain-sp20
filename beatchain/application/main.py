@@ -408,7 +408,7 @@ async def add_product(req: constants.AddProductRequest):
         return JSONResponse(status_code=500, content=content)
     content = {'Status': 'Product Creation Succeeded',
                'ID': response,
-               'Error': repr(e)}
+               'Error': None}
     return JSONResponse(status_code=201, content=content)
 
 

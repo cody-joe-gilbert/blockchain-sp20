@@ -8,7 +8,7 @@ import (
 var LAST_UNIQUE_ID int64 = -1
 
 func GetUniqueId(stub shim.ChaincodeStubInterface) (string, error) {
-	var byteId []byte
+	//var byteId []byte
 	var strId string
 	var intId int64
 	var err error
@@ -19,13 +19,14 @@ func GetUniqueId(stub shim.ChaincodeStubInterface) (string, error) {
 		this instance of the chaincode, fetch the unique key from the ledger
 		 */
 		// Fetch the last unique ID
-		byteId, err = stub.GetState(UNIQUE_ID_KEY)
-		if err != nil {
-			return strId, err
-		}
+		//byteId, err = stub.GetState(UNIQUE_ID_KEY)
+		//if err != nil {
+		//	return string(byteId), err
+		//}
 
 		// Convert to string
-		strId = string(byteId)
+		//strId := string(byteId)
+		strId := UNIQUE_STARTING_ID
 
 		// convert to int
 		intId, err = strconv.ParseInt(strId, 10, 64)

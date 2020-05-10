@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-
 	"github.com/beatchain/utils"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -41,7 +40,6 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-
 
 	rawProduct := &utils.Product{Id: id,
 		CreatorId: txn.CreatorId,
@@ -313,7 +311,7 @@ func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) p
 	// Get a unique key
 	id, err = utils.GetUniqueId(stub)
 	if err != nil {
-		return shim.Error(err.Error())
+		return shim.Error(err.Error() + "; id:" + id)
 	}
 
 	bankAccountId, err := createNewBankAccHelper(stub)

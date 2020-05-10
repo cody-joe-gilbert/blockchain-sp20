@@ -36,7 +36,7 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 		return shim.Error(err.Error())
 	}
 	// Get a unique key
-	id, err = utils.GetUniqueId(stub)
+	id, err = utils.GetUniqueId(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -111,14 +111,14 @@ func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 	return shim.Success(nil)
 }
 
-func createNewBankAccHelper(stub shim.ChaincodeStubInterface) (string, error) {
+func createNewBankAccHelper(stub shim.ChaincodeStubInterface, txn *utils.Transaction) (string, error) {
 	var id string
 	var floatBalance float32
 	var err error
 	floatBalance = 0.0
 
 	// Get a unique key
-	id, err = utils.GetUniqueId(stub)
+	id, err = utils.GetUniqueId(stub, txn)
 	if err != nil {
 		return id, err
 	}
@@ -165,15 +165,17 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 	}
 
 	// Get a unique key
-	id, err = utils.GetUniqueId(stub)
+	id, err = utils.GetUniqueId(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	// Sub due 1 month from creation date
-	subscriptionDueDate := time.Now().Add(time.Hour * 24 * 30)
+	t := time.Now()
+	date := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	subscriptionDueDate := date.Add(time.Hour * 24 * 30)
 
-	bankAccountId, err := createNewBankAccHelper(stub)
+	bankAccountId, err := createNewBankAccHelper(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -216,7 +218,7 @@ func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transacti
 
 
 	// Get a unique key
-	id, err = utils.GetUniqueId(stub)
+	id, err = utils.GetUniqueId(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -254,13 +256,13 @@ func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 		return shim.Error(err.Error())
 	}
 
-	bankAccountId, err := createNewBankAccHelper(stub)
+	bankAccountId, err := createNewBankAccHelper(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	// Get a unique key
-	id, err = utils.GetUniqueId(stub)
+	id, err = utils.GetUniqueId(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -309,14 +311,16 @@ func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) p
 
 
 	// Get a unique key
-	id, err = utils.GetUniqueId(stub)
-	if err != nil {
-		return shim.Error(err.Error() + "; id:" + id)
-	}
 
-	bankAccountId, err := createNewBankAccHelper(stub)
+
+	bankAccountId, err := createNewBankAccHelper(stub, txn)
 	if err != nil {
 		return shim.Error(err.Error())
+	}
+
+	id, err = utils.GetUniqueId(stub, txn)
+	if err != nil {
+		return shim.Error(err.Error() + "; id:" + id)
 	}
 
 	rawAppDevRecord := &utils.AppDevRecord{Id: id, BankAccountId: bankAccountId, AdminFeeFrac: adminFeeFrac}

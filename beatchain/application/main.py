@@ -317,7 +317,9 @@ async def add_appdev(req: constants.AddUserRecordRequest,
 
 
 @app.post('/admin/customer/add_customer')
-async def add_customer(req: constants.AddUserRecordRequest):
+async def add_customer(req: constants.AddUserRecordRequest,
+                       subscription_fee: float = Query(..., title="Subscription Fee")
+                       ):
     """
     FUNCTION NOT YET IMPLEMENTED
 
@@ -338,7 +340,7 @@ async def add_customer(req: constants.AddUserRecordRequest):
                                            req.admin_password,
                                            constants.channel_name,
                                            function='AddCustomerRecord',
-                                           args=[])
+                                           args=[str(round(subscription_fee, 3))])
     except Exception as e:
         content = {'Status': 'Failed to add Customer to ledger',
                    'ID': None,

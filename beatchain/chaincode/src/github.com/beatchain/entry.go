@@ -104,7 +104,7 @@ func main() {
 		Bootstraps the Beatchain chaincode
 	*/
 	bcc := new(BeatchainChaincode)
-	bcc.testMode = false
+	bcc.testMode = true
 	err := shim.Start(bcc)
 	if err != nil {
 		fmt.Printf("Error starting Trade Workflow chaincode: %s", err)

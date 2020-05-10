@@ -35,6 +35,7 @@ func GetTxInfo(stub shim.ChaincodeStubInterface, testMode bool) (*Transaction, e
 	txn = new(Transaction)
 	txn.CreatorOrg = ""
 	txn.CreatorCertIssuer = ""
+	txn.LastUniqueId = -1
 	txn.TestMode = testMode
 
 	// Fetch the creator org and certificate info

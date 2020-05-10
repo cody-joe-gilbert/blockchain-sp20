@@ -1,32 +1,32 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"strconv"
 )
 
-var LAST_UNIQUE_ID int64 = -1
 
-func GetUniqueId(stub shim.ChaincodeStubInterface) (string, error) {
-	//var byteId []byte
+func GetUniqueId(stub shim.ChaincodeStubInterface, txn *Transaction) (string, error) {
+	var byteId []byte
 	var strId string
 	var intId int64
 	var err error
 
-	if LAST_UNIQUE_ID < 0 {
+	if txn.LastUniqueId < 0  {
 		/*
 		If this is the first time this function has been called in
 		this instance of the chaincode, fetch the unique key from the ledger
 		 */
 		// Fetch the last unique ID
-		//byteId, err = stub.GetState(UNIQUE_ID_KEY)
-		//if err != nil {
-		//	return string(byteId), err
-		//}
+		fmt.Println("LastUnique < 0")
+		byteId, err = stub.GetState(UNIQUE_ID_KEY)
+		if err != nil {
+			return "", err
+		}
 
 		// Convert to string
-		//strId := string(byteId)
-		strId := UNIQUE_STARTING_ID
+		strId = string(byteId)
 
 		// convert to int
 		intId, err = strconv.ParseInt(strId, 10, 64)
@@ -40,19 +40,21 @@ func GetUniqueId(stub shim.ChaincodeStubInterface) (string, error) {
 		This section will use the last key in memory and
 		update the ledger accordingly.
 		 */
-		intId = LAST_UNIQUE_ID
+		fmt.Println("LastUnique > 0")
+		intId = txn.LastUniqueId
 		strId = strconv.FormatInt(intId, 10)
-	}
 
+	}
 	// increment to get a new unique ID
 	intId += 1
-	LAST_UNIQUE_ID = intId
+	txn.LastUniqueId = intId
 
 	// Set new unique ID back on the ledger
 	err = stub.PutState(UNIQUE_ID_KEY, []byte(strconv.FormatInt(intId, 10)))
 	if err != nil {
 		return strId, err
 	}
+
 	return strId, nil
 }
 

@@ -70,6 +70,7 @@ type Transaction struct {
 	CreatorAdmin      bool
 	Args              []string
 	TestMode		  bool
+	LastUniqueId	  int64
 }
 
 type CustomerRecord struct {

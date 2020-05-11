@@ -95,16 +95,6 @@ loop.run_until_complete(operations.invoke(creator_member['org'],
 print('Contract Accepted')
 
 
-print('Request Song')
-loop.run_until_complete(operations.invoke(customer_member['org'],
-                                                       customer_member['username'],
-                                                       customer_member['password'],
-                                                       constants.channel_name,
-                                                       function='RequestSong',
-                                                       args=[customer_member['id'],
-                                                             appdev_member['id'],
-                                                             product_id]))
-print('Song Requested')
 
 
 print('Request Song')
@@ -113,9 +103,7 @@ loop.run_until_complete(operations.invoke(customer_member['org'],
                                                        customer_member['password'],
                                                        constants.channel_name,
                                                        function='RequestSong',
-                                                       args=[customer_member['id'],
-                                                             appdev_member['id'],
-                                                             product_id]))
+                                                       args=[product_id]))
 print('Song Requested')
 
 

@@ -11,15 +11,7 @@ import (
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
-var StreamingVariable = "streaming"
 
-/*
-	Args = [
-		CustomerID,
-		AppDevID,
-		ProductID,
-	]
-*/
 func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 
 	// Access control: Only an Customer Org member can invoke this transaction
@@ -27,28 +19,23 @@ func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Re
 		return shim.Error("Caller not a member of Customer Org. Access denied.")
 	}
 
+	if txn.CreatorId == "" {
+		return shim.Error("Transaction invoker Customer ID not found in ecert attributes")
+	}
+
 	args := txn.Args
-	if len(args) != 4 {
-		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 4: {CustomerId, AppDevId, CreatorId, ProductID}. Found %d", len(args)))
+	//if len(args) != 4 {
+	//	err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 4: {CustomerId, AppDevId, CreatorId, ProductID}. Found %d", len(args)))
+	//	return shim.Error(err.Error())
+	//}
+
+	if len(args) != 1 {
+		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {ProductID}. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
+	productId := txn.Args[0]
 
-	customerId := txn.Args[0]
-	appDevId := txn.Args[1]
-	creatorId := txn.Args[2]
-	productId := txn.Args[3]
-
-	customer, err := utils.GetCustomerRecord(stub, customerId)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	_, err = utils.GetCreatorRecord(stub, creatorId)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-
-	_, err = utils.GetAppDevRecord(stub, appDevId)
+	customer, err := utils.GetCustomerRecord(stub, txn.CreatorId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -58,12 +45,22 @@ func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Re
 		return shim.Error(err.Error())
 	}
 
-	contract, err := utils.GetContract(stub, appDevId, creatorId, productId)
+	appdev, err := utils.GetAppDevRecord(stub, customer.AppDevId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	if customer.SubscriptionDueDate.After(time.Now()) && customer.AppDevId == appDevId && contract.CreatorId == product.CreatorId {
+	creator, err := utils.GetCreatorRecord(stub, product.CreatorId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	contract, err := utils.GetContract(stub, creator.Id, appdev.Id, productId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	if customer.SubscriptionDueDate.After(time.Now()) && customer.AppDevId == appdev.Id && contract.CreatorId == product.CreatorId {
 
 		customer.PreviousSong = customer.QueuedSong
 		customer.QueuedSong = productId

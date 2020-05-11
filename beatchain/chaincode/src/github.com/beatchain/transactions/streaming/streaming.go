@@ -13,7 +13,12 @@ import (
 
 
 func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Queues a song for streaming by a Customer from an AppDev
 
+		Args:
+			ProductID (string): ID of the Product to stream
+	*/
 	// Access control: Only an Customer Org member can invoke this transaction
 	if !txn.TestMode && !(utils.AuthenticateCustomer(txn) || utils.AuthenticateBeatchainAdmin(txn)) {
 		return shim.Error("Caller not a member of Customer Org. Access denied.")

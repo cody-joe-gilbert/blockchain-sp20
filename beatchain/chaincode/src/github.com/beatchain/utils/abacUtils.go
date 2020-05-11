@@ -92,6 +92,10 @@ func GetTxInfo(stub shim.ChaincodeStubInterface, testMode bool) (*Transaction, e
 	return txn, nil
 }
 
+/*
+The following are helper functions used to authenticate user credentials
+ */
+
 func AuthenticateBeatchainAdmin(txn *Transaction) bool {
 	return (txn.CreatorOrg == BEATCHAIN_ADMIN_MSP) && (txn.CreatorCertIssuer == BEATCHAIN_ADMIN_CA)
 }

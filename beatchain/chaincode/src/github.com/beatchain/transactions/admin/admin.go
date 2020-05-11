@@ -13,6 +13,12 @@ import (
 
 
 func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+	Adds a product object to the ledger
+
+	Args:
+		ProductName (string): Name of the product to store with the ledger object
+	 */
 	var id string
 	var err error
 
@@ -64,6 +70,13 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 }
 
 func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Removes a product object from the ledger by setting its 'IsActive' attribute
+		to False.
+
+		Args:
+			ProductID (string): ID of the product stored on the ledger
+	*/
 	var err error
 
 	// Access control: Only a Creator can invoke this transaction
@@ -112,6 +125,14 @@ func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 }
 
 func createNewBankAccHelper(stub shim.ChaincodeStubInterface, txn *utils.Transaction) (string, error) {
+	/*
+		Helper function to generate a bank account and returning the ID for
+		later use in creating other objects.
+
+		Returns:
+			BankAccountID (string): ID of the newly-created BankAccount object
+			err (error): Error object
+	*/
 	var id string
 	var floatBalance float32
 	var err error
@@ -134,6 +155,12 @@ func createNewBankAccHelper(stub shim.ChaincodeStubInterface, txn *utils.Transac
 }
 
 func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Adds a CustomerRecord object to the ledger representing a new Customer
+
+		Args:
+			subscriptionFee (float32): Monthly subscription fee in $USD
+	*/
 	var id string
 	var err error
 
@@ -200,6 +227,14 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 }
 
 func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Adds a BankAccount object to the ledger representing a new BankAccount.
+		However, most bank accounts are associated with another object and
+		createNewBankAccHelper is more commonly used.
+
+		Args:
+			subscriptionFee (float32): Monthly subscription fee in $USD
+	*/
 	var id string
 	var err error
 
@@ -237,6 +272,12 @@ func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transacti
 }
 
 func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Adds a CreatorRecord object to the ledger representing a new Creator User.
+
+		Args:
+			None
+	*/
 	var id string
 	var err error
 
@@ -279,6 +320,13 @@ func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) 
 }
 
 func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Adds a AppDevRecord object to the ledger representing a new AppDev User.
+
+		Args:
+			AdminFeeFrac (float32): Fraction of subscription fees given to the Beatchain administration.
+				Must be between 0.0 and 1.0.
+	*/
 	var id string
 	var err error
 
@@ -308,10 +356,6 @@ func AddAppDevRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) p
 		err = errors.New(fmt.Sprintf("Admin fee frac must be between 0 and 1"))
 		return shim.Error(err.Error())
 	}
-
-
-	// Get a unique key
-
 
 	bankAccountId, err := createNewBankAccHelper(stub, txn)
 	if err != nil {

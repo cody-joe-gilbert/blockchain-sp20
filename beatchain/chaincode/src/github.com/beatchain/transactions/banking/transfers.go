@@ -50,8 +50,7 @@ func TransferFunds(stub shim.ChaincodeStubInterface, transaction *utils.Transact
 	    Used by administrators to manually move funds in the ledger.
 
 		Args:
-			transaction: Creator's transaction info
-
+			bankAccountId (string): ID of the BankAccount whose balance will be altered
 	*/
 	var bankAccountId string
 	var bankAccount *utils.BankAccount

@@ -57,7 +57,7 @@ class UserRoles(str, Enum):
 
 class UserAffiliations(str, Enum):
     """
-    HF user roles
+    HF user affiliations
     Note: These names must match those specified in the
     Fabric CA server configuration file fabric-ca-server-config.yaml
     """

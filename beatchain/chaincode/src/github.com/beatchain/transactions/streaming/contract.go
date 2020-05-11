@@ -15,9 +15,20 @@ import (
 var ContractVariable = "contractVariable"
 
 // THESE FUNCTIONS DO NOT CHECK TO SEE IF THE CALLER IS THE ACTUAL ORG MAKING/ACCEPTING/DENYING CONTRACT
-// Arun : Can we create a password asset or something like that?
-// Julian: This should be something handled through identity management. I'm also not sure how to do it.
 func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+	Offers a contract with a given payment per stream in $USD to a Creator for the rights
+	to stream content.
+
+	Args:
+		AppDevID (string): ID of the AppDev Submitting the offer
+			TODO: Replace with txn.CreatorId
+		CreatorID (string): ID of the Creator to which the contract is offered
+		ProductID (string): ID of the Product under consideration of the contract
+			Note: Each Product has a separate contract in this draft
+		CreatorPayPerStream (float32): Payment in $USD per stream of the product
+	*/
+
 	var creator *utils.CreatorRecord
 	var product *utils.Product
 	var err error
@@ -75,6 +86,18 @@ func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 }
 
 func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Accepts an offered contract for a given payment per stream in $USD by a Creator for the rights
+		to stream content.
+
+		Args:
+			CreatorID (string): ID of the Creator to which the contract is offered
+				TODO: Replace with txn.CreatorId
+			ProductID (string): ID of the Product under consideration of the contract
+				Note: Each Product has a separate contract in this draft
+			AppDevID (string): ID of the AppDev Submitting the offer
+	*/
+
 	var err error
 
 	// Access control: Only an Creator Org member can invoke this transaction
@@ -108,6 +131,16 @@ func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb
 }
 
 func RejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	/*
+		Rejects an offered contract by a Creator for the rights to stream content.
+
+		Args:
+			CreatorID (string): ID of the Creator to which the contract is offered
+				TODO: Replace with txn.CreatorId
+			ProductID (string): ID of the Product under consideration of the contract
+				Note: Each Product has a separate contract in this draft
+			AppDevID (string): ID of the AppDev Submitting the offer
+	*/
 	var err error
 
 	// Access control: Only an Creator Org member can invoke this transaction

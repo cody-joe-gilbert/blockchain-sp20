@@ -188,8 +188,6 @@ async def register(req: constants.RegisterUserRequest,
 @app.post('/admin/creator/add_creator')
 async def add_creator(req: constants.AddUserRecordRequest):
     """
-    FUNCTION NOT YET IMPLEMENTED
-
     Adds a creator user to the CreatorOrg (creatororg.beatchain.com) and generates
     a CreatorRecord asset on the ledger.
 
@@ -254,8 +252,6 @@ async def add_appdev(req: constants.AddUserRecordRequest,
                      admin_fee_frac: float = Query(..., title="Subscription Administration Fee Fraction")
                      ):
     """
-    FUNCTION NOT YET IMPLEMENTED
-
     Adds an appdev user to the AppdevOrg (appdevorg.beatchain.com) and generates
     a AppDevRecord asset on the ledger.
 
@@ -322,8 +318,6 @@ async def add_customer(req: constants.AddUserRecordRequest,
                        subscription_fee: float = Query(..., title="Subscription Fee")
                        ):
     """
-    FUNCTION NOT YET IMPLEMENTED
-
     Adds a customer user to the CustomerOrg (customerorg.beatchain.com) and generates
     a CustomerRecord asset on the ledger. Note that the customer's subscription fee and
     due date are set separately by an AppDevOrg client.
@@ -390,8 +384,6 @@ async def add_customer(req: constants.AddUserRecordRequest,
 @app.post('/admin/add_product')
 async def add_product(req: constants.AddProductRequest):
     """
-    FUNCTION NOT YET IMPLEMENTED
-
     Submits a request to add a product to the ledger with the given
     product_name under the CreatorID of the creator that submits the
     product creation request. The results will return the chaincode-generated Product

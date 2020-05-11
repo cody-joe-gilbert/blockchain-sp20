@@ -25,14 +25,14 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 		return shim.Error("Transaction invoker Creator ID not found in ecert attributes")
 	}
 
-	if len(txn.Args) != 2 {
-		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {CreatorId, ProductName}. Found %d", len(txn.Args)))
+	if len(txn.Args) != 1 {
+		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {ProductName}. Found %d", len(txn.Args)))
 		return shim.Error(err.Error())
 	}
 
 	// check for valid Creator
-	creator, err := utils.GetCreatorRecord(stub, txn.Args[0])
-	if err != nil {
+	_, err = utils.GetCreatorRecord(stub, txn.CreatorId)
+	if !txn.TestMode && err != nil {
 		return shim.Error(err.Error())
 	}
 	// Get a unique key
@@ -42,8 +42,8 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 	}
 
 	rawProduct := &utils.Product{Id: id,
-		CreatorId: creator.Id,
-		ProductName: txn.Args[1],
+		CreatorId: txn.CreatorId,
+		ProductName: txn.Args[0],
 		TotalListens: int64(0),
 		UnRenumeratedListens: int64(0),
 		TotalMetrics: int64(0),
@@ -51,16 +51,14 @@ func AddProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Res
 		AdditionalMetrics: int64(0),
 		IsActive: true}
 
-	fmt.Println("New Product -> ProductId:" + rawProduct.Id + " CreatorId:" + rawProduct.CreatorId + " ProductName:" + rawProduct.ProductName)
-
 	err = utils.SetProduct(stub, rawProduct) //tbd SetProduct
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 	fmt.Println("Product created successfully with the following attributes :")
-	fmt.Println("ProductId: " + id)
-	fmt.Println("ProductName: " + txn.Args[1])
-	fmt.Println("CreatorID: " + txn.Args[0])
+	fmt.Printf("ProductId : %s", id)
+	fmt.Printf("ProductName : %s", txn.Args[0])
+	fmt.Printf("CreatorID : %s", txn.CreatorId)
 
 	return shim.Success([]byte(id))
 }
@@ -91,7 +89,7 @@ func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 	}
 
 	// check for valid Product and verify Creator owns Product
-	product, err := utils.GetProduct(stub, productId)
+	product, err := utils.GetProduct(stub, txn.Args[1])
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -140,7 +138,7 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 	var err error
 
 	// Access control: Only appdev org can invoke this transaction
-	if !txn.TestMode && !(utils.AuthenticateAppDev(txn) || utils.AuthenticateBeatchainAdmin(txn)) {
+	if !txn.TestMode && !utils.AuthenticateAppDev(txn) {
 		return shim.Error("Caller not a member of appdev org.")
 	}
 
@@ -148,20 +146,20 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 		return shim.Error("Transaction invoker AppDev ID not found in ecert attributes")
 	}
 
-	if len(txn.Args) != 2 {
-		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {AppDevId, subscriptionFee}. Found %d", len(txn.Args)))
+	if len(txn.Args) != 1 {
+		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 1: {subscriptionFee}. Found %d", len(txn.Args)))
 		return shim.Error(err.Error())
 	}
 
-	subscriptionFee, err := strconv.ParseFloat(txn.Args[1], 32)
+	subscriptionFee, err := strconv.ParseFloat(txn.Args[0], 32)
 	if err != nil {
 		err = errors.New(fmt.Sprintf("Cannot parse given subscriptionFee to float32: %s", txn.Args[0]))
 		return shim.Error(err.Error())
 	}
 
 	// check for valid AppDev
-	_, err = utils.GetAppDevRecord(stub, txn.Args[0])
-	if err != nil {
+	_, err = utils.GetAppDevRecord(stub, txn.CreatorId)
+	if !txn.TestMode && err != nil {
 		fmt.Printf("Cannot find AppDevRecord with ID %s", txn.CreatorId)
 		return shim.Error(err.Error())
 	}
@@ -184,7 +182,7 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 
 	rawCustomer := &utils.CustomerRecord{
 		Id: id,
-		AppDevId: txn.Args[0],
+		AppDevId: txn.CreatorId,
 		BankAccountId: bankAccountId,
 		SubscriptionFee: float32(subscriptionFee),
 		SubscriptionDueDate: subscriptionDueDate,
@@ -201,42 +199,42 @@ func AddCustomerRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction)
 	return shim.Success([]byte(id))
 }
 
-//func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
-//	var id string
-//	var err error
-//
-//	// Org-based Access control not needed as all orgs access this function
-//
-//	// Check for admin rights
-//	if !txn.CreatorAdmin {
-//		err := errors.New(fmt.Sprint("access denied: function requires admin privileges"))
-//		return shim.Error(err.Error())
-//	}
-//
-//	if len(txn.Args) != 1 {
-//		err := errors.New(fmt.Sprintf("Expecting 0 arguments. Found %d", len(txn.Args)))
-//		return shim.Error(err.Error())
-//	}
-//
-//
-//	// Get a unique key
-//	id, err = utils.GetUniqueId(stub, txn)
-//	if err != nil {
-//		return shim.Error(err.Error())
-//	}
-//
-//	// All BAs initialized to $0.00 to prevent money creation via account creation
-//	rawBankAccount := &utils.BankAccount{Id: id, Balance: 0.00, InUse: false}
-//
-//	err = utils.SetBankAccount(stub, rawBankAccount)
-//	if err != nil {
-//		return shim.Error(err.Error())
-//	}
-//
-//	fmt.Printf("Bank Account successfully created with id: %s", id)
-//
-//	return shim.Success([]byte(id))
-//}
+func CreateNewBankAccount(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	var id string
+	var err error
+
+	// Org-based Access control not needed as all orgs access this function
+
+	// Check for admin rights
+	if !txn.CreatorAdmin {
+		err := errors.New(fmt.Sprint("access denied: function requires admin privileges"))
+		return shim.Error(err.Error())
+	}
+
+	if len(txn.Args) != 1 {
+		err := errors.New(fmt.Sprintf("Expecting 0 arguments. Found %d", len(txn.Args)))
+		return shim.Error(err.Error())
+	}
+
+
+	// Get a unique key
+	id, err = utils.GetUniqueId(stub, txn)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	// All BAs initialized to $0.00 to prevent money creation via account creation
+	rawBankAccount := &utils.BankAccount{Id: id, Balance: 0.00, InUse: false}
+
+	err = utils.SetBankAccount(stub, rawBankAccount)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	fmt.Printf("Bank Account successfully created with id: %s", id)
+
+	return shim.Success([]byte(id))
+}
 
 func AddCreatorRecord(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var id string

@@ -44,7 +44,7 @@ async def register_user(org_name: str, request: constants.RegisterUserRequest) -
                                        enrollmentSecret=request.user_password,
                                        role=request.role,
                                        affiliation=request.affiliation,
-                                       attrs=request.attrs)
+                                       attrs=[dict(x) for x in request.attrs])
 
     return secret
 

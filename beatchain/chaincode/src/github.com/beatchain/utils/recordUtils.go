@@ -283,18 +283,18 @@ func GetProduct(stub shim.ChaincodeStubInterface, productId string) (*Product, e
 	// Create the record key
 	productKey, err = GetProductKey(stub, productId)
 	if err != nil {
-		return product, err
+		return nil, err
 	}
 
 	// Pull the record bytes from the ledger
 	productBytes, err = stub.GetState(productKey)
 	if err != nil {
-		return product, err
+		return nil, err
 	}
 
 	if len(productBytes) == 0 {
 		err = errors.New(fmt.Sprintf("No record found for product.ID %s", productId))
-		return product, err
+		return nil, err
 	}
 
 	// Unmarshal the JSON
@@ -453,6 +453,8 @@ func GetContract(stub shim.ChaincodeStubInterface, creatorId string, appDevId st
 		return contract, err
 	}
 
+	fmt.Println("GetContractKey:" + contractKey)
+
 	// Pull the record bytes from the ledger
 	contractBytes, err = stub.GetState(contractKey)
 	if err != nil {
@@ -494,6 +496,8 @@ func SetContract(stub shim.ChaincodeStubInterface, contract *Contract) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("SetContractKey:" + contractKey)
 
 	// marshal the struct to JSON
 	contractBytes, err = json.Marshal(contract)

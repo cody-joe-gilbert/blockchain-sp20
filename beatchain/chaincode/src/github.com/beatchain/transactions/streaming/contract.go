@@ -19,11 +19,13 @@ var ContractVariable = "contractVariable"
 // Julian: This should be something handled through identity management. I'm also not sure how to do it.
 func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
+	//var creator *utils.CreatorRecord
+	//var product *utils.Product
 
 	// Access control: Only an AppDev Org member can invoke this transaction
-	//if !utils.AuthenticateAppDev(txn) {
-	//	return shim.Error("Caller not a member of AppDev Org. Access denied.")
-	//}
+	if !txn.TestMode && !(utils.AuthenticateAppDev(txn) || utils.AuthenticateBeatchainAdmin(txn)) {
+		return shim.Error("Caller not a member of AppDev/Admin Org. Access denied.")
+	}
 
 	args := txn.Args
 	if len(args) != 4 {
@@ -40,27 +42,30 @@ func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 	}
 
 	// check for valid AppDev
-	_, err = utils.GetAppDevRecord(stub, txn.Args[0])
+	_, err = utils.GetAppDevRecord(stub, appDevId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	// check for valid Creator
-	creator, err := utils.GetCreatorRecord(stub, txn.Args[1])
+	_, err = utils.GetCreatorRecord(stub, creatorId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	// check for valid Product and verify Creator owns Product
-	product, err := utils.GetProduct(stub, txn.Args[2])
+	// check for valid Product
+	_, err = utils.GetProduct(stub, productId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	if creator.Id != product.CreatorId {
-		err = errors.New(fmt.Sprintf("Creator does not match Product. Creator: "  + creator.Id + " Product's Creator: " + product.CreatorId) + " productID: " + product.Id)
-		return shim.Error(err.Error())
-	}
+	//fmt.Println("CreatorId:" + creator.Id + " BankId:" + creator.BankAccountId)
+	//fmt.Println("ProductId:" + product.Id + " CreatorId:" + product.CreatorId + " productName:" + product.ProductName)
+
+	//if creator.Id != product.CreatorId {
+	//	err = errors.New(fmt.Sprintf("Creator does not match Product. Creator: "  + creator.Id + " Product's Creator: " + product.CreatorId) + " productID: " + product.Id)
+	//	return shim.Error(err.Error())
+	//}
 
 	raw_contract := &utils.Contract{CreatorId: creatorId, AppDevId: appDevId, ProductId: productId, CreatorPayPerStream: float32(creatorPayPerStream), Status: transactions.REQUESTED}
 	err = utils.SetContract(stub, raw_contract)
@@ -68,14 +73,14 @@ func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte(transactions.REQUESTED))
 }
 
 func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 
 	// Access control: Only an Creator Org member can invoke this transaction
-	if !utils.AuthenticateCreator(txn) {
+	if !txn.TestMode && !(utils.AuthenticateCreator(txn) || utils.AuthenticateBeatchainAdmin(txn)) {
 		return shim.Error("Caller not a member of Creator Org. Access denied.")
 	}
 
@@ -94,21 +99,26 @@ func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb
 		return shim.Error(err.Error())
 	}
 
-	contract.Status = transactions.ACCEPTED
+	if contract.Status == transactions.REQUESTED {
+		contract.Status = transactions.ACCEPTED
+	} else {
+		err = errors.New(fmt.Sprintf("Contract has already been finalized."))
+		return shim.Error(err.Error())
+	}
 
 	err = utils.SetContract(stub, contract)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte(transactions.ACCEPTED))
 }
 
 func RejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 	var err error
 
 	// Access control: Only an Creator Org member can invoke this transaction
-	if !utils.AuthenticateCreator(txn) {
+	if !txn.TestMode && !(utils.AuthenticateCreator(txn) || utils.AuthenticateBeatchainAdmin(txn)) {
 		return shim.Error("Caller not a member of Creator Org. Access denied.")
 	}
 
@@ -127,12 +137,18 @@ func RejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb
 		return shim.Error(err.Error())
 	}
 
-	contract.Status = transactions.REJECTED
+	if contract.Status == transactions.REQUESTED {
+		contract.Status = transactions.REJECTED
+	} else {
+		err = errors.New(fmt.Sprintf("Contract has already been finalized."))
+		return shim.Error(err.Error())
+	}
+
 
 	err = utils.SetContract(stub, contract)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte(transactions.REJECTED))
 }

@@ -16,6 +16,7 @@ class InvokeFunctions(str, Enum):
     OfferContract = "OfferContract"
     AcceptContract = "AcceptContract"
     RejectContract = "RejectContract"
+    RequestSong = "RequestSong"
 
 class QueryFunctions(str, Enum):
     """
@@ -92,6 +93,7 @@ class InvokeRequest(BaseModel):
 class AddProductRequest(BaseModel):
     user_name: str
     user_password: str
+    creator_id: str
     product_name: str
 
 class AddUserRecordRequest(BaseModel):

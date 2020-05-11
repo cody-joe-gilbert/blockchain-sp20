@@ -262,3 +262,30 @@ func FetchTestProductRecord(t *testing.T, stub *shim.MockStub, id string,) *Prod
 
 	return record
 }
+
+func FetchTestContractRecord(t *testing.T, stub *shim.MockStub, creatorId string, appDevId string, productId string) *Contract {
+	var recordBytes []byte
+	var record *Contract
+	var key string
+	var err error
+
+	key, err = stub.CreateCompositeKey(KEY_OBJECT_FORMAT, []string{CONTRACT_KEY_PREFIX, creatorId, appDevId, productId})
+	if err != nil {
+		fmt.Println("Cannot create key from id: ", creatorId, appDevId, productId)
+		t.FailNow()
+	}
+
+	recordBytes, err = stub.GetState(key)
+	if err != nil {
+		fmt.Println("Cannot find record for key: ", key)
+		t.FailNow()
+	}
+
+	err = json.Unmarshal(recordBytes, &record)
+	if err != nil {
+		fmt.Println("Cannot unmarshal record for key: ", key)
+		t.FailNow()
+	}
+
+	return record
+}

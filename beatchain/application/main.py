@@ -232,7 +232,7 @@ async def add_creator(req: constants.AddUserRecordRequest):
             user_name=req.user_name,
             user_password=req.user_password,
             role='client',
-            attrs=[{'id': str(creator_id)}])
+            attrs=[{'name':'id', 'value': str(creator_id)}])
         secret = await access_utils.register_user('creatororg.beatchain.com',
                                                   register_req)
     except Exception as e:
@@ -299,7 +299,7 @@ async def add_appdev(req: constants.AddUserRecordRequest,
             user_name=req.user_name,
             user_password=req.user_password,
             role='client',
-            attrs=[{'id': str(appdev_id)}])
+            attrs=[{'name':'id', 'value': str(appdev_id)}])
         secret = await access_utils.register_user('appdevorg.beatchain.com',
                                                   register_req)
     except Exception as e:
@@ -366,7 +366,7 @@ async def add_customer(req: constants.AddUserRecordRequest,
             user_name=req.user_name,
             user_password=req.user_password,
             role='client',
-            attrs=[{'id': str(customer_id)}])
+            attrs=[{'name':'id', 'value': str(customer_id)}])
         secret = await access_utils.register_user('customerorg.beatchain.com',
                                                   register_req)
     except Exception as e:

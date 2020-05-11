@@ -150,6 +150,19 @@ func TestAddFunctions(t *testing.T) {
 }
 
 
+func TestContractFunctions(t *testing.T) {
+	//var id *string
+	var contract *utils.Contract
+	_, stub := beatchain_init(t)
+
+	_ = utils.ExecInvoke(t, stub, "OfferContract", []string{utils.TEST_APPDEV_ID, utils.TEST_CREATOR_ID, utils.TEST_PRODUCT_ID, "0.02"})
+	contract = utils.FetchTestContractRecord(t, stub, utils.TEST_CREATOR_ID, utils.TEST_APPDEV_ID, utils.TEST_PRODUCT_ID)
+	fmt.Printf("Contract: %+v\n", contract)
+
+	_ = utils.ExecInvoke(t, stub, "AcceptContract", []string{utils.TEST_CREATOR_ID, utils.TEST_PRODUCT_ID, utils.TEST_APPDEV_ID})
+	contract = utils.FetchTestContractRecord(t, stub, utils.TEST_CREATOR_ID, utils.TEST_APPDEV_ID, utils.TEST_PRODUCT_ID)
+	fmt.Printf("Contract: %+v\n", contract)
+}
 
 
 

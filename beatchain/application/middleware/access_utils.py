@@ -84,7 +84,7 @@ def enroll_user(hf_client: hfc.fabric.Client,
         return user
 
     casvc = ca_service(target=ca_info['url'])
-    user_enrollment = casvc.enroll(user_name, user_password)
+    user_enrollment = casvc.enroll(user_name, user_password, attr_reqs=[{'name': 'id', 'optional': True}])
 
     # Store credentials in file kvs wallet; will be stored in ./tmp/hfc-kvs
     user_identity = wallet.Identity(user_name, user_enrollment)

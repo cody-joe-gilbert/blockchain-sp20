@@ -18,6 +18,8 @@ var ContractVariable = "contractVariable"
 // Arun : Can we create a password asset or something like that?
 // Julian: This should be something handled through identity management. I'm also not sure how to do it.
 func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
+	var creator *utils.CreatorRecord
+	var product *utils.Product
 	var err error
 
 	// Access control: Only an AppDev Org member can invoke this transaction
@@ -34,6 +36,7 @@ func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 	appDevId := txn.Args[0]
 	creatorId := txn.Args[1]
 	productId := txn.Args[2]
+
 	creatorPayPerStream, err := strconv.ParseFloat(txn.Args[3], 32)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -46,13 +49,13 @@ func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 	}
 
 	// check for valid Creator
-	creator, err := utils.GetCreatorRecord(stub, txn.Args[1])
+	creator, err = utils.GetCreatorRecord(stub, txn.Args[1])
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	// check for valid Product and verify Creator owns Product
-	product, err := utils.GetProduct(stub, txn.Args[2])
+	product, err = utils.GetProduct(stub, txn.Args[2])
 	if err != nil {
 		return shim.Error(err.Error())
 	}

@@ -129,7 +129,7 @@ type Product struct {
 	*/
 
 	Id                   string `json:"id"`
-	CreatorId            string `json:"id"`
+	CreatorId            string `json:"creatorid"`
 	ProductName          string `json:"productName"`
 	TotalListens         int64  `json:"totalListens"`
 	UnRenumeratedListens int64  `json:"unRenumeratedListens"`

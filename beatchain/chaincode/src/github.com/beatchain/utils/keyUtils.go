@@ -27,6 +27,7 @@ func GetUniqueId(stub shim.ChaincodeStubInterface, txn *Transaction) (string, er
 
 		// Convert to string
 		strId = string(byteId)
+		fmt.Println("strId:" + strId)
 
 		// convert to int
 		intId, err = strconv.ParseInt(strId, 10, 64)

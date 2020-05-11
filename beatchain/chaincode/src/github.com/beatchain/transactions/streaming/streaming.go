@@ -23,21 +23,27 @@ var StreamingVariable = "streaming"
 func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
 
 	// Access control: Only an Customer Org member can invoke this transaction
-	if !utils.AuthenticateCustomer(txn) {
+	if !txn.TestMode && !(utils.AuthenticateCustomer(txn) || utils.AuthenticateBeatchainAdmin(txn)) {
 		return shim.Error("Caller not a member of Customer Org. Access denied.")
 	}
 
 	args := txn.Args
-	if len(args) != 3 {
-		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 3: {CustomerID, AppDevID, ProductID}. Found %d", len(args)))
+	if len(args) != 4 {
+		err := errors.New(fmt.Sprintf("Incorrect number of arguments. Expecting 4: {CustomerId, AppDevId, CreatorId, ProductID}. Found %d", len(args)))
 		return shim.Error(err.Error())
 	}
 
-	customerID := txn.Args[0]
+	customerId := txn.Args[0]
 	appDevId := txn.Args[1]
-	productId := txn.Args[2]
+	creatorId := txn.Args[2]
+	productId := txn.Args[3]
 
-	customer, err := utils.GetCustomerRecord(stub, customerID)
+	customer, err := utils.GetCustomerRecord(stub, customerId)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	_, err = utils.GetCreatorRecord(stub, creatorId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -52,14 +58,12 @@ func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Re
 		return shim.Error(err.Error())
 	}
 
-	contract, err := utils.GetContract(stub, product.CreatorId, appDevId, productId)
+	contract, err := utils.GetContract(stub, appDevId, creatorId, productId)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
 	if customer.SubscriptionDueDate.After(time.Now()) && customer.AppDevId == appDevId && contract.CreatorId == product.CreatorId {
-		product.UnRenumeratedListens += 1
-		product.TotalListens += 1
 
 		customer.PreviousSong = customer.QueuedSong
 		customer.QueuedSong = productId

@@ -114,7 +114,7 @@ async def inst_code_request(req: constants.CreateAppRequest,
 async def creation_request(req: constants.CreateAppRequest,
                            background_tasks: BackgroundTasks,
                            org_name: constants.OrgNames = Query(..., title="Organization Name"),
-                           test_mode: bool = Query(False, title="Debug Initialization Mode Flag")):
+                           test_mode: bool = Query(True, title="Debug Initialization Mode Flag")):
     """
     Submits a request to bootstrap the application on the
     HF network.
@@ -318,6 +318,7 @@ async def add_appdev(req: constants.AddUserRecordRequest,
 
 @app.post('/admin/customer/add_customer')
 async def add_customer(req: constants.AddUserRecordRequest,
+                        appdev_id: int = Query(..., title="AppDev Id"),
                        subscription_fee: float = Query(..., title="Subscription Fee")
                        ):
     """
@@ -340,7 +341,10 @@ async def add_customer(req: constants.AddUserRecordRequest,
                                            req.admin_password,
                                            constants.channel_name,
                                            function='AddCustomerRecord',
-                                           args=[str(round(subscription_fee, 3))])
+                                           args=[
+                                           str(appdev_id),
+                                           str(round(subscription_fee, 3))
+                                           ])
     except Exception as e:
         content = {'Status': 'Failed to add Customer to ledger',
                    'ID': None,
@@ -402,7 +406,7 @@ async def add_product(req: constants.AddProductRequest):
                                            req.user_password,
                                            constants.channel_name,
                                            function='AddProduct',
-                                           args=[req.product_name])
+                                           args=[req.creator_id, req.product_name])
     except Exception as e:
         content = {'Status': 'Product Creation failed',
                    'ID': None,

@@ -83,5 +83,5 @@ func TransferFunds(stub shim.ChaincodeStubInterface, transaction *utils.Transact
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }

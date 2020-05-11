@@ -132,5 +132,5 @@ func RenewSubscription(stub shim.ChaincodeStubInterface, transaction *utils.Tran
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }

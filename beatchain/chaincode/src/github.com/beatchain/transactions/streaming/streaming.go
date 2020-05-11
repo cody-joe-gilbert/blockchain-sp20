@@ -77,5 +77,5 @@ func RequestSong(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Re
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }

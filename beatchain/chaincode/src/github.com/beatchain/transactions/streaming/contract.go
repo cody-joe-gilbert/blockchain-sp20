@@ -71,7 +71,7 @@ func OfferContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }
 
 func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
@@ -104,7 +104,7 @@ func AcceptContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }
 
 func RejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.Response {
@@ -137,5 +137,5 @@ func RejectContract(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }

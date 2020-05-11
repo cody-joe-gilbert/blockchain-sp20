@@ -108,7 +108,7 @@ func DeleteProduct(stub shim.ChaincodeStubInterface, txn *utils.Transaction) pb.
 
 	fmt.Printf("Product with id %s has been successfully deleted", productId)
 
-	return shim.Success(nil)
+	return shim.Success([]byte("SUCCESS"))
 }
 
 func createNewBankAccHelper(stub shim.ChaincodeStubInterface, txn *utils.Transaction) (string, error) {
